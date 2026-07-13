@@ -1,0 +1,40 @@
+# ── Secretos (NUNCA subir) ──────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── Datos locales (usuarios reales, hashes de contraseñas) ──
+07_MVP/backend/softinsight.db
+07_MVP/backend/data_store/
+07_MVP/backend/app/prompts.json
+
+# ── Python ──────────────────────────────────────────────
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# ── Node / frontend ─────────────────────────────────────
+node_modules/
+dist/
+*.tsbuildinfo
+vite.config.ts.timestamp-*
+vite.e2e.config.mjs.timestamp-*
+
+# ── Material interno de negocio (no va al repo) ─────────
+01_Estrategia/
+02_Validacion/
+03_Producto/
+04_GoToMarket/
+05_Financiero/
+06_Timeline/
+ESTADO_ACTUAL_JULIO_2026.md
+PROMPT_FABLE5_DESARROLLO.md
+SoftInsight_Presentacion.pptx
+07_MVP/PROMPT_FABLE_SESION2.md
+
+# ── macOS / editores ────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/

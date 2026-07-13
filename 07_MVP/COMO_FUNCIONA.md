@@ -1,0 +1,380 @@
+# SoftInsight v1.1 — Cómo funciona, por dentro y por fuera
+
+Este documento explica en detalle la arquitectura de SoftInsight v1.1: qué hace cada pieza, qué decisiones técnicas se tomaron y por qué, dónde viven los datos, y cómo fluye la información desde que un usuario importa sus datos hasta que descarga un PDF de auditoría. Está pensado para que cualquiera del equipo (técnico o no) entienda el producto de forma cabal.
+
+**Qué cambió respecto de v1.0:** la base de datos ahora es MongoDB (antes SQLite), el frontend está organizado por features con hooks reutilizables, el informe cualitativo muestra progreso real durante su generación (streaming), hay 12 plantillas de marcos teóricos en 5 industrias (antes 3, solo educación), y se puede crear un proyecto importando directamente desde Qualtrics o Google Forms.
+
+---
+
+## 1. Visión general en un párrafo
+
+SoftInsight es una aplicación web con dos partes: un **backend** en Python (FastAPI) que expone una API REST y hace todo el trabajo pesado (guardar datos, analizar texto, hablar con Claude, generar reportes), y un **frontend** en React/TypeScript que es la interfaz que ve el usuario en su navegador. El navegador nunca habla directamente con Claude ni toca la base de datos: todo pasa por la API del backend, y cada petición viaja con un token que identifica al usuario. Esa separación es la que permite auditar todo: cualquier decisión —humana o de IA— pasa por un punto central que la registra.
+
+```
+Navegador (React)  ⇄  API REST (FastAPI)  ⇄  MongoDB (datos)
+                              ⇅                    ⇅
+                       Claude API (Anthropic)   Qualtrics / Google Sheets
+                                                (importación puntual)
+```
+
+---
+
+## 2. El stack y por qué se eligió cada pieza
+
+| Pieza | Tecnología | Por qué |
+| --- | --- | --- |
+| Backend | Python + FastAPI | FastAPI valida datos automáticamente y genera documentación de la API en `/docs`. Python es el lenguaje natural para análisis de texto. |
+| Base de datos | **MongoDB vía pymongo** | El modelo de datos ya era documental (cada proyecto es un documento). Mongo es su hogar natural: actualizaciones parciales (`$set`/`$push`), índices en campos anidados, y sin el workaround de "JSON en columna relacional". Local hoy, **Atlas mañana cambiando solo `MONGODB_URI`**. |
+| Autenticación | JWT propio (PyJWT) + PBKDF2 | Sin dependencias de servicios externos para la beta. Estándar de la industria. |
+| IA | Claude API (Anthropic) | Todo el contacto con la IA pasa por **un solo archivo** (`services/thematic.py`), así el proveedor es intercambiable. El informe usa la **API de streaming** para reportar progreso real. |
+| Integraciones | `services/integrations/` | Interfaz común: cada fuente entrega un DataFrame de pandas, el mismo formato que un archivo subido. Agregar fuentes futuras es trivial. |
+| Cifrado de credenciales | Fernet (cryptography) | El API Token de Qualtrics se guarda cifrado (clave derivada de `SECRET_KEY`); nunca viaja al navegador. |
+| Reportes PDF | reportlab + matplotlib | Control total del layout (portada, tablas, pie de página); matplotlib genera el gráfico de frecuencias. |
+| Reportes Word | python-docx | Genera un .docx real y editable, para que la organización agregue sus conclusiones. |
+| Frontend | React 18 + TypeScript + Vite | TypeScript detecta errores antes de ejecutar; Vite recarga al instante. Se evaluó Next.js y se descartó: es una SPA detrás de login, sin SEO ni SSR que lo justifique. |
+| Rutas | react-router-dom | URLs reales, botón atrás del navegador, protección de páginas por sesión. |
+| Estilos | CSS propio (sin framework) | Un solo archivo (`globals.css`) define la paleta y los componentes; coherente y liviano. |
+
+---
+
+## 3. Dónde viven los datos (esto es lo más importante)
+
+Todos los datos están **en tu computador**, en el MongoDB local (`mongodb://localhost:27017/softinsight`). Nada se sube a servidores externos, salvo (a) los textos que se envían a la API de Claude cuando pides análisis temático, y (b) las llamadas a Qualtrics/Google cuando importas datos.
+
+```
+MongoDB (base "softinsight")
+├── users            ← cuentas: email, hash de contraseña, credenciales cifradas de integraciones
+├── projects         ← EL DOCUMENTO COMPLETO de cada proyecto (respuestas, categorías,
+│                       codificaciones, audit_log, informe...)
+└── audit_events     ← copia plana del log de auditoría, consultable por proyecto/actor
+
+07_MVP/backend/
+├── .env                     ← Secretos: API key de Anthropic, SECRET_KEY. NUNCA subir a git.
+├── app/prompts.json         ← Los prompts "vivos" que usa Claude (editables desde la UI).
+├── app/prompts_default.json ← Copia de fábrica de los prompts (para restaurar).
+├── softinsight.db           ← Base SQLite de la v1.0 (solo como fuente de migración).
+└── scripts/migrate_sqlite_to_mongo.py  ← migración v1.0 → v1.1, idempotente.
+```
+
+### 3.1 Las colecciones por dentro
+
+**`users`** — un documento por cuenta:
+
+| campo | contenido |
+| --- | --- |
+| _id | identificador tipo `usr_a1b2c3d4e5` |
+| email | único (índice único en Mongo), en minúsculas |
+| password_hash | la contraseña **nunca se guarda en texto plano** (ver sección 4) |
+| nombre, empresa | datos de perfil |
+| integrations | credenciales de integraciones **cifradas** (ej: `integrations.qualtrics.token_enc`) |
+
+**`projects`** — un documento por proyecto, con `_id` = id del proyecto y `user_id` como clave del multi-tenant (indexado). El documento es el proyecto completo:
+
+```json
+{
+  "_id": "proj_...", "id": "proj_...", "user_id": "usr_...",
+  "name": "Evaluación Docente 2026-1",
+  "marco_teorico": "Modelo de competencias docentes...",
+  "text_column": "respuesta",
+  "responses":  [ {"id": "R0001", "text": "...", "meta": {...}}, ... ],
+  "lexical":    { "top_terms": [...], "sentiment_by_response": {...} },
+  "categories": [ {"id": "cat_...", "nombre": "...", "status": "validada",
+                   "criterios_inclusion": "...", "comments": [...]}, ... ],
+  "codings":    { "R0001": [ {"category_id": "cat_...", "rationale": "...",
+                              "confidence": 0.88, "source": "claude"} ], ... },
+  "audit_log":  [ {"timestamp": "...", "actor": "claude", "action": "...", "detail": {...}} ],
+  "qualitative_report": "RESUMEN INTERPRETATIVO\n\n..."
+}
+```
+
+**`audit_events`** — copia plana del audit log (consultable por `project_id`, indexado), además del registro canónico que vive dentro del proyecto.
+
+### 3.2 Decisión clave: documento + actualizaciones parciales
+
+En v1.0 el proyecto vivía como JSON dentro de una columna de SQLite y **cada guardado reescribía el documento completo**. En v1.1 el documento es nativo de Mongo y las operaciones puntuales son quirúrgicas:
+
+| Operación | Antes (v1.0) | Ahora (v1.1) |
+| --- | --- | --- |
+| Validar/editar una categoría | reescribir todo el proyecto | `$set` sobre esa categoría (operador posicional) |
+| Agregar categoría o comentario | reescribir todo | `$push` al array correspondiente |
+| Re-codificar una respuesta | reescribir todo | `$set` de `codings.R0001` |
+| Evento de auditoría | reescribir todo | `$push` a `audit_log` + insert en `audit_events` |
+| Resultado de la codificación masiva | reescribir todo | un `$set` con todas las claves de `codings` |
+| Guardar informe | reescribir todo | `$set` de `qualitative_report` |
+
+Beneficio concreto: agregar un comentario ya no reescribe las 320 respuestas, y la codificación (que corre en un hilo durante minutos) ya no pisa los comentarios o categorías que el analista agregue mientras tanto.
+
+`save_project` (documento completo) sigue existiendo para lo que corresponde: creación del proyecto e importación de proyectos antiguos.
+
+### 3.3 Aislamiento entre cuentas (multi-tenant)
+
+Cada consulta a Mongo filtra por dueño. El filtro central es:
+
+```python
+def _tenant_filter(project_id, user_id):
+    return {"_id": project_id, "user_id": user_id}
+```
+
+Si el usuario B intenta abrir un proyecto del usuario A (aunque adivine la URL), recibe "Proyecto no encontrado" — el sistema ni confirma que exista. Verificado con pruebas automáticas de acceso cruzado sobre lectura, escritura, exportación, borrado y progreso (`backend/tests/`).
+
+---
+
+## 4. Autenticación paso a paso
+
+### Registro (signup)
+
+1. El usuario llena el formulario (email, contraseña ≥ 8 caracteres, nombre, organización).
+2. El backend verifica que el email no exista (más un índice **único** en Mongo que cubre cualquier carrera).
+3. La contraseña se transforma con **PBKDF2-HMAC-SHA256**: sal aleatoria única y 200.000 iteraciones. El resultado (`pbkdf2$200000$sal$hash`) es lo único que se guarda.
+4. Se crea el documento en `users` y se emite un **token JWT**.
+
+### El token JWT
+
+Texto firmado criptográficamente que dice "soy el usuario `usr_xyz`, válido hasta tal fecha". Se firma con la `SECRET_KEY` del `.env` y **expira a los 7 días**. El frontend lo guarda en `localStorage` y lo adjunta en cada petición como header `Authorization: Bearer <token>`.
+
+### En cada petición
+
+Todos los endpoints de proyectos declaran la dependencia `get_current_user`, que verifica firma y expiración (si falla → 401 y el frontend redirige a `/login`) y carga el usuario desde Mongo. No hay forma de llegar a datos de proyecto sin pasar por esta puerta.
+
+### Logout
+
+Se borra el token del navegador. (Sin lista de revocación en servidor; suficiente para la beta.)
+
+---
+
+## 5. El flujo de análisis completo, de principio a fin
+
+### Paso 0 — Crear proyecto (tres orígenes)
+
+El proyecto nace de un **DataFrame de pandas**, venga de donde venga — esa es la decisión de diseño que hizo triviales las integraciones:
+
+1. **Subir archivo** (CSV/XLSX): el backend lo lee con pandas.
+2. **Qualtrics**: con las credenciales cifradas del usuario, el backend usa la API oficial de exportación (iniciar export → poll → descargar ZIP con CSV) y produce el mismo DataFrame.
+3. **Google Forms**: el usuario pega la URL de la planilla de respuestas (compartida como "cualquiera con el enlace puede ver"); el backend la descarga como CSV. *Decisión documentada: OAuth completo de Google queda para el futuro; esta vía cubre la importación puntual sin fricción de configuración.*
+
+En los tres casos: si no se indica columna de texto se usa la heurística de **mayor largo promedio**; cada fila se convierte en una respuesta con ID estable; la plantilla elegida crea marco + categorías base; y todo queda auditado (`creacion_proyecto` con la fuente, más `importacion_qualtrics`/`importacion_google_forms` con encuesta/planilla y n° de respuestas).
+
+### Paso 1 — Análisis léxico (Capa 1, sin IA generativa)
+
+`services/lexical.py` calcula de forma **determinística**: frecuencias (sin stopwords), bigramas, co-ocurrencias, y sentimiento por lexicón con evidencia palabra por palabra. Corre en segundos y no consume API. Al final, una llamada opcional a Claude redacta una interpretación breve; sin API key, el análisis numérico queda igual.
+
+### Paso 2 — Libro de códigos (la IA propone, el humano decide)
+
+- "Proponer categorías con IA": marco teórico + muestra de 60 respuestas → Claude devuelve categorías con nombre, definición, **criterios de inclusión y exclusión** y ejemplo. Entran con estado **`propuesta`**.
+- Alternativa: aplicar una **plantilla** (selector agrupado por industria).
+- El analista valida, descarta, edita, crea categorías manuales (entran validadas) y deja comentarios 💬.
+- **La codificación solo usa categorías `validada`**. Incluso las de plantilla entran como `propuesta`: la validación humana es parte del método.
+
+### Paso 3 — Codificación del corpus
+
+Lotes de 25 respuestas contra el libro validado. Cada asignación: categoría(s), **justificación** y **confianza** (0.0–1.0). Corre en un **hilo en segundo plano** con barra de progreso (polling cada 2 s). El resultado se guarda con un `$set` masivo de `codings` que no pisa lo que el analista haya editado mientras tanto. Re-codificación manual → `source: "analista"`, confianza 1.0, y el antes/después va a la auditoría.
+
+**Sobre la confianza:** es la autoestimación del modelo, no un p-valor. Su uso correcto es **priorizar revisión humana** (verde ≥ 0.85, naranja 0.60–0.84, rojo < 0.60), nunca filtrar datos automáticamente.
+
+### Paso 4 — Trazabilidad
+
+La vista plana de todo lo anterior: respuesta → categoría → justificación → confianza → fuente → estado, con filtros y búsqueda. El argumento de auditoría ante CNA/CNE o cualquier auditor externo.
+
+### Paso 5 — Informe cualitativo (ahora con progreso real)
+
+Una llamada grande a Claude con el prompt `qualitative_report`. **Novedad v1.1:** corre en un hilo y usa la **API de streaming** de Anthropic. El endpoint `GET /report/progress` expone el avance real —caracteres efectivamente recibidos del modelo y la **sección que está redactando** (detectada de los títulos en mayúsculas del texto que va llegando)— y el frontend muestra la misma barra de progreso que la codificación. No es un spinner falso: si el stream se detiene, la barra se detiene.
+
+### Paso 6 — Exportación
+
+`services/export.py` genera **en memoria**: **PDF** (portada → resumen ejecutivo → informe cualitativo → análisis léxico con gráfico → libro de códigos con ejemplos → tabla de trazabilidad opcional → nota metodológica), **Word** editable, **CSV** (BOM UTF-8) y **Excel** (2 hojas). La descarga viaja autenticada.
+
+---
+
+## 6. Los prompts son configurables (y por qué importa)
+
+Los 4 prompts (`propose_categories`, `codify`, `interpret_lexical`, `qualitative_report`) viven en `app/prompts.json` y se editan desde la UI (Configuración → Configuración metodológica, contraseña `ADMIN_PASSWORD`). Cambios en vivo, sin reiniciar. La "metodología" de SoftInsight es ajustable por el sociólogo del equipo sin tocar código, y afinable por vertical a medida que llegue feedback.
+
+---
+
+## 7. Plantillas de marcos teóricos: 12 en 5 industrias
+
+`app/templates.py` trae 12 plantillas escritas a mano, cada una con marco teórico + 4–5 categorías con definición y criterios de inclusión **y exclusión** (los criterios de exclusión son lo que hace precisa a la codificación IA: le dicen al modelo dónde termina una categoría y empieza la vecina).
+
+| Industria | Plantillas |
+| --- | --- |
+| **Educación Superior** | Evaluación Docente (CNA) · Satisfacción Estudiantil · Acreditación Institucional (CNA, Ley 21.091) |
+| **Estudios de Mercado** | Satisfacción de Clientes (verbatims NPS) · Percepción de Marca · Investigación de Producto/Concepto |
+| **Organizaciones y B2B** | Clima y Cultura Organizacional · Feedback de Empleados (pulso/salida) · Voz del Cliente B2B |
+| **Sector Público** | Consultas Ciudadanas · Evaluación de Servicios Públicos |
+| **Salud** | Experiencia de Pacientes |
+
+En la UI de creación de proyecto aparecen agrupadas por industria; en el Libro de códigos, como selector agrupado. Al aplicarlas, las categorías entran con origen `plantilla` y estado `propuesta`. Las plantillas educativas conservan el anclaje CNA/CNE.
+
+---
+
+## 8. Integraciones: arquitectura
+
+```
+app/services/integrations/
+├── base.py          ← el contrato: fetch_responses(config) -> pandas.DataFrame
+│                       + IntegrationError (mensajes aptos para la UI)
+├── qualtrics.py     ← list_surveys() + fetch_responses() vía API v3 (export CSV)
+├── google_forms.py  ← fetch_responses() vía planilla de Google Sheets pública
+└── credentials.py   ← cifrado Fernet de credenciales (clave derivada de SECRET_KEY)
+```
+
+Principios:
+
+1. **Una integración es solo otra fuente del mismo DataFrame.** La creación de proyecto no distingue el origen: `_create_project_from_df()` es el camino común.
+2. **Las credenciales nunca llegan al navegador.** El token de Qualtrics se guarda cifrado en `users.integrations`; la UI solo sabe si está configurado y para qué datacenter.
+3. **Errores hablables:** token inválido, encuesta sin respuestas, planilla privada (con instrucciones de cómo compartirla), URL mal formada — todos llegan a la UI como mensajes accionables, no como errores 500.
+4. **Importación puntual, no sincronización continua** (alcance deliberado de esta versión).
+
+---
+
+## 9. La auditoría: cómo se garantiza el "nada es caja negra"
+
+Cada acción relevante pasa por `store.log_event()`, que registra **timestamp** (UTC), **actor** (`analista` / `claude` / `sistema`), **acción** y **detalle** completo. El evento se escribe en dos lugares: dentro del documento del proyecto (registro canónico, vía `$push`) y en la colección `audit_events` (copia consultable).
+
+Acciones auditadas: creación de proyecto (con fuente), **importaciones** (encuesta/planilla + n° de respuestas), análisis léxico, aplicación de plantilla, cada categoría propuesta por la IA, cada validación/edición/descarte humano, categorías manuales, comentarios, la codificación del corpus, cada re-codificación (antes/después) y la generación del informe.
+
+No hay endpoint para borrar ni editar eventos: el log solo crece.
+
+---
+
+## 10. El frontend por dentro
+
+### Estructura por features (v1.1)
+
+Cada feature es dueña de sus componentes, hooks, tipos y su slice de API. Lo transversal vive en `shared/`.
+
+```
+src/
+├── App.tsx / main.tsx        ← router y arranque; nada más
+├── shared/
+│   ├── api/client.ts         ← ÚNICO punto de contacto HTTP: token, errores, 401 → /login, descargas blob
+│   ├── components/           ← Button, Card, Input, Table (el sistema de diseño)
+│   ├── layout/               ← Header, Sidebar
+│   └── hooks/
+│       ├── useAsync.ts       ← patrón busy/error que se repetía en todas las páginas
+│       ├── usePolling.ts     ← polling con limpieza automática (codificación e informe)
+│       └── useDownload.ts    ← descargas con estado por botón
+└── features/
+    ├── auth/                 ← useAuth (contexto de sesión), LoginPage, api
+    ├── projects/             ← ProjectList, NewProject (3 orígenes), ProjectView,
+    │                            Dashboard, useProjectData (fetch + contexto del proyecto activo)
+    ├── analysis/             ← api + types del análisis, y por sub-feature:
+    │   ├── lexical/          ← LexicalAnalysis
+    │   ├── codebook/         ← Codebook, CategoryCard, CommentThread, ManualCategoryForm
+    │   ├── coding/           ← Coding, ResponsesTable
+    │   ├── traceability/     ← Traceability, CategoryBars, ConfidenceInfo, useTraceabilityFilters
+    │   ├── report/           ← ReportView (barra de progreso streaming), ReportBody
+    │   └── audit/            ← AuditLog
+    ├── export/               ← ExportReport, api de descargas
+    ├── integrations/         ← QualtricsSection, api (credenciales + importación)
+    ├── settings/             ← cuenta, importar demo, panel de prompts
+    └── docs/                 ← Documentation
+```
+
+Alias de imports: `@/` apunta a `src/` (configurado en `tsconfig.json` y `vite.config.ts`).
+
+### Rutas
+
+| URL | Pantalla |
+| --- | --- |
+| `/login`, `/signup` | Acceso (con landing de venta al costado) |
+| `/` | Mis proyectos |
+| `/proyectos/nuevo` | Crear proyecto (3 orígenes + plantillas por industria) |
+| `/proyectos/:id` | Dashboard del proyecto |
+| `/proyectos/:id/lexico · codigos · codificacion · trazabilidad · informe · exportar · auditoria` | Las pestañas del proyecto |
+| `/configuracion` | Cuenta, importar demo, panel de prompts |
+| `/documentacion` | Guía de uso |
+
+### Decisiones de diseño visual (sin cambios en v1.1)
+
+- **Paleta**: fondo crema (`#FFFAF0`), tarjetas blancas, **celeste `#0099CC`** para acción primaria. Verde/naranja/rojo reservados para semántica.
+- **Tipografía**: Inter. **Variables CSS** en un solo lugar.
+- El refactor por features fue **cero cambios visuales**: el hash del CSS compilado es idéntico al de v1.0.
+
+---
+
+## 11. Seguridad: qué está cubierto y qué no (honestamente)
+
+**Cubierto para la beta:**
+
+- Contraseñas con hash PBKDF2 + sal (irreversibles), email con índice único.
+- Tokens firmados con expiración; sin token no hay datos.
+- Aislamiento total entre cuentas, verificado con pruebas de acceso cruzado.
+- La API key de Anthropic vive solo en el servidor (`.env`).
+- Credenciales de integraciones **cifradas** (Fernet) y nunca expuestas al navegador.
+- Validación de inputs (Pydantic) y mensajes de error de integraciones sin filtrar secretos.
+
+**Pendiente para producción (consciente y documentado):**
+
+- HTTPS (en beta local no aplica; en despliegue lo da la plataforma).
+- Recuperación de contraseña y verificación de email.
+- Revocación de tokens en servidor y rate-limiting de login.
+- `SECRET_KEY` con default de desarrollo: **en producción debe ser un valor aleatorio largo** (firma los JWT **y** deriva la clave de cifrado de credenciales — si cambia, hay que re-ingresar las credenciales de integraciones).
+- MongoDB local sin autenticación (correcto para desarrollo; Atlas la trae por defecto).
+
+---
+
+## 12. Configuración (backend/.env)
+
+| Variable | Qué controla | Default |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | Acceso a Claude | — sin ella, solo funciona el análisis léxico |
+| `SECRET_KEY` | Firma de tokens + cifrado de credenciales | valor de desarrollo (cambiar en producción) |
+| `MONGODB_URI` | Conexión a MongoDB | `mongodb://localhost:27017/softinsight` |
+| `ADMIN_PASSWORD` | Panel interno de prompts | `softinsight2026` |
+| `CLAUDE_MODEL` | Qué modelo se usa | `claude-sonnet-4-6` |
+
+**Migrar a producción** = apuntar `MONGODB_URI` a un cluster de MongoDB Atlas, definir una `SECRET_KEY` fuerte, y desplegar backend (Render/Railway) + frontend (Vercel). El código no cambia.
+
+---
+
+## 13. Costos de IA por proyecto (orden de magnitud)
+
+Con el dataset demo de 320 respuestas y Claude Sonnet:
+
+| Operación | Llamadas | Nota |
+| --- | --- | --- |
+| Interpretación léxica | 1 | pequeña |
+| Propuesta de categorías | 1 | muestra de 60 respuestas |
+| Codificación | ~13 | lotes de 25 respuestas |
+| Informe cualitativo | 1 | la más grande; ahora en streaming (mismo costo) |
+
+Total: **menos de US$1 por corrida completa**. El léxico, los filtros, la trazabilidad y las exportaciones no consumen API.
+
+---
+
+## 14. Verificación y limitaciones conocidas
+
+**Cómo se verificó la v1.1:** suite en `backend/tests/` que corre contra mongomock y con la IA simulada (sin gastar API): flujo end-to-end completo (signup → proyecto → léxico → validación → codificación → trazabilidad → informe → 4 exportaciones → auditoría), aislamiento multi-tenant (acceso cruzado a lectura/escritura/borrado/progreso → 404), integraciones con Qualtrics y Google simulados (incluidos los caminos de error), y migración SQLite → Mongo idempotente.
+
+**Limitaciones conocidas:**
+
+1. **Colaboración**: comentarios sí; codificación concurrente de varios analistas y roles/permisos, todavía no.
+2. **Progreso en memoria**: si el servidor se reinicia a mitad de una codificación o informe, la barra se pierde (lo ya guardado persiste; se puede relanzar sin daño).
+3. **Sin emails** (confirmación, recuperación): decisión de alcance.
+4. **Integraciones puntuales**: importan al crear el proyecto; no hay sincronización continua ni OAuth de Google (documentado).
+5. **Tests de UI**: el backend tiene suite propia; Playwright para la UI queda pendiente.
+
+---
+
+## 15. Resumen de las decisiones y su lógica
+
+| Decisión | Alternativa descartada | Razón |
+| --- | --- | --- |
+| **MongoDB + pymongo** | Seguir en SQLite / saltar a Postgres normalizado | El modelo ya era documental; Mongo da updates parciales e índices anidados sin reescribir el código de análisis. Atlas = cambiar una URI |
+| **Updates parciales $set/$push** | Reescribir el documento completo | Operaciones puntuales no tocan las 320 respuestas; el hilo de codificación no pisa el trabajo del analista |
+| Documento por proyecto | Normalización relacional completa | Un proyecto se analiza como unidad; los IDs internos estables hacen mecánica una normalización futura |
+| **Frontend por features** | Estructura por tipo de archivo / migrar a Next.js | Cada feature es dueña de su código; Next.js no aporta a una SPA detrás de login |
+| **Streaming para el informe** | Spinner con mensaje fijo | Progreso genuino (tokens recibidos + sección en curso); honestidad también en la UX |
+| **Qualtrics con token cifrado en backend** | Token en localStorage del navegador | El navegador es el lugar menos seguro; la UI no necesita el token, solo saber que existe |
+| **Google Forms vía planilla pública** | OAuth completo de Google | Cubre la importación puntual sin flujo de consentimiento ni verificación de app; documentado como iteración futura |
+| JWT propio + PBKDF2 (stdlib) | Supabase Auth, passlib/bcrypt | Sin servicios externos ni dependencias frágiles para la beta |
+| reportlab | pypdf / HTML-a-PDF | Control total del layout del documento de auditoría |
+| CSS propio con variables | Tailwind / Material | Requisito explícito; branding coherente y liviano |
+| Categorías de plantilla entran como "propuesta" | Entrar validadas | La validación humana es el método, no un trámite |
+| Prompts en JSON editables por UI | Prompts en el código | El sociólogo ajusta la metodología sin deploy |
+| Confianza para priorizar, nunca para filtrar | Auto-descarte bajo umbral | Honestidad metodológica: es orientativa, no estadística |
+
+---
+
+*Documento actualizado para el equipo SoftInsight — julio 2026. Corresponde al estado del código en `07_MVP/` (v1.1).*

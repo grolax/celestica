@@ -1,0 +1,281 @@
+"""
+Almacenamiento multi-tenant sobre MongoDB.
+
+Mantiene la interfaz documental del MVP original (el proyecto viaja como dict),
+pero cada proyecto pertenece a un usuario y TODA lectura/escritura filtra por
+user_id — el aislamiento entre cuentas vive aquí, no en los routers.
+
+v1.1: además del ciclo clásico get_project → mutar → save_project (que
+reescribe el documento y sigue siendo correcto para operaciones masivas como
+la codificación), hay helpers de actualización parcial ($set/$push/$pull)
+para operaciones puntuales: agregar un coding, un comentario o un evento de
+auditoría ya no reescribe las cientos de respuestas del proyecto.
+"""
+from __future__ import annotations
+
+import json
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional
+
+from pymongo.errors import OperationFailure
+
+from app.database import get_db
+
+# Carpeta del antiguo store JSON (para importar proyectos pre-auth)
+LEGACY_DIR = Path(__file__).resolve().parent.parent / "data_store"
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def new_id(prefix: str) -> str:
+    return f"{prefix}_{uuid.uuid4().hex[:10]}"
+
+
+def _empty_project(name: str, marco_teorico: str, columns: list[str],
+                   text_column: str, responses: list[dict]) -> dict:
+    return {
+        "id": new_id("proj"),
+        "name": name,
+        "marco_teorico": marco_teorico,
+        "created_at": now_iso(),
+        "columns": columns,
+        "text_column": text_column,
+        "responses": responses,          # [{id, text, meta:{...}}]
+        "lexical": None,
+        "categories": [],                # [{id, nombre, definicion, status, origen, comments:[...]}]
+        "codings": {},                   # response_id -> [{category_id, rationale, confidence, source, status}]
+        "audit_log": [],
+        "lexical_interpretation": None,
+        "qualitative_report": None,
+    }
+
+
+def _tenant_filter(project_id: str, user_id: str) -> dict:
+    """Filtro base de TODO acceso a un proyecto: id + dueño."""
+    return {"_id": project_id, "user_id": user_id}
+
+
+def create_project(user_id: str, name: str, marco_teorico: str, columns: list[str],
+                   text_column: str, responses: list[dict]) -> dict:
+    project = _empty_project(name, marco_teorico, columns, text_column, responses)
+    project["user_id"] = user_id
+    save_project(project)
+    return project
+
+
+def save_project(project: dict) -> None:
+    """Guarda el documento completo (upsert). Para operaciones masivas
+    (creación, análisis léxico, codificación del corpus). Para cambios
+    puntuales usar los helpers parciales de más abajo."""
+    doc = dict(project)
+    doc["_id"] = project["id"]
+    get_db().projects.replace_one({"_id": project["id"]}, doc, upsert=True)
+
+
+def get_project(project_id: str, user_id: str) -> Optional[dict]:
+    doc = get_db().projects.find_one(_tenant_filter(project_id, user_id))
+    if doc is None:
+        return None  # no existe O no es suyo → la API responde 404 sin distinguir
+    doc.pop("_id", None)
+    return doc
+
+
+def delete_project(project_id: str, user_id: str) -> bool:
+    result = get_db().projects.delete_one(_tenant_filter(project_id, user_id))
+    if result.deleted_count == 0:
+        return False
+    get_db().audit_events.delete_many({"project_id": project_id})
+    return True
+
+
+def list_projects(user_id: str) -> list[dict]:
+    """Resumen de proyectos del usuario, calculado en el servidor de Mongo
+    (no viaja el documento completo con sus cientos de respuestas)."""
+    pipeline = [
+        {"$match": {"user_id": user_id}},
+        {"$project": {
+            "_id": 0,
+            "id": 1, "name": 1, "created_at": 1,
+            "n_responses": {"$size": {"$ifNull": ["$responses", []]}},
+            "has_lexical": {"$ne": [{"$ifNull": ["$lexical", None]}, None]},
+            "n_categories": {"$size": {"$ifNull": ["$categories", []]}},
+            "n_coded": {"$size": {"$objectToArray": {"$ifNull": ["$codings", {}]}}},
+            "report": {"$ifNull": ["$qualitative_report", ""]},
+        }},
+        {"$sort": {"created_at": -1}},
+    ]
+    out = []
+    for d in get_db().projects.aggregate(pipeline):
+        d["has_report"] = bool(d.pop("report", ""))
+        out.append(d)
+    return out
+
+
+# ---------- Actualizaciones parciales (v1.1: aprovechar Mongo de verdad) ----------
+
+def update_category_fields(project_id: str, user_id: str, category_id: str,
+                           changes: dict) -> bool:
+    """$set sobre los campos de UNA categoría (operador posicional)."""
+    if not changes:
+        return True
+    result = get_db().projects.update_one(
+        {**_tenant_filter(project_id, user_id), "categories.id": category_id},
+        {"$set": {f"categories.$.{k}": v for k, v in changes.items()}},
+    )
+    return result.matched_count > 0
+
+
+def push_category(project_id: str, user_id: str, category: dict) -> bool:
+    result = get_db().projects.update_one(
+        _tenant_filter(project_id, user_id),
+        {"$push": {"categories": category}},
+    )
+    return result.matched_count > 0
+
+
+def _set_categories_array(project_id: str, user_id: str, mutate) -> bool:
+    """Fallback parcial: lee SOLO el array categories, lo muta en memoria y
+    lo re-escribe con $set (sin tocar responses/codings). Se usa cuando el
+    servidor no soporta el operador posicional con $push/$pull (ej: mocks)."""
+    doc = get_db().projects.find_one(_tenant_filter(project_id, user_id), {"categories": 1})
+    if doc is None:
+        return False
+    categories = doc.get("categories", [])
+    if not mutate(categories):
+        return False
+    get_db().projects.update_one(_tenant_filter(project_id, user_id),
+                                 {"$set": {"categories": categories}})
+    return True
+
+
+def push_comment(project_id: str, user_id: str, category_id: str, comment: dict) -> bool:
+    try:
+        result = get_db().projects.update_one(
+            {**_tenant_filter(project_id, user_id), "categories.id": category_id},
+            {"$push": {"categories.$.comments": comment}},
+        )
+        return result.matched_count > 0
+    except OperationFailure:
+        def mutate(categories: list) -> bool:
+            for c in categories:
+                if c["id"] == category_id:
+                    c.setdefault("comments", []).append(comment)
+                    return True
+            return False
+        return _set_categories_array(project_id, user_id, mutate)
+
+
+def pull_comment(project_id: str, user_id: str, category_id: str, comment_id: str) -> bool:
+    """Devuelve True solo si el comentario existía y fue eliminado."""
+    try:
+        result = get_db().projects.update_one(
+            {**_tenant_filter(project_id, user_id), "categories.id": category_id},
+            {"$pull": {"categories.$.comments": {"id": comment_id}}},
+        )
+        return result.modified_count > 0
+    except OperationFailure:
+        def mutate(categories: list) -> bool:
+            for c in categories:
+                if c["id"] == category_id:
+                    n = len(c.get("comments", []))
+                    c["comments"] = [x for x in c.get("comments", []) if x["id"] != comment_id]
+                    return len(c["comments"]) < n
+            return False
+        return _set_categories_array(project_id, user_id, mutate)
+
+
+def set_codings_for_response(project_id: str, user_id: str, response_id: str,
+                             assignments: list[dict]) -> bool:
+    """$set de las asignaciones de UNA respuesta (re-codificación manual):
+    no reescribe el resto del corpus."""
+    result = get_db().projects.update_one(
+        _tenant_filter(project_id, user_id),
+        {"$set": {f"codings.{response_id}": assignments}},
+    )
+    return result.matched_count > 0
+
+
+def set_codings_bulk(project_id: str, user_id: str, codings: dict) -> bool:
+    """$set de las asignaciones de muchas respuestas en una sola operación
+    (resultado de la codificación del corpus). No toca responses, categories
+    ni comentarios agregados mientras corría el hilo."""
+    if not codings:
+        return True
+    result = get_db().projects.update_one(
+        _tenant_filter(project_id, user_id),
+        {"$set": {f"codings.{rid}": assignments for rid, assignments in codings.items()}},
+    )
+    return result.matched_count > 0
+
+
+def set_project_field(project_id: str, user_id: str, field: str, value: Any) -> bool:
+    """$set de un campo de primer nivel (ej: qualitative_report, marco_teorico)."""
+    result = get_db().projects.update_one(
+        _tenant_filter(project_id, user_id),
+        {"$set": {field: value}},
+    )
+    return result.matched_count > 0
+
+
+# ---------- Auditoría ----------
+
+def log_event(project: dict, actor: str, action: str, detail: dict[str, Any]) -> None:
+    """Trazabilidad: toda decisión (humana o IA) queda auditada.
+
+    Triple registro coherente:
+    1. En memoria (project["audit_log"]) — para que un save_project posterior
+       del mismo request lo conserve.
+    2. $push al documento persistido — para endpoints que solo hacen
+       actualizaciones parciales y nunca llaman save_project.
+    3. Colección audit_events — copia plana consultable por proyecto/actor.
+    (1 y 2 no se duplican: save_project es replace, no push.)
+    """
+    event = {
+        "id": new_id("evt"),
+        "timestamp": now_iso(),
+        "actor": actor,        # "analista" | "claude" | "sistema"
+        "action": action,
+        "detail": detail,
+    }
+    project.setdefault("audit_log", []).append(event)
+    try:
+        db = get_db()
+        db.projects.update_one(
+            _tenant_filter(project["id"], project.get("user_id", "")),
+            {"$push": {"audit_log": event}},
+        )
+        db.audit_events.insert_one({
+            "_id": event["id"],
+            "project_id": project["id"],
+            "user_id": project.get("user_id", ""),
+            "actor": actor,
+            "action": action,
+            "timestamp": event["timestamp"],
+            "detail": detail,
+        })
+    except Exception:
+        pass  # el registro canónico vive en el documento del proyecto
+
+
+# ---------- Importación de proyectos antiguos ----------
+
+def import_legacy_projects(user_id: str) -> int:
+    """Importa proyectos del antiguo store JSON (pre-auth) a la cuenta indicada.
+    Cada archivo importado se renombra a .imported para no duplicar."""
+    if not LEGACY_DIR.exists():
+        return 0
+    n = 0
+    for f in sorted(LEGACY_DIR.glob("proj_*.json")):
+        try:
+            project = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        project["user_id"] = user_id
+        save_project(project)
+        f.rename(f.with_suffix(".json.imported"))
+        n += 1
+    return n
