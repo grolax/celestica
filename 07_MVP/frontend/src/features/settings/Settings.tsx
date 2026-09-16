@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
-import { adminApi, PromptEntry, PromptsData } from "./api";
+import { Fragment, useEffect, useState } from "react";
+import { adminApi, AdminHealth, PromptEntry, PromptsData, UsageProject } from "./api";
+import { ClaudeUsageTotals } from "@/features/analysis/types";
 import { projectsApi } from "@/features/projects/api";
 import { useAuth } from "@/features/auth/useAuth";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import Table from "@/shared/components/Table";
 import Input, { TextArea } from "@/shared/components/Input";
 
 const PROMPT_ORDER = ["propose_categories", "codify", "interpret_lexical", "qualitative_report"];
@@ -60,6 +62,18 @@ function AdminPrompts() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
+  const [usage, setUsage] = useState<{ projects: UsageProject[]; total: ClaudeUsageTotals; log_dir: string } | null>(null);
+  const [health, setHealth] = useState<AdminHealth | null>(null);
+
+  async function loadUsage(pwd: string) {
+    try {
+      const [u, h] = await Promise.all([adminApi.getUsage(pwd), adminApi.getHealth(pwd)]);
+      setUsage(u);
+      setHealth(h);
+    } catch {
+      /* el consumo es informativo: si falla no bloquea el panel */
+    }
+  }
 
   async function login() {
     if (!password) return;
@@ -70,6 +84,7 @@ function AdminPrompts() {
       setPrompts(data.prompts);
       setDefaults(data.defaults);
       setAuthenticated(true);
+      loadUsage(password);
     } catch {
       setError("Contraseña incorrecta.");
     } finally {
@@ -107,6 +122,9 @@ function AdminPrompts() {
             <Button onClick={login} busy={busy} disabled={!password}>Ingresar</Button>
           </div>
         </div>
+      )}
+      {open && authenticated && (
+        <UsagePanel usage={usage} health={health} onRefresh={() => loadUsage(password)} />
       )}
       {open && authenticated && prompts && defaults && (
         <>
@@ -171,6 +189,79 @@ function PromptEditor({ promptKey, entry, onSave, onReset }: {
       <TextArea label="Instrucciones de output" className="prompt-textarea" rows={10} value={instructions}
                 onChange={(e) => setInstructions(e.target.value)} spellCheck={false} />
       {isDirty && <p className="small muted" style={{ marginTop: 6 }}>Cambios sin guardar.</p>}
+    </div>
+  );
+}
+
+/* ---- Consumo de la API de Claude por proyecto + estado del backend ---- */
+
+const fmtInt = (n?: number) => (n ?? 0).toLocaleString("es-CL");
+const fmtUsd = (n?: number) => `US$ ${(n ?? 0).toFixed(2)}`;
+
+function UsagePanel({ usage, health, onRefresh }: {
+  usage: { projects: UsageProject[]; total: ClaudeUsageTotals; log_dir: string } | null;
+  health: AdminHealth | null;
+  onRefresh: () => void;
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  return (
+    <div style={{ borderBottom: "1px solid var(--border-soft)", paddingBottom: 16, marginBottom: 16 }}>
+      <div className="card-title">
+        <div>
+          <h3 style={{ margin: 0 }}>Consumo de la API de Claude</h3>
+          <p className="muted small" style={{ margin: "3px 0 0" }}>
+            Tokens y costo estimado por proyecto (precios configurables en el backend; es una estimación, no la factura).
+            {health && <> Backend: <code>thematic {health.thematic_version}</code> · modelo informe <code>{health.model_report_v2}</code></>}
+          </p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onRefresh}>Actualizar</Button>
+      </div>
+      {!usage ? (
+        <p className="muted small">Sin datos de consumo todavía.</p>
+      ) : (
+        <>
+          <p className="small" style={{ margin: "8px 0" }}>
+            Total: <strong>{fmtUsd(usage.total.cost_usd)}</strong> · {fmtInt(usage.total.calls)} llamadas ·{" "}
+            {fmtInt(usage.total.input_tokens)} tokens de entrada · {fmtInt(usage.total.output_tokens)} de salida.
+            {" "}Detalle por llamada en <code>{usage.log_dir}/claude_calls.jsonl</code>.
+          </p>
+          <Table headers={["Proyecto", "Respuestas", "Llamadas", "Entrada", "Salida", "Costo est.", ""]}>
+            {usage.projects.map((p) => {
+              const u = p.claude_usage || {};
+              const steps = Object.entries(u.by_step || {}).sort((a, b) => (b[1].cost_usd ?? 0) - (a[1].cost_usd ?? 0));
+              return (
+                <Fragment key={p.id}>
+                  <tr>
+                    <td>{p.name}<br /><span className="muted small">{p.id}</span></td>
+                    <td>{fmtInt(p.n_responses)}</td>
+                    <td>{fmtInt(u.calls)}</td>
+                    <td>{fmtInt(u.input_tokens)}</td>
+                    <td>{fmtInt(u.output_tokens)}</td>
+                    <td><strong>{fmtUsd(u.cost_usd)}</strong></td>
+                    <td>
+                      <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === p.id ? null : p.id)}>
+                        {expanded === p.id ? "Ocultar" : "Por paso"}
+                      </Button>
+                    </td>
+                  </tr>
+                  {expanded === p.id && steps.map(([step, t]) => (
+                    <tr key={p.id + step} className="muted small">
+                      <td style={{ paddingLeft: 24 }}>↳ {step.replace(/_/g, " ")}</td>
+                      <td></td>
+                      <td>{fmtInt(t.calls)}</td>
+                      <td>{fmtInt(t.input_tokens)}</td>
+                      <td>{fmtInt(t.output_tokens)}</td>
+                      <td>{fmtUsd(t.cost_usd)}</td>
+                      <td></td>
+                    </tr>
+                  ))}
+                </Fragment>
+              );
+            })}
+          </Table>
+          {usage.projects.length === 0 && <p className="muted small">Ningún proyecto ha usado Claude desde que se activó el registro.</p>}
+        </>
+      )}
     </div>
   );
 }

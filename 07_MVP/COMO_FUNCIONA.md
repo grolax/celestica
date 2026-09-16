@@ -177,7 +177,19 @@ La vista plana de todo lo anterior: respuesta → categoría → justificación 
 
 ### Paso 5 — Informe cualitativo (ahora con progreso real)
 
-Una llamada grande a Claude con el prompt `qualitative_report`. **Novedad v1.1:** corre en un hilo y usa la **API de streaming** de Anthropic. El endpoint `GET /report/progress` expone el avance real —caracteres efectivamente recibidos del modelo y la **sección que está redactando** (detectada de los títulos en mayúsculas del texto que va llegando)— y el frontend muestra la misma barra de progreso que la codificación. No es un spinner falso: si el stream se detiene, la barra se detiene.
+**Modo rápido (v1):** una llamada grande a Claude con el prompt `qualitative_report`. Corre en un hilo y usa la **API de streaming** de Anthropic. El endpoint `GET /report/progress` expone el avance real —caracteres efectivamente recibidos del modelo y la **sección que está redactando**— y el frontend muestra la misma barra de progreso que la codificación. No es un spinner falso: si el stream se detiene, la barra se detiene.
+
+**Modo profundo (v2, default):** pipeline de tres prompts en `services/thematic.py::generate_qualitative_report_v2`:
+
+1. **Prompt 1 — análisis por respondente** (`analyze_respondent_v2`): una llamada por respondente, en paralelo (`REPORT_V2_MAX_WORKERS`), que conecta la respuesta abierta con sus respuestas cerradas y extrae subtemas con cita textual. Es el paso caro (≈ n llamadas), por eso su resultado se **cachea en el proyecto** (`v2_analyses_cache`, con un hash sha256 del marco teórico + respuestas): un reintento del informe no lo vuelve a pagar mientras los datos no cambien. El botón **"Regenerar desde cero"** de la UI (`POST /report?force_full=true`) es la única forma de saltarse el caché, y lo hace a propósito.
+2. **Prompt 2 — síntesis de clusters**, en map-reduce:
+   - *map* (`synthesize_clusters_v2_partial`): los análisis se parten en **tandas por presupuesto de tokens de entrada** (`SYNTHESIS_BATCH_INPUT_TOKENS`, no por cantidad fija de respondentes) y cada tanda se sintetiza en paralelo en clusters candidatos con sus `member_ids`. Si la salida de una tanda se trunca igual (`stop_reason=max_tokens`), la tanda **se divide en dos y se reintenta** (recursivo): en el peor caso se llega a tandas de un respondente, cuya salida siempre cabe.
+   - *reduce* en tres pasos: el modelo agrupa **solo los nombres** de los candidatos que son el mismo fenómeno (`synthesize_clusters_v2_map_names`, salida de ~20 tokens por candidato); **Python** une los `member_ids`, suma desgloses por metadata y calcula prevalencia y porcentaje sobre el total real del corpus; y el modelo elige citas representativas y variaciones por cluster desde un pool acotado (`synthesize_clusters_v2_select_quotes`), también en tandas que se dividen si se truncan. Si todo el corpus cabe en una tanda, se usa el prompt único `synthesize_clusters_v2`.
+3. **Prompt 3 — redacción** (`write_report_v2`): markdown, acotado por el propio prompt (≤ 1500 palabras).
+
+**Por qué está diseñado así (incidente de septiembre 2026):** con 122 respondentes, la síntesis en tandas fijas de 40 se truncaba a 8000 tokens de salida — cada tanda necesitaba ~16.000 — y cada reintento repetía las 122 llamadas del Prompt 1 (> US$10 sin resultado). Ningún techo de `max_tokens` resuelve eso de forma permanente porque un corpus más grande siempre lo vuelve a superar; por eso ahora **ningún paso depende de que su salida "quepa"**: se acota la entrada por tokens y se divide el trabajo cuando hace falta. Además, toda salida JSON se pide con **tool use forzado y schema** (`services/schemas_v2.py`): la API entrega el JSON ya parseado, sin regex ni `json.loads` que se rompan con comillas dentro de citas textuales. Todas las llamadas van por streaming (el SDK exige streaming cuando `max_tokens` es alto) y el techo se acota al **límite real del modelo**, consultado a la API (`model_max_output_tokens`; Sonnet 4.6: 128.000 tokens de salida).
+
+**Registro y costo:** cada llamada a Claude queda en `backend/logs/claude_calls.jsonl` (paso, modelo, `max_tokens`, `stop_reason`, tokens, costo estimado, duración, proyecto); las fallidas o truncadas guardan además el texto crudo en `backend/logs/claude_raw/`. El mismo registro alimenta `claude_usage` en el documento del proyecto (`$inc` por paso), visible en `GET /api/projects/{id}/usage` y en el panel de administración (`GET /api/admin/usage`). `GET /api/admin/health` muestra la versión de `thematic.py` que el proceso tiene cargada, para confirmar que uvicorn recargó el código.
 
 ### Paso 6 — Exportación
 
@@ -323,6 +335,13 @@ Alias de imports: `@/` apunta a `src/` (configurado en `tsconfig.json` y `vite.c
 | `MONGODB_URI` | Conexión a MongoDB | `mongodb://localhost:27017/softinsight` |
 | `ADMIN_PASSWORD` | Panel interno de prompts | `softinsight2026` |
 | `CLAUDE_MODEL` | Qué modelo se usa | `claude-sonnet-4-6` |
+| `CLAUDE_MODEL_REPORT_V2` | Modelo del informe profundo | = `CLAUDE_MODEL` |
+| `SYNTHESIS_BATCH_INPUT_TOKENS` | Tokens de entrada por tanda de síntesis (informe v2) | `10000` |
+| `MERGE_INPUT_TOKENS` | Tokens de entrada por llamada de fusión/selección de citas | `16000` |
+| `CLAUDE_LARGE_OUTPUT_TOKENS` | Techo de salida por llamada grande (acotado al límite real del modelo) | `32000` |
+| `CLAUDE_MAX_OUTPUT_TOKENS` | Límite de salida del modelo (si no se define, se sondea a la API) | sonda |
+| `CLAUDE_LOG_DIR` / `CLAUDE_LOG_RAW` | Carpeta de logs / guardar texto crudo de todas las llamadas | `backend/logs` / `0` |
+| `CLAUDE_PRICING_JSON` | Precios por millón de tokens para la estimación de costo | tabla interna |
 
 **Migrar a producción** = apuntar `MONGODB_URI` a un cluster de MongoDB Atlas, definir una `SECRET_KEY` fuerte, y desplegar backend (Render/Railway) + frontend (Vercel). El código no cambia.
 
@@ -337,9 +356,10 @@ Con el dataset demo de 320 respuestas y Claude Sonnet:
 | Interpretación léxica | 1 | pequeña |
 | Propuesta de categorías | 1 | muestra de 60 respuestas |
 | Codificación | ~13 | lotes de 25 respuestas |
-| Informe cualitativo | 1 | la más grande; ahora en streaming (mismo costo) |
+| Informe rápido (v1) | 1 | la más grande; en streaming (mismo costo) |
+| Informe profundo (v2) | n + ~15 | 1 por respondente (cacheada) + tandas de síntesis, agrupación, citas y redacción |
 
-Total: **menos de US$1 por corrida completa**. El léxico, los filtros, la trazabilidad y las exportaciones no consumen API.
+Total con informe rápido: **menos de US$1 por corrida completa**. El informe profundo, medido con 122 respondentes y Sonnet 4.6: ≈ US$1,9 el Prompt 1 (una sola vez, queda en caché) + ≈ US$1,7 síntesis y redacción, ~7 minutos. El léxico, los filtros, la trazabilidad y las exportaciones no consumen API. El consumo real por proyecto se ve en el panel de administración.
 
 ---
 

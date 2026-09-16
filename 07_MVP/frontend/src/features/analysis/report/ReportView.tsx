@@ -15,6 +15,10 @@ export default function ReportView() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState<ReportProgress | null>(null);
+  const [mode, setMode] = useState<"v1" | "v2">("v2");
+  // Confirmación inline para "regenerar desde cero": vuelve a pagar el análisis
+  // por respondente (Prompt 1) aunque el caché siga vigente.
+  const [confirmFull, setConfirmFull] = useState(false);
   const { start: startPolling, stop: stopPolling } = usePolling(2000);
 
   useEffect(() => {
@@ -23,12 +27,13 @@ export default function ReportView() {
     }
   }, [project.id, project.has_report]);
 
-  async function generate() {
+  async function generate(forceFull = false) {
     setBusy(true);
     setError("");
     setProgress(null);
+    setConfirmFull(false);
     try {
-      await analysisApi.generateReport(project.id);
+      await analysisApi.generateReport(project.id, mode, forceFull);
       startPolling(async () => {
         try {
           const prog = await analysisApi.getReportProgress(project.id);
@@ -62,7 +67,11 @@ export default function ReportView() {
     <div style={{ marginTop: 16, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
         <span>
-          {progress?.section ? <>Redactando: <strong>{progress.section}</strong>…</> : "Redactando el informe…"}
+          {progress?.section
+            ? (mode === "v2"
+              ? <><strong>{progress.section}</strong>…</>
+              : <>Redactando: <strong>{progress.section}</strong>…</>)
+            : "Generando el informe…"}
         </span>
         <span className="muted">{progressPct}%</span>
       </div>
@@ -70,8 +79,39 @@ export default function ReportView() {
         <div className="progress-bar" style={{ width: `${progressPct}%` }} />
       </div>
       <p className="small muted" style={{ marginTop: 6 }}>
-        Progreso real del texto que Claude va escribiendo (streaming). No cierres esta ventana.
+        {mode === "v2"
+          ? "Progreso real por etapa: análisis por respondente, síntesis y redacción. No cierres esta ventana."
+          : "Progreso real del texto que Claude va escribiendo (streaming). No cierres esta ventana."}
       </p>
+    </div>
+  );
+
+  const modeSelector = (
+    <div style={{ margin: "12px 0 4px", fontSize: 13 }}>
+      <label style={{ marginRight: 16, cursor: "pointer" }}>
+        <input
+          type="radio"
+          name="report-mode"
+          checked={mode === "v2"}
+          onChange={() => setMode("v2")}
+          disabled={busy}
+          style={{ marginRight: 6 }}
+        />
+        <strong>Análisis profundo</strong>{" "}
+        <span className="muted">— por respondente, con contexto (más lento)</span>
+      </label>
+      <label style={{ cursor: "pointer" }}>
+        <input
+          type="radio"
+          name="report-mode"
+          checked={mode === "v1"}
+          onChange={() => setMode("v1")}
+          disabled={busy}
+          style={{ marginRight: 6 }}
+        />
+        <strong>Modo rápido</strong>{" "}
+        <span className="muted">— análisis agregado en una pasada</span>
+      </label>
     </div>
   );
 
@@ -93,7 +133,8 @@ export default function ReportView() {
             {!canGenerate && (
               <p className="muted">Primero completa la codificación para habilitar el informe.</p>
             )}
-            <Button size="lg" onClick={generate} busy={busy} disabled={!canGenerate}>
+            {canGenerate && modeSelector}
+            <Button size="lg" onClick={() => generate(false)} busy={busy} disabled={!canGenerate}>
               {busy ? "Claude está redactando el informe…" : "Generar informe cualitativo"}
             </Button>
             {progressBar}
@@ -107,12 +148,30 @@ export default function ReportView() {
             actions={
               <>
                 <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}>⬇ Exportar PDF/Word</Button>
-                <Button variant="ghost" size="sm" onClick={generate} busy={busy}>
+                <Button variant="ghost" size="sm" onClick={() => generate(false)} busy={busy}>
                   {busy ? "Regenerando…" : "Regenerar"}
                 </Button>
+                {mode === "v2" && !busy && (
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmFull(true)} title="Ignora el caché del análisis por respondente">
+                    Regenerar desde cero
+                  </Button>
+                )}
               </>
             }
           >
+            {confirmFull && !busy && (
+              <div className="alert alert-info" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                <span>
+                  <strong>Regenerar desde cero</strong> vuelve a analizar cada uno de los {project.n_responses} respondentes
+                  con Claude (≈{project.n_responses} llamadas) en vez de reutilizar el análisis ya calculado.
+                  Úsalo solo si cambiaste el prompt de análisis o desconfías del resultado anterior.
+                </span>
+                <span style={{ display: "flex", gap: 8 }}>
+                  <Button size="sm" onClick={() => generate(true)}>Sí, regenerar todo</Button>
+                  <Button variant="secondary" size="sm" onClick={() => setConfirmFull(false)}>Cancelar</Button>
+                </span>
+              </div>
+            )}
             {progressBar}
             <ReportBody text={report} />
           </Card>

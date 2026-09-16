@@ -1,7 +1,7 @@
 # Tests de verificación (v1.1)
 
 Corren contra **mongomock** (no necesitan MongoDB corriendo) y con la **IA simulada**
-(no gastan API de Claude). Requieren: `pip install mongomock`.
+(no gastan API de Claude). Requieren: `pip install mongomock pytest`.
 
 ```bash
 cd 07_MVP/backend
@@ -12,3 +12,15 @@ python tests/test_fase5.py    # integraciones Qualtrics / Google Forms (requests
 ```
 
 Cada script imprime PASS/FAIL por check y termina con código 0 si todo pasó.
+
+## Tests con pytest (v1.2)
+
+```bash
+cd 07_MVP/backend
+pytest tests -q
+```
+
+- `test_report_v2_pytest.py` — informe V2 con corpus grande e IA simulada: tandas que se truncan y se dividen, prevalencia calculada en Python, caché del Prompt 1 y `force_full`, registro de costo.
+- `test_report_endpoints_pytest.py` — endpoints `POST /report?force_full`, `GET /projects/{id}/usage`, `GET /admin/usage`, `GET /admin/health` (mongomock).
+
+Los scripts `test_e2e.py` / `test_fase*.py` siguen corriendo como scripts; `conftest.py` los excluye de la recolección de pytest.

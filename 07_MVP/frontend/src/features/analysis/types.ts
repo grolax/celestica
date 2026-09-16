@@ -52,6 +52,19 @@ export interface CodifyProgress {
   error?: string;
 }
 
+export interface ClaudeUsageTotals {
+  calls?: number;
+  input_tokens?: number;
+  output_tokens?: number;
+  cost_usd?: number;
+}
+
+/** Consumo acumulado de la API de Claude por proyecto (ver backend claude_log.py). */
+export interface ClaudeUsage extends ClaudeUsageTotals {
+  by_step?: Record<string, ClaudeUsageTotals>;
+  updated_at?: string;
+}
+
 export interface ReportProgress {
   status: "idle" | "running" | "done" | "error";
   done?: number;

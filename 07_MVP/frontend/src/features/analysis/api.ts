@@ -1,7 +1,7 @@
 import { jsonBody, req } from "@/shared/api/client";
 import {
   AuditEvent, Category, CategoryComment, CodifyProgress, Coding,
-  LexicalResult, ProjectStats, ReportProgress, ResponseItem,
+  ClaudeUsage, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
 } from "./types";
 
 export const analysisApi = {
@@ -42,7 +42,12 @@ export const analysisApi = {
   traceability: (id: string) => req<Record<string, unknown>[]>(`/projects/${id}/export/traceability`),
 
   // Informe cualitativo
-  generateReport: (id: string) => req<{ status: string }>(`/projects/${id}/report`, { method: "POST" }),
+  /** forceFull: ignora el caché del análisis por respondente (Prompt 1) y
+   *  vuelve a analizar todo el corpus — cuesta ~1 llamada a Claude por respondente. */
+  generateReport: (id: string, mode: "v1" | "v2" = "v2", forceFull = false) =>
+    req<{ status: string; mode: string }>(
+      `/projects/${id}/report?mode=${mode}${forceFull ? "&force_full=true" : ""}`, { method: "POST" }),
+  getUsage: (id: string) => req<{ project_id: string; usage: ClaudeUsage }>(`/projects/${id}/usage`),
   getReportProgress: (id: string) => req<ReportProgress>(`/projects/${id}/report/progress`),
   getReport: (id: string) => req<{ report: string }>(`/projects/${id}/report`),
 };

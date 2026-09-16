@@ -221,6 +221,53 @@ def set_project_field(project_id: str, user_id: str, field: str, value: Any) -> 
     return result.matched_count > 0
 
 
+# ---------- Consumo de API Claude por proyecto (observabilidad de costo) ----------
+
+def inc_project_usage(project_id: str, step: str, input_tokens: int,
+                      output_tokens: int, cost_usd: float) -> bool:
+    """Acumula con $inc el consumo de Claude en `claude_usage` del proyecto.
+
+    Se filtra solo por id de proyecto (sin user_id) a propósito: lo llama el
+    sink de claude_log desde hilos de fondo que solo conocen el proyecto, y es
+    una escritura del sistema (contabilidad), no una acción de usuario. Los
+    endpoints que LEEN este campo sí pasan por el filtro multi-tenant.
+
+    Por qué $inc y no leer-sumar-guardar: el flujo V2 hace decenas de llamadas
+    en paralelo; $inc es atómico y no pisa lo que sumó otro hilo.
+    """
+    step_key = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in step)[:60] or "otro"
+    inc = {
+        "claude_usage.calls": 1,
+        "claude_usage.input_tokens": int(input_tokens),
+        "claude_usage.output_tokens": int(output_tokens),
+        "claude_usage.cost_usd": float(cost_usd),
+        f"claude_usage.by_step.{step_key}.calls": 1,
+        f"claude_usage.by_step.{step_key}.input_tokens": int(input_tokens),
+        f"claude_usage.by_step.{step_key}.output_tokens": int(output_tokens),
+        f"claude_usage.by_step.{step_key}.cost_usd": float(cost_usd),
+    }
+    result = get_db().projects.update_one(
+        {"id": project_id},
+        {"$inc": inc, "$set": {"claude_usage.updated_at": now_iso()}},
+    )
+    return result.matched_count > 0
+
+
+def list_usage_all_projects() -> list[dict]:
+    """Panel admin: consumo de Claude de TODOS los proyectos (todos los usuarios).
+    Solo campos de resumen: nunca viaja el documento completo."""
+    pipeline = [
+        {"$match": {"claude_usage": {"$exists": True}}},
+        {"$project": {
+            "_id": 0, "id": 1, "name": 1, "user_id": 1, "created_at": 1,
+            "n_responses": {"$size": {"$ifNull": ["$responses", []]}},
+            "claude_usage": 1,
+        }},
+        {"$sort": {"claude_usage.cost_usd": -1}},
+    ]
+    return list(get_db().projects.aggregate(pipeline))
+
+
 # ---------- Auditoría ----------
 
 def log_event(project: dict, actor: str, action: str, detail: dict[str, Any]) -> None:

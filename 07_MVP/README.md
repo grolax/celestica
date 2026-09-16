@@ -131,10 +131,23 @@ Colecciones en MongoDB: `users` (email único), `projects` (documento completo d
 | `MONGODB_URI` | Conexión a MongoDB (local o Atlas) | `mongodb://localhost:27017/softinsight` |
 | `ADMIN_PASSWORD` | Panel de prompts metodológicos | `softinsight2026` |
 | `CLAUDE_MODEL` | Modelo de IA | `claude-sonnet-4-6` |
+| `SYNTHESIS_BATCH_INPUT_TOKENS` / `MERGE_INPUT_TOKENS` | Tamaño de las tandas del informe V2 (por tokens, no por cantidad) | `10000` / `16000` |
+| `CLAUDE_LOG_DIR` | Dónde se registra cada llamada a Claude | `backend/logs` |
+
+Ver `backend/.env.example` para la lista completa (techos de salida, precios para la estimación de costo, log crudo).
 
 ## Costo estimado de Claude API
 
-Con el dataset demo (320 respuestas): 1 llamada de propuesta de categorías + ~13 llamadas de codificación por lotes de 25 + 1 informe (streaming). Orden de magnitud: < US$1 por corrida completa con Sonnet.
+Con el dataset demo (320 respuestas): 1 llamada de propuesta de categorías + ~13 llamadas de codificación por lotes de 25 + 1 informe rápido (v1, streaming): < US$1 por corrida con Sonnet.
+
+El **informe profundo (v2)** cuesta más porque hace 1 llamada por respondente: medido con 122 respondentes y Sonnet 4.6, ≈ US$1,9 el análisis por respondente (Prompt 1, se cachea) + ≈ US$1,7 la síntesis de clusters y la redacción. El consumo real por proyecto (tokens y costo estimado, por paso) se ve en **Configuración → panel de administración → Consumo de la API de Claude** y, llamada por llamada, en `backend/logs/claude_calls.jsonl`.
+
+## Tests
+
+```bash
+cd backend && pytest tests -q          # informe V2 con corpus grande + endpoints (IA simulada, mongomock)
+python tests/test_e2e.py                # scripts de verificación de la v1.1 (ver tests/README.md)
+```
 
 ## Pendiente para siguientes iteraciones
 

@@ -31,7 +31,22 @@ def fake_report(marco_teorico, categories, codings, responses, lexical_data, pro
         time.sleep(0.35)
     return FAKE_REPORT
 
+def fake_report_v2(survey_id, marco_teorico, categories, codings, responses,
+                   columns, text_column, lexical_data=None, progress_cb=None, **kwargs):
+    # simular flujo multi-prompt: progreso por respondente + síntesis + redacción
+    total = len(responses) + 2
+    for i in range(len(responses)):
+        if progress_cb:
+            progress_cb(f"Analizando respondentes ({i + 1}/{len(responses)})", i + 1, total)
+        time.sleep(0.05)
+    if progress_cb:
+        progress_cb("Sintetizando clusters", len(responses), total)
+        progress_cb("Redactando informe", len(responses) + 1, total)
+        progress_cb("Informe completado", total, total)
+    return FAKE_REPORT
+
 thematic.generate_qualitative_report = fake_report
+thematic.generate_qualitative_report_v2 = fake_report_v2
 
 c = TestClient(app, raise_server_exceptions=False)
 FAILS = []
