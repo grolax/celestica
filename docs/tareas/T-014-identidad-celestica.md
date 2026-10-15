@@ -42,3 +42,13 @@ No aplica.
 ## Notas
 - **Decisión del usuario del 2026-10-15:** autorizó explícitamente cambiar la paleta base (antes crema + celeste) y fijar el nombre oficial "Celestica". Esto resuelve la decisión abierta §10.5 del contexto. El repositorio y el código interno siguen llamándose softinsight/celestica sin cambios.
 - "Sobrio" quiere decir: sin degradados llamativos (el `.logo-mark` puede pasar a color plano), sombras suaves, mucho blanco y una sola acción primaria por zona.
+
+## Revisión
+2026-10-15 · **Aprobada**.
+- Diff: 9 archivos del frontend, +59/−52. Paleta de `:root` según la orden, más `--navy`, `--celeste` y `--ring`; sin degradados; títulos en navy; Card con separador bajo el título; nombre Celestica en todos los textos visibles. No hay cambios en el backend.
+- Verificado por el supervisor: `npm run build` en verde. `grep softinsight` solo deja la clave interna `softinsight_token`, el nombre de descarga por defecto y el correo `soporte@softinsight.cl`. No quedan colores crema, beige ni degradados. No hay hex inline en TSX. No hay `outline: none` sin reemplazo. Recalculé los contrastes clave: blanco/`#0077b6` 4,87, muted/`--bg-alt` 5,09, `--primary`/`--bg-alt` 4,53, warning 4,58, success 4,92; todos AA. El celeste (3,27) se usa solo como borde decorativo.
+- Fuera de alcance, aceptado: se quitó `overflow-x: auto` de `.project-tabs` (scroll espurio con `flex-wrap`). Es una línea y está justificada.
+- Pendientes:
+  - (a) El correo `soporte@softinsight.cl` se mantiene, porque SoftInsight es el equipo; confirmar con el usuario si hay otro.
+  - (b) Las pestañas internas del proyecto no se vieron renderizadas; heredan las clases. Se revisarán en T-016.
+  - (c) En `/login` a 420 px la tarjeta se ve corrida, posiblemente por la captura en modo headless. Se verifica en T-015, que rehace esa pantalla.

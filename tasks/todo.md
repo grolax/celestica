@@ -9,7 +9,7 @@ Detalle y criterios en `tasks/plan.md`. Cada tarea, al delegarse, se convierte e
 - [x] D-4 Matriz de permisos aprobada
 
 ## Fase UX — prioridad del usuario (2026-10-15)
-- [ ] T-014 frontend · identidad visual Celestica (paleta azul/blanco, nombre, contraste AA) — **en curso**
+- [x] T-014 frontend · identidad visual Celestica (paleta azul/blanco, nombre, contraste AA) — aprobada
 - [ ] T-015 frontend · página pública de presentación + rutas (`/` pública, `/proyectos`)
 - [ ] T-016 frontend · orden visual del área de trabajo
 - [ ] T-017 backend · nombre Celestica en PDF/DOCX y API (orden por escribir)
