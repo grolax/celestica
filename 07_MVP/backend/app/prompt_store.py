@@ -1,8 +1,9 @@
 """
 Gestión de prompts editables.
 
-Los prompts viven en prompts.json (editables en vivo).
 Los defaults viven en prompts_default.json (de solo lectura, para restaurar).
+prompts.json (ignorado por git, editable en vivo) solo guarda lo que se cambió:
+si no existe, o le faltan claves, get_prompts() usa los defaults.
 Ambos archivos están en el mismo directorio que este módulo.
 """
 from __future__ import annotations
@@ -18,10 +19,18 @@ _DEFAULTS_PATH = _DIR / "prompts_default.json"
 _lock = threading.Lock()
 
 
+def _read_overrides() -> dict:
+    return json.loads(_PROMPTS_PATH.read_text(encoding="utf-8")) if _PROMPTS_PATH.exists() else {}
+
+
+def _write_overrides(data: dict) -> None:
+    _PROMPTS_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def get_prompts() -> dict:
-    """Carga los prompts actuales desde disco. Thread-safe."""
+    """Defaults con encima lo que haya en prompts.json. Thread-safe."""
     with _lock:
-        return json.loads(_PROMPTS_PATH.read_text(encoding="utf-8"))
+        return {**get_defaults(), **_read_overrides()}
 
 
 def get_defaults() -> dict:
@@ -30,17 +39,15 @@ def get_defaults() -> dict:
 
 
 def save_prompt(key: str, system: str, instructions: str) -> dict:
-    """Actualiza un prompt específico y guarda. Thread-safe."""
+    """Actualiza un prompt específico y guarda (crea prompts.json si falta). Thread-safe."""
     with _lock:
-        data = json.loads(_PROMPTS_PATH.read_text(encoding="utf-8"))
-        if key not in data:
+        overrides = _read_overrides()
+        current = overrides.get(key) or get_defaults().get(key)
+        if current is None:
             raise KeyError(f"Prompt '{key}' no encontrado")
-        data[key]["system"] = system
-        data[key]["instructions"] = instructions
-        _PROMPTS_PATH.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        return data[key]
+        overrides[key] = {**current, "system": system, "instructions": instructions}
+        _write_overrides(overrides)
+        return overrides[key]
 
 
 def reset_prompt(key: str) -> dict:
@@ -49,10 +56,7 @@ def reset_prompt(key: str) -> dict:
     if key not in defaults:
         raise KeyError(f"Prompt '{key}' no encontrado en defaults")
     with _lock:
-        data = json.loads(_PROMPTS_PATH.read_text(encoding="utf-8"))
-        data[key]["system"] = defaults[key]["system"]
-        data[key]["instructions"] = defaults[key]["instructions"]
-        _PROMPTS_PATH.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        overrides = _read_overrides()
+        overrides[key] = defaults[key]
+        _write_overrides(overrides)
     return defaults[key]
