@@ -52,3 +52,26 @@ No aplica.
   - (a) El correo `soporte@softinsight.cl` se mantiene, porque SoftInsight es el equipo; confirmar con el usuario si hay otro.
   - (b) Las pestañas internas del proyecto no se vieron renderizadas; heredan las clases. Se revisarán en T-016.
   - (c) En `/login` a 420 px la tarjeta se ve corrida, posiblemente por la captura en modo headless. Se verifica en T-015, que rehace esa pantalla.
+
+## Revisión 1 (pedido del usuario tras ver la app)
+2026-10-15 · **Con cambios**. El usuario revisó la app en el navegador y pidió dos ajustes, recordando que la idea del diseño es que sea **sobrio**.
+
+1. **Emojis → iconos minimalistas.** Al iniciar sesión, los ítems (sidebar, pestañas del proyecto, botones, tarjetas y cualquier otro lugar de `src/`) usan emojis, por ejemplo "📁 Mis proyectos". Hay que reemplazarlos **todos**, incluido el `☰` del Header, por iconos de línea minimalistas.
+   - Un componente nuevo `src/shared/components/Icon.tsx` con SVG inline: `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `stroke-width` 1.75, extremos redondeados, tamaño por defecto de 18 px y `aria-hidden="true"`. Un solo estilo para todos.
+   - Sin dependencias nuevas: nada de librerías de iconos ni fuentes de iconos. Dibuja los trazos tú, o copia trazos de un set con licencia MIT/ISC (por ejemplo Lucide o Feather) y deja un comentario de una línea con el origen y la licencia.
+   - El icono acompaña al texto, nunca lo reemplaza. Donde hoy solo hay un emoji como botón, mantén el `aria-label`.
+   - Color heredado del texto (gris en reposo, azul en el ítem activo). Nada de iconos de colores.
+   - Criterio: buscar emojis en `src/` (rangos Unicode de emoji y símbolos) no devuelve nada visible. Indica en el resumen qué icono quedó en cada lugar.
+2. **Presentación más resumida.** El bloque de presentación de la pantalla de acceso (`AuthHero` en `LoginPage.tsx`) tiene demasiado texto. Déjalo en:
+   - Título: "De la encuesta al informe, con evidencia en cada paso."
+   - Una línea: "Análisis de encuestas con IA y validación de tu equipo."
+   - Tres puntos cortos, con iconos de línea en vez de viñetas: "Temas propuestos por IA, validados por personas" · "Trazabilidad completa de cada decisión" · "Informes PDF, Word y Excel".
+
+No cambies nada más. Al terminar, `npm run build` debe pasar. Commits con el formato `T-014 RNF-16: ...`.
+
+## Revisión 2
+2026-10-15 · **Aprobada**.
+- Commit `83592d5`: `shared/components/Icon.tsx` con SVG inline (trazo 1.75, `currentColor`, `aria-hidden`, origen Lucide/ISC comentado). No hay dependencias nuevas (`package.json` sin cambios). Se reemplazaron todos los emojis y símbolos usados como icono, y donde un icono quedó solo se agregó `aria-label`/`sr-only`. `AuthHero` quedó resumido según el texto pedido.
+- Verificado por el supervisor: diff de 15 archivos (+89/−39) acotado a lo pedido; `npm run build` en verde.
+- Nota menor: el icono `sparkle` está definido pero no se usa. Se acepta, porque T-015 o T-016 pueden necesitarlo.
+- Las pestañas del proyecto no tenían emojis y siguen sin iconos, a propósito, por sobriedad.

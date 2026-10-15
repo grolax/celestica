@@ -2,7 +2,7 @@
 Lado: frontend
 Requerimientos: RNF-13, RNF-14, RNF-15, RNF-16
 Rama: tarea/T-015-pagina-presentacion
-Depende de: T-014 (usa su paleta y su nombre)
+Depende de: T-014 (usa su paleta, su nombre y su componente `Icon`)
 
 ## Objetivo
 Quien entra a Celestica desde fuera ve primero una **carta de presentación**: quiénes somos, nuestro objetivo y qué hace la plataforma. Arriba hay una barra con la pestaña **"Iniciar sesión"**, que lleva al acceso y desde ahí al área de trabajo actual. La página es pública, estática y no usa la API.
@@ -16,14 +16,11 @@ Quien entra a Celestica desde fuera ve primero una **carta de presentación**: q
   - Después del login o del signup se va a `/proyectos`. Si el usuario ya tiene sesión y entra a `/login` o `/signup`, también va a `/proyectos`. La ruta `*` lleva a `/`.
   - Actualizar todos los destinos que hoy apuntan a `/` como área de trabajo: `App.tsx` (`PublicOnly`), `LoginPage.tsx` (2 `navigate("/")`), `NewProject.tsx` (Cancelar), el logo del `Header` (dentro del área de trabajo lleva a `/proyectos`) y `Sidebar` ("Mis proyectos"). Busca cualquier otro con `grep`.
 - SÍ: barra superior pública, propia de esta página: logo "Celestica" a la izquierda; a la derecha, enlaces de ancla a las secciones y la pestaña/botón **"Iniciar sesión"** (`/login`). Si ya hay sesión, ese botón dice **"Ir a mi espacio"** (`/proyectos`).
-- SÍ: secciones, en este orden, separadas con claridad (alternar fondo blanco y `--bg-alt`, títulos en navy):
-  1. **Portada:** nombre, frase principal, subtítulo, botón primario "Iniciar sesión" y botón secundario "Crear cuenta" (`/signup`).
-  2. **Quiénes somos.**
-  3. **Nuestro objetivo.**
-  4. **Qué hace Celestica:** tarjetas de funciones.
-  5. **Cómo funciona:** 4 pasos numerados.
-  6. **Para quién:** tipos de organización, sin nombrar empresas.
-  7. **Pie:** "Celestica es un producto de SoftInsight", año y enlace "Iniciar sesión".
+- SÍ: **página resumida** (pedido del usuario del 2026-10-15: "más resumida", diseño sobrio). Se lee completa en dos o tres pantallas de escritorio. Secciones, en este orden, separadas con claridad (alternar fondo blanco y `--bg-alt`, títulos en navy):
+  1. **Portada:** nombre, frase principal, una línea, botón primario "Iniciar sesión" y botón secundario "Crear cuenta" (`/signup`).
+  2. **Quiénes somos / Nuestro objetivo:** dos columnas lado a lado (una sola columna en móvil), con un párrafo corto cada una.
+  3. **Qué hace Celestica:** 4 tarjetas con un icono de línea (el componente `Icon` de T-014), un título y una línea.
+  4. **Pie:** "Celestica es un producto de SoftInsight", año y enlace "Iniciar sesión".
 - SÍ: simplificar `LoginPage`/`SignupPage`. El bloque `AuthHero` duplica la presentación: se reemplaza por un formulario centrado con el logo y un enlace "← Volver al inicio" (`/`).
 - SÍ: responsive (RNF-15). En móvil, la barra pública colapsa los enlaces de ancla y deja visible "Iniciar sesión", y las tarjetas pasan a una columna.
 - NO: formularios de contacto, solicitud de demo, ni nada que llame al backend; imágenes externas o de stock; librerías nuevas (ilustraciones simples con CSS o SVG inline, si acaso); cambiar el área de trabajo (eso es T-016).
@@ -31,32 +28,18 @@ Quien entra a Celestica desde fuera ve primero una **carta de presentación**: q
 ## Contrato de API
 No aplica: la página es estática.
 
-## Textos (borrador del supervisor, el usuario los revisará)
+## Textos (versión resumida, 2026-10-15)
 Usa estos textos tal cual. Si alguno no calza con el diseño, propón el cambio en tu resumen en vez de inventar. **No agregues funciones que la plataforma aún no tiene.** Por ejemplo, NPS y preguntas cerradas todavía no existen.
 
 - **Frase principal:** "De la encuesta al informe, con evidencia en cada paso."
-- **Subtítulo:** "Celestica analiza las respuestas de tus encuestas con apoyo de inteligencia artificial y validación de tu equipo, para que llegues a hallazgos claros, trazables y listos para presentar."
-- **Quiénes somos:** "Somos SoftInsight, un equipo que une análisis social, metodología de investigación y tecnología. Creamos Celestica para que cualquier organización que hace encuestas pueda entender lo que su gente le dice, sin pasar semanas leyendo y ordenando respuestas a mano."
-- **Nuestro objetivo:** "Que transformar encuestas en decisiones tome horas, no semanas, y que cada número y cada afirmación de un informe se pueda rastrear hasta las respuestas que lo sustentan. La inteligencia artificial propone; tu equipo decide."
-- **Qué hace Celestica:** 6 tarjetas, cada una con título y una línea.
-  - *Importa tus datos:* "Sube archivos CSV o Excel, o conecta Qualtrics y Google Forms."
-  - *Análisis de palabras:* "Frecuencias, combinaciones de palabras y tono de las respuestas, sin IA y en segundos."
-  - *Temas propuestos por IA, validados por personas:* "La IA sugiere categorías; tu equipo las revisa, edita o descarta."
-  - *Codificación con justificación:* "Cada respuesta se clasifica con su motivo y un nivel de confianza para priorizar la revisión."
-  - *Trazabilidad y auditoría:* "Cada decisión, humana o de la IA, queda registrada y no se puede borrar."
-  - *Informes listos para entregar:* "Exporta en PDF, Word, Excel o CSV."
-- **Cómo funciona:**
-  1. "Importa tu encuesta."
-  2. "Revisa los temas que propone la IA."
-  3. "Codifica y revisa la evidencia."
-  4. "Descarga tu informe."
-- **Para quién:** "Organizaciones que escuchan a su gente a través de encuestas:"
-  - Retail y consumo
-  - Sector público y municipios
-  - Educación superior
-  - Empresas y equipos de personas
-  - Estudios de mercado
-  - Salud
+- **Línea:** "Análisis de encuestas con IA y validación de tu equipo."
+- **Quiénes somos:** "Somos SoftInsight: análisis social, metodología y tecnología al servicio de las organizaciones que escuchan a su gente."
+- **Nuestro objetivo:** "Que pasar de las respuestas a las decisiones tome horas, no semanas, con cada hallazgo respaldado por evidencia."
+- **Qué hace Celestica:** 4 tarjetas.
+  - *Importa tus datos:* "CSV, Excel, Qualtrics o Google Forms."
+  - *La IA propone, tu equipo decide:* "Temas sugeridos que tu equipo valida."
+  - *Trazabilidad total:* "Cada decisión queda registrada."
+  - *Informes listos:* "PDF, Word, Excel y CSV."
 
 ## Archivos probables
 - Crear: `07_MVP/frontend/src/features/landing/LandingPage.tsx` (y, si hace falta, un componente de barra pública en esa misma carpeta).
