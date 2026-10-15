@@ -31,3 +31,9 @@ No aplica.
 
 ## Notas
 - Comprobación del supervisor del 2026-10-14: `npm run build` pasa con Vite 8.3.4 y muestra advertencias de deprecación (`esbuild` → `oxc`, `rollupOptions` → `rolldownOptions`) que vienen del plugin 4.x.
+
+## Revisión
+2026-10-14 · **Aprobada**.
+- Diff: `package.json` (react-router-dom ^7.18.4, @vitejs/plugin-react ^6.1.2, vite ^8.3.4), `package-lock.json` y `07_MVP/README.md` (Node 20.19+ o 22.12+). No hay cambios en `src/` ni en `vite.config.ts`, y nada fuera del frontend.
+- Verificado por el supervisor: `npm ls` sin errores y `npm run build` en verde, sin las advertencias de deprecación del plugin 4.x. El programador comprobó `npm ci` limpio.
+- Pendiente menor: nadie abrió un navegador para revisar las advertencias de React Router 7 en consola. Revisé el código: solo usa `Routes`, `Route`, `Navigate`, `Link`, `NavLink` y `useNavigate`, que son estables en v7. Queda como verificación manual del usuario.

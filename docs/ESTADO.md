@@ -7,10 +7,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | Tarea | Lado | Requerimientos | Fecha | Rama |
 | --- | --- | --- | --- | --- |
 | — | — | Línea base: MVP v1.1 (ver `07_MVP/COMO_FUNCIONA.md`) | 2026-10 | main |
+| T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- T-000 · frontend · RNF-17 · consolidar Vite 8 / React Router 7 · rama `tarea/T-000-deps-frontend` (2026-10-14)
+(nada)
 
 ## Bloqueado / requiere decisión del usuario
 
