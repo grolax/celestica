@@ -144,7 +144,7 @@ export default function NewProject() {
         )}
 
         <p className="small muted" style={{ marginTop: 6 }}>
-          Si los datos tienen varias columnas, SoftInsight detecta automáticamente la columna de texto
+          Si los datos tienen varias columnas, Celestica detecta automáticamente la columna de texto
           (la de mayor largo promedio).
         </p>
       </Card>

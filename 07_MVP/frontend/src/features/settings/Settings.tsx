@@ -36,7 +36,7 @@ export default function Settings() {
 
       <Card title="Importar proyectos antiguos">
         <p className="muted">
-          Si usaste la versión demo de SoftInsight (sin cuentas), puedes importar esos proyectos a tu cuenta.
+          Si usaste la versión demo de Celestica (sin cuentas), puedes importar esos proyectos a tu cuenta.
         </p>
         {imported !== null ? (
           <div className="alert alert-success" style={{ marginBottom: 0 }}>
@@ -105,7 +105,7 @@ function AdminPrompts() {
 
   return (
     <Card
-      title="Configuración metodológica (equipo SoftInsight)"
+      title="Configuración metodológica (equipo Celestica)"
       actions={<Button variant="ghost" size="sm" onClick={() => setOpen(!open)}>{open ? "Ocultar" : "Abrir"}</Button>}
     >
       <p className="muted" style={{ marginBottom: open ? 12 : 0 }}>

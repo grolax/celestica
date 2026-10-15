@@ -9,7 +9,7 @@ function AuthHero() {
     <div className="auth-hero">
       <h1>Análisis cualitativo asistido por IA, auditable de principio a fin.</h1>
       <p>
-        SoftInsight transforma semanas de codificación manual de encuestas abiertas en un
+        Celestica transforma semanas de codificación manual de encuestas abiertas en un
         proceso de días — sin sacrificar rigor metodológico.
       </p>
       <ul>
@@ -50,8 +50,8 @@ export default function LoginPage() {
       <div className="auth-form-side">
         <form className="auth-card" onSubmit={submit}>
           <div className="logo" style={{ marginBottom: 18 }}>
-            <span className="logo-mark">SI</span>
-            <span>Soft<em>Insight</em></span>
+            <span className="logo-mark">C</span>
+            <span>Celestica</span>
           </div>
           <h2>Iniciar sesión</h2>
           {error && <div className="alert alert-error">{error}</div>}
@@ -107,8 +107,8 @@ export function SignupPage() {
       <div className="auth-form-side">
         <form className="auth-card" onSubmit={submit}>
           <div className="logo" style={{ marginBottom: 18 }}>
-            <span className="logo-mark">SI</span>
-            <span>Soft<em>Insight</em></span>
+            <span className="logo-mark">C</span>
+            <span>Celestica</span>
           </div>
           <h2>Crear cuenta</h2>
           {error && <div className="alert alert-error">{error}</div>}

@@ -14,7 +14,7 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
       <NavLink to="/documentacion" className={cls}>📖 Documentación</NavLink>
       <NavLink to="/configuracion" className={cls}>⚙️ Configuración</NavLink>
       <div style={{ marginTop: "auto", padding: "12px 12px 4px" }} className="small muted">
-        SoftInsight v1.1
+        Celestica v1.1
         <br />
         Análisis auditable y trazable
       </div>

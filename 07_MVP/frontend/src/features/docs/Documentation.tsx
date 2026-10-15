@@ -5,9 +5,9 @@ export default function Documentation() {
     <div style={{ maxWidth: 820 }}>
       <h1 style={{ marginBottom: 18 }}>Documentación</h1>
 
-      <Card title="¿Qué es SoftInsight?">
+      <Card title="¿Qué es Celestica?">
         <p>
-          SoftInsight automatiza el análisis cualitativo de encuestas abiertas (evaluación docente,
+          Celestica automatiza el análisis cualitativo de encuestas abiertas (evaluación docente,
           acreditación, satisfacción) manteniendo el rigor metodológico: la IA propone, tu equipo decide,
           y toda decisión queda registrada para auditoría CNA/CNE.
         </p>
@@ -38,7 +38,7 @@ export default function Documentation() {
       <Card title="Preparación del archivo de datos">
         <p className="muted">
           El archivo debe tener al menos una columna con las respuestas abiertas. Si hay varias columnas,
-          SoftInsight detecta automáticamente la de texto (mayor largo promedio). Una columna
+          Celestica detecta automáticamente la de texto (mayor largo promedio). Una columna
           <code>id_respuesta</code> opcional permite conservar tus identificadores. El resto de las columnas
           se guarda como metadata de cada respuesta.
         </p>

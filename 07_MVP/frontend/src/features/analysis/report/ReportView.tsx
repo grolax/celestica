@@ -144,7 +144,7 @@ export default function ReportView() {
         <>
           <Card
             title={<div><h2 style={{ margin: 0 }}>Informe de resultados — {project.name}</h2>
-              <p className="muted small" style={{ margin: "3px 0 0" }}>Análisis cualitativo asistido por IA · SoftInsight</p></div>}
+              <p className="muted small" style={{ margin: "3px 0 0" }}>Análisis cualitativo asistido por IA · Celestica</p></div>}
             actions={
               <>
                 <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}>⬇ Exportar PDF/Word</Button>

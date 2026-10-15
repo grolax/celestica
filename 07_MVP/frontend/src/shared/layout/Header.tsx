@@ -22,8 +22,8 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         ☰
       </button>
       <Link to="/" className="logo">
-        <span className="logo-mark">SI</span>
-        <span>Soft<em>Insight</em></span>
+        <span className="logo-mark">C</span>
+        <span>Celestica</span>
       </Link>
       <div className="header-user">
         <div className="avatar" title={user?.email}>{initials}</div>
