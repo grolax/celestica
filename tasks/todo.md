@@ -10,7 +10,7 @@ Detalle y criterios en `tasks/plan.md`. Cada tarea, al delegarse, se convierte e
 
 ## Fase 0 — Línea base en verde
 - [x] T-000 frontend · consolidar Vite 8 + React Router 7 (plugin-react compatible, `npm ci` limpio) — aprobada
-- [ ] T-001 backend · `prompt_store` funciona sin `prompts.json` (suite 14/14 en clon limpio) — **en curso**
+- [x] T-001 backend · `prompt_store` funciona sin `prompts.json` (suite 18/18 en clon limpio) — aprobada
 - [ ] T-002 backend · scripts `test_e2e`/`test_fase*` corren dentro de pytest
 - [ ] **Checkpoint 0** — suite completa en verde en `main`
 

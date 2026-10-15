@@ -33,3 +33,21 @@ No aplica: los endpoints `/api/admin/prompts*` no cambian de forma ni de comport
 ## Notas
 - `thematic.py` lee las claves `propose_categories`, `codify`, `interpret_lexical`, `qualitative_report`, `analyze_respondent_v2`, `synthesize_clusters_v2_partial`, `synthesize_clusters_v2_map_names`, `synthesize_clusters_v2_select_quotes`, `synthesize_clusters_v2` y `write_report_v2`.
 - Mantén el `threading.Lock` existente en las escrituras.
+
+## Revisión 1
+2026-10-14 · **Con cambios** (1 observación).
+
+Verificado: `pytest tests -q` da 18 passed sin `app/prompts.json`; `test_e2e`, `test_fase1`, `test_fase3` y `test_fase5` terminan en "TODO OK"; el diff se limita a `prompt_store.py`, la prueba nueva y `COMO_FUNCIONA.md`.
+
+1. **`07_MVP/backend/app/prompt_store.py`, `reset_prompt` (`overrides[key] = defaults[key]`).** Restaurar escribe una copia del default actual en `prompts.json`. Si después se mejora `prompts_default.json`, esa clave sigue usando la copia vieja: el prompt queda congelado, que es justo lo que tu propia decisión de `save_prompt` buscaba evitar.
+   **Esperado:** `reset_prompt` quita la clave de `prompts.json` (`overrides.pop(key, None)` y luego escribir), y sigue devolviendo `defaults[key]`. Mantén el `KeyError` para claves que no estén en los defaults.
+   **Prueba:** en `test_save_sin_archivo_lo_crea_y_reset_restaura`, después del reset, verifica que `"a"` ya no está en el JSON de `tmp_path / "prompts.json"`.
+
+No cambies nada más. Commit con el formato `T-001 RNF-18: ...`.
+
+## Revisión 2
+2026-10-14 · **Aprobada**.
+- Commit `7042c7f`: `reset_prompt` hace `overrides.pop(key, None)` y la prueba verifica que la clave ya no está en `prompts.json`. Es exactamente lo pedido; no hay otros cambios.
+- Verificado por el supervisor sin `app/prompts.json`: `pytest tests -q` da 18 passed; `test_e2e`, `test_fase1`, `test_fase3` y `test_fase5` terminan en "TODO OK".
+- Se cumplen todos los criterios de aceptación.
+- Fuera de alcance, para más adelante: `schemas_v2.py` (línea 16), el docstring de `thematic.py` y `COMO_FUNCIONA.md` §6 ("Los 4 prompts", cuando hoy son 10) siguen describiendo los prompts como antes. Queda anotado como deuda menor de documentación.
