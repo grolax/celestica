@@ -7,7 +7,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | Tarea | Lado | Requerimientos | Fecha | Rama |
 | --- | --- | --- | --- | --- |
 | — | — | Línea base: MVP v1.1 (ver `07_MVP/COMO_FUNCIONA.md`) | 2026-10 | main |
-| T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (aprobada, pendiente de subir) |
+| T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (fusionada, PR #1) |
+| T-001 `prompt_store` sin `prompts.json` | backend | RNF-18, RNF-21 | 2026-10-14 | `tarea/T-001-prompts-fallback` (aprobada, pendiente de subir) |
 
 ## En curso
 
@@ -19,7 +20,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## Deuda técnica detectada
 
-- `pytest tests -q` en rojo en `main` (7/14): `prompt_store` falla si no existe `app/prompts.json`, que está en `.gitignore` → T-001.
+- Docs de prompts desactualizados: `COMO_FUNCIONA.md` §6 dice "4 prompts" (son 10); `schemas_v2.py:16` y el docstring de `thematic.py` nombran solo `prompts.json`.
 - Los scripts de aislamiento (`test_e2e`, `test_fase1/3/5`) no los ejecuta pytest; hoy pasan corriéndolos a mano → T-002.
 - `backend/app/main.py` concentra todos los endpoints (~950 líneas); separar en routers (RNF-17).
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
