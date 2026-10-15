@@ -7,11 +7,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | Tarea | Lado | Requerimientos | Fecha | Rama |
 | --- | --- | --- | --- | --- |
 | — | — | Línea base: MVP v1.1 (ver `07_MVP/COMO_FUNCIONA.md`) | 2026-10 | main |
-| T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (aprobada, pendiente de subir) |
+| T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (fusionada, PR #1) |
 
 ## En curso
 
-(nada)
+- T-001 · backend · RNF-18 · `prompt_store` sin `prompts.json` · rama `tarea/T-001-prompts-fallback` (2026-10-14)
 
 ## Bloqueado / requiere decisión del usuario
 
