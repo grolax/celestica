@@ -39,6 +39,7 @@ def test_save_sin_archivo_lo_crea_y_reset_restaura(store, tmp_path):
     assert prompt_store.get_prompts()["b"] == store["b"]
     assert prompt_store.reset_prompt("a") == store["a"]
     assert prompt_store.get_prompts()["a"] == store["a"]
+    assert "a" not in json.loads((tmp_path / "prompts.json").read_text(encoding="utf-8"))
 
 
 def test_clave_inexistente_lanza_keyerror(store):

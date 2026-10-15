@@ -57,6 +57,6 @@ def reset_prompt(key: str) -> dict:
         raise KeyError(f"Prompt '{key}' no encontrado en defaults")
     with _lock:
         overrides = _read_overrides()
-        overrides[key] = defaults[key]
+        overrides.pop(key, None)
         _write_overrides(overrides)
     return defaults[key]
