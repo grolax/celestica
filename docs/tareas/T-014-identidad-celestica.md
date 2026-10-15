@@ -1,0 +1,44 @@
+# T-014: Identidad visual Celestica (paleta azul y blanco, nombre oficial)
+Lado: frontend
+Requerimientos: RNF-16, RNF-14, RNF-13
+Rama: tarea/T-014-identidad-celestica
+Depende de: —
+
+## Objetivo
+El usuario (2026-10-15) pidió un diseño **sobrio, entendible, con separaciones claras**, en una **gama de azules (incluido el celeste) y blanco**, y que el nombre visible del producto sea **Celestica**. Esta tarea cambia la base visual, es decir, las variables de `globals.css` y los componentes compartidos, y el nombre en toda la interfaz. Todas las pantallas existentes deben heredar el cambio sin que se reescriba cada una.
+
+## Alcance
+- SÍ: reemplazar la paleta de `:root` en `globals.css`. Fuera el fondo crema (`#fffaf0`) y los bordes beige; entran blanco y azules. Paleta de partida, que puedes ajustar si no cumple contraste:
+  - `--navy: #0b2545` (títulos, encabezados y fondos oscuros)
+  - `--primary: #0077b6` (botones y enlaces; verifica que el texto blanco sobre este azul cumpla AA, ≥ 4,5:1)
+  - `--primary-dark: #005f8f` (hover)
+  - `--celeste: #0099cc` (solo acento decorativo, íconos, bordes o texto grande; **no** sirve para texto normal sobre blanco porque queda en ≈ 3,4:1)
+  - `--primary-soft: #e6f4fa`
+  - `--bg: #ffffff`, `--bg-alt: #f4f7fa` (fondo general, gris azulado muy claro)
+  - `--border: #dce3ea`, `--border-soft: #eaeff4`
+  - `--text: #0f1c2b`, `--text-muted: #5b6b7c` (verifica ≥ 4,5:1 sobre `--bg-alt`)
+  - Verde, naranja y rojo semánticos: se mantienen, ajustando solo lo necesario para cumplir AA.
+- SÍ: separaciones más claras en la base. Header con borde inferior definido, sidebar con borde y fondo distinto del contenido, `Card` con borde visible y espaciado interno consistente, y títulos de página con jerarquía clara (h1 > h2 > h3). Todo se resuelve en `globals.css` y `shared/components`, sin tocar pantalla por pantalla.
+- SÍ: nombre **Celestica** en todo texto visible de la UI: `index.html` (`<title>Celestica — Análisis de encuestas con evidencia</title>`), logo del `Header` (marca "C"; si quieres, la palabra con "Celestica" en navy), `Sidebar` ("Celestica v1.1"), `LoginPage`, `Documentation`, `NewProject`, `Settings` y `ReportView`. El panel de prompts de Settings pasa a llamarse "Configuración metodológica (equipo Celestica)".
+- SÍ: actualizar el comentario de cabecera de `globals.css` ("Celestica — Sistema de diseño v2.0", con la paleta nueva).
+- NO: la página pública de presentación ni el cambio de rutas (eso es T-015); rediseñar la estructura de las pantallas del área de trabajo (eso es T-016); tocar el backend (los PDF/DOCX siguen diciendo SoftInsight hasta una tarea de backend aparte); agregar frameworks CSS, librerías de íconos o fuentes nuevas. Inter se mantiene.
+
+## Contrato de API
+No aplica.
+
+## Archivos probables
+- Tocar: `07_MVP/frontend/src/styles/globals.css`, `index.html`, `src/shared/layout/Header.tsx`, `Sidebar.tsx`, `src/shared/components/*` (solo si un estilo no se puede resolver con CSS), y los textos con "SoftInsight" de `LoginPage.tsx`, `Documentation.tsx`, `NewProject.tsx`, `Settings.tsx` y `ReportView.tsx`.
+- No tocar: `07_MVP/backend/**`, `docs/**`, la lógica de los componentes ni las llamadas a la API.
+
+## Criterios de aceptación
+- [ ] `npm run build` sin errores.
+- [ ] `grep -rn "SoftInsight" src index.html` no devuelve texto visible para el usuario. Se aceptan comentarios de código, si quedan.
+- [ ] Ninguna referencia al crema (`#fffaf0`) ni a los bordes beige (`#e6e2d8`, `#efece4`) en `src/`.
+- [ ] En el resumen final, una tabla de contraste con los pares texto/fondo usados: texto normal sobre `--bg` y `--bg-alt`, `--text-muted` sobre ambos, texto blanco sobre `--primary` y `--navy`, y enlaces sobre blanco. Cada par con su razón calculada; todos ≥ 4,5:1 para texto normal (WCAG AA).
+- [ ] El foco del teclado se ve en botones, enlaces e inputs: un anillo visible en azul, sin `outline: none` sin reemplazo.
+- [ ] Recorres a mano `/login`, la lista de proyectos, un proyecto y Configuración: nada queda ilegible ni con colores viejos. Indica en el resumen qué pantallas revisaste.
+- [ ] Commits con el formato `T-014 RNF-16: ...`.
+
+## Notas
+- **Decisión del usuario del 2026-10-15:** autorizó explícitamente cambiar la paleta base (antes crema + celeste) y fijar el nombre oficial "Celestica". Esto resuelve la decisión abierta §10.5 del contexto. El repositorio y el código interno siguen llamándose softinsight/celestica sin cambios.
+- "Sobrio" quiere decir: sin degradados llamativos (el `.logo-mark` puede pasar a color plano), sombras suaves, mucho blanco y una sola acción primaria por zona.
