@@ -50,8 +50,8 @@ MongoDB (base "softinsight")
 
 07_MVP/backend/
 ├── .env                     ← Secretos: API key de Anthropic, SECRET_KEY. NUNCA subir a git.
-├── app/prompts.json         ← Los prompts "vivos" que usa Claude (editables desde la UI).
-├── app/prompts_default.json ← Copia de fábrica de los prompts (para restaurar).
+├── app/prompts.json         ← Cambios locales a los prompts (editables desde la UI). Ignorado por git; se crea al primer guardado.
+├── app/prompts_default.json ← Prompts de fábrica: se usan cuando falta `prompts.json` o alguna clave, y para restaurar.
 ├── softinsight.db           ← Base SQLite de la v1.0 (solo como fuente de migración).
 └── scripts/migrate_sqlite_to_mongo.py  ← migración v1.0 → v1.1, idempotente.
 ```
@@ -199,7 +199,7 @@ La vista plana de todo lo anterior: respuesta → categoría → justificación 
 
 ## 6. Los prompts son configurables (y por qué importa)
 
-Los 4 prompts (`propose_categories`, `codify`, `interpret_lexical`, `qualitative_report`) viven en `app/prompts.json` y se editan desde la UI (Configuración → Configuración metodológica, contraseña `ADMIN_PASSWORD`). Cambios en vivo, sin reiniciar. La "metodología" de SoftInsight es ajustable por el sociólogo del equipo sin tocar código, y afinable por vertical a medida que llegue feedback.
+Los 4 prompts (`propose_categories`, `codify`, `interpret_lexical`, `qualitative_report`) viven en `app/prompts_default.json` y se editan desde la UI (los cambios se guardan en `app/prompts.json`, que se superpone a los defaults y no es necesario para arrancar) (Configuración → Configuración metodológica, contraseña `ADMIN_PASSWORD`). Cambios en vivo, sin reiniciar. La "metodología" de SoftInsight es ajustable por el sociólogo del equipo sin tocar código, y afinable por vertical a medida que llegue feedback.
 
 ---
 
