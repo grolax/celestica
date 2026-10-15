@@ -7,7 +7,7 @@ Plataforma de análisis cualitativo asistido por IA para organizaciones que anal
 ## Requisitos
 
 - Python 3.9+
-- Node.js 18+
+- Node.js 20.19+ o 22.12+ (lo exige Vite 8)
 - **MongoDB Community** (local; Atlas para producción)
 - API key de Anthropic (solo para el análisis temático e informe; el léxico funciona sin ella)
 
