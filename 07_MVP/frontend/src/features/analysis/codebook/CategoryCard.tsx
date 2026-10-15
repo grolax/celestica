@@ -5,6 +5,7 @@ import { TextArea } from "@/shared/components/Input";
 import { analysisApi } from "../api";
 import { Category } from "../types";
 import CommentThread from "./CommentThread";
+import Icon from "@/shared/components/Icon";
 
 /** Tarjeta de una categoría: estado, edición inline y comentarios del equipo. */
 export default function CategoryCard({ category: c, projectId, onChange, onError }: {
@@ -51,7 +52,7 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
         : <h3 style={{ margin: 0 }}>{c.nombre}</h3>}
       actions={
         <Button size="sm" variant="ghost" onClick={() => setEditing(!editing)}>
-          {editing ? "Cancelar" : "✎ Editar"}
+          {editing ? "Cancelar" : <><Icon name="edit" size={16} /> Editar</>}
         </Button>
       }
     >
@@ -84,7 +85,7 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
         {c.status !== "descartada" && <Button size="sm" variant="danger" onClick={() => setStatus("descartada")}>Descartar</Button>}
         {c.status !== "propuesta" && <Button size="sm" variant="ghost" onClick={() => setStatus("propuesta")}>Revertir</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowComments(!showComments)}>
-          💬 {comments.length > 0 ? comments.length : ""}
+          <Icon name="comment" size={16} /> {comments.length > 0 ? comments.length : ""}
         </Button>
       </div>
 

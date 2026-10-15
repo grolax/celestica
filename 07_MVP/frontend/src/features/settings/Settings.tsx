@@ -7,6 +7,7 @@ import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Table from "@/shared/components/Table";
 import Input, { TextArea } from "@/shared/components/Input";
+import Icon from "@/shared/components/Icon";
 
 const PROMPT_ORDER = ["propose_categories", "codify", "interpret_lexical", "qualitative_report"];
 
@@ -36,7 +37,7 @@ export default function Settings() {
 
       <Card title="Importar proyectos antiguos">
         <p className="muted">
-          Si usaste la versión demo de SoftInsight (sin cuentas), puedes importar esos proyectos a tu cuenta.
+          Si usaste la versión demo de Celestica (sin cuentas), puedes importar esos proyectos a tu cuenta.
         </p>
         {imported !== null ? (
           <div className="alert alert-success" style={{ marginBottom: 0 }}>
@@ -105,7 +106,7 @@ function AdminPrompts() {
 
   return (
     <Card
-      title="Configuración metodológica (equipo SoftInsight)"
+      title="Configuración metodológica (equipo Celestica)"
       actions={<Button variant="ghost" size="sm" onClick={() => setOpen(!open)}>{open ? "Ocultar" : "Abrir"}</Button>}
     >
       <p className="muted" style={{ marginBottom: open ? 12 : 0 }}>
@@ -178,7 +179,7 @@ function PromptEditor({ promptKey, entry, onSave, onReset }: {
           <p className="muted small" style={{ margin: "3px 0 0" }}>{entry.description}</p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {status === "saved" && <span className="pill ok">Guardado ✓</span>}
+          {status === "saved" && <span className="pill ok">Guardado <Icon name="check" size={12} /></span>}
           {status === "error" && <span className="pill descartada">{errorMsg}</span>}
           <Button variant="danger" size="sm" onClick={() => onReset(promptKey)}>Restaurar default</Button>
           <Button size="sm" onClick={save} disabled={!isDirty} busy={status === "saving"}>Guardar</Button>
@@ -246,7 +247,7 @@ function UsagePanel({ usage, health, onRefresh }: {
                   </tr>
                   {expanded === p.id && steps.map(([step, t]) => (
                     <tr key={p.id + step} className="muted small">
-                      <td style={{ paddingLeft: 24 }}>↳ {step.replace(/_/g, " ")}</td>
+                      <td style={{ paddingLeft: 24 }}>{step.replace(/_/g, " ")}</td>
                       <td></td>
                       <td>{fmtInt(t.calls)}</td>
                       <td>{fmtInt(t.input_tokens)}</td>

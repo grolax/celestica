@@ -5,6 +5,7 @@ import { ProjectStats } from "@/features/analysis/types";
 import Button from "@/shared/components/Button";
 import Card, { StatCard } from "@/shared/components/Card";
 import { useProject } from "./useProjectData";
+import Icon from "@/shared/components/Icon";
 
 export default function ProjectDashboard() {
   const { project } = useProject();
@@ -44,13 +45,13 @@ export default function ProjectDashboard() {
         <Card title="Estado del análisis"
               actions={nextStep && (
                 <Button size="sm" onClick={() => navigate(nextStep.to)}>
-                  {nextStep.cta} {nextStep.label.toLowerCase().split(" ")[0]} →
+                  {nextStep.cta} {nextStep.label.toLowerCase().split(" ")[0]} <Icon name="arrowRight" size={16} />
                 </Button>
               )}>
           {steps.map((s, i) => (
             <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < steps.length - 1 ? "1px solid var(--border-soft)" : "none" }}>
               <span className={`pill ${s.done ? "ok" : ""}`} style={{ width: 26, textAlign: "center" }}>
-                {s.done ? "✓" : i + 1}
+                {s.done ? <Icon name="check" size={14} /> : i + 1}
               </span>
               <span style={{ flex: 1, fontWeight: s.done ? 400 : 600 }}>{s.label}</span>
               {!s.done && (
@@ -60,7 +61,7 @@ export default function ProjectDashboard() {
           ))}
           {!nextStep && (
             <div className="alert alert-success" style={{ marginTop: 12, marginBottom: 0 }}>
-              Análisis completo. <a onClick={() => navigate("exportar")} style={{ cursor: "pointer" }}><strong>Exporta el reporte final →</strong></a>
+              Análisis completo. <a onClick={() => navigate("exportar")} style={{ cursor: "pointer" }}><strong>Exporta el reporte final</strong> <Icon name="arrowRight" size={16} /></a>
             </div>
           )}
         </Card>
@@ -95,7 +96,7 @@ export default function ProjectDashboard() {
 
       <Card title="Exportar" actions={<span className="pill claude">listo para acreditación</span>}>
         <p className="muted">Informe PDF/Word con tabla de trazabilidad completa, y datos en CSV/Excel.</p>
-        <Button onClick={() => navigate("exportar")}>Ir a Exportar →</Button>
+        <Button onClick={() => navigate("exportar")}>Ir a Exportar <Icon name="arrowRight" size={16} /></Button>
       </Card>
     </>
   );

@@ -39,6 +39,17 @@ Excepción declarada: T-003 (separar `main.py`) es un movimiento mecánico de ~9
 
 ## 4. Fases y tareas
 
+### Fase UX — Prioridad del usuario (2026-10-15)
+
+El usuario pidió priorizar el diseño UX/UI: página pública de presentación, acceso con "Iniciar sesión" en la barra superior, diseño sobrio en azules (incluido el celeste) y blanco, y el nombre oficial **Celestica**. Se ejecuta antes de T-002; ninguna tarea de backend depende de ella.
+
+| Tarea | Lado | Resumen | Depende de |
+| --- | --- | --- | --- |
+| T-014 | frontend | Identidad visual: paleta azul/blanco, nombre Celestica, separaciones base, contraste AA | — |
+| T-015 | frontend | Página pública de presentación en `/`, área de trabajo en `/proyectos`, login simplificado | T-014 |
+| T-016 | frontend | Orden visual del área de trabajo: encabezados, sidebar agrupado, pestañas del flujo, estado vacío | T-015 |
+| T-017 | backend | Nombre Celestica en PDF/DOCX y en el título de la API (pendiente de orden) | — |
+
 ### Fase 0 — Línea base en verde (backend)
 
 **T-001 · backend · RNF-18 — `prompt_store` funciona sin `prompts.json`**
@@ -130,3 +141,6 @@ Excepción declarada: T-003 (separar `main.py`) es un movimiento mecánico de ~9
 2. **Un usuario = una organización** (`users.org_id`). Las membresías múltiples quedan para asesores (RF-06).
 3. **T-006 aprobada:** gestión mínima de miembros sin email, en la Fase 1.
 4. **Matriz de permisos aprobada:** lector = ver, descargar y comentar; analista = todo en proyectos, incluido borrar; admin = analista + gestión de la organización.
+5. **(2026-10-15) Nombre oficial del producto: Celestica.** Resuelve la decisión abierta §10.5. SoftInsight queda como nombre del equipo o empresa.
+6. **(2026-10-15) Paleta base:** azules (incluido el celeste) y blanco; sale el crema. Autoriza el cambio de paleta de RNF-16 y de §8.2 regla 7. Inter se mantiene.
+7. **(2026-10-15) Prioridad:** la Fase UX va antes de T-002.

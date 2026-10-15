@@ -5,6 +5,7 @@ import { ProjectSummary } from "./types";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Table from "@/shared/components/Table";
+import Icon from "@/shared/components/Icon";
 
 export default function ProjectList() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function ProjectList() {
       {projects && projects.length === 0 && (
         <Card>
           <div className="empty-state">
-            <div className="icon">📊</div>
+            <div className="icon"><Icon name="chart" size={40} /></div>
             <h3>Aún no tienes proyectos</h3>
             <p>Crea tu primer proyecto subiendo un CSV o XLSX con respuestas abiertas.</p>
             <Button onClick={() => navigate("/proyectos/nuevo")}>Crear primer proyecto</Button>
@@ -57,14 +58,14 @@ export default function ProjectList() {
                 </td>
                 <td>{p.n_responses}</td>
                 <td>
-                  <span className={`pill ${p.has_lexical ? "ok" : ""}`}>Léxico {p.has_lexical ? "✓" : "—"}</span>{" "}
+                  <span className={`pill ${p.has_lexical ? "ok" : ""}`}>Léxico {p.has_lexical ? <><Icon name="check" size={12} /><span className="sr-only">listo</span></> : "—"}</span>{" "}
                   <span className={`pill ${p.n_coded > 0 ? "ok" : ""}`}>
                     {p.n_coded > 0 ? `${p.n_coded} codificadas` : "sin codificar"}
                   </span>
                 </td>
                 <td>
                   {p.n_categories} categorías
-                  {p.has_report && <span className="pill claude" style={{ marginLeft: 6 }}>informe ✓</span>}
+                  {p.has_report && <span className="pill claude" style={{ marginLeft: 6 }}>informe <Icon name="check" size={12} /><span className="sr-only">listo</span></span>}
                 </td>
                 <td onClick={(e) => e.stopPropagation()}>
                   <div style={{ display: "flex", gap: 6 }}>

@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import Button from "@/shared/components/Button";
 import { analysisApi } from "../api";
 import { CategoryComment } from "../types";
+import Icon from "@/shared/components/Icon";
 
 /** Hilo de comentarios de una categoría (colaboración del equipo). */
 export default function CommentThread({ projectId, categoryId, comments, onChange, onError }: {
@@ -33,8 +34,8 @@ export default function CommentThread({ projectId, categoryId, comments, onChang
           <div className="meta">
             {com.author} · {new Date(com.timestamp).toLocaleString("es-CL")}
             <button className="btn btn-ghost btn-sm" style={{ padding: "0 6px", marginLeft: 6 }}
-                    onClick={async () => { await analysisApi.deleteComment(projectId, categoryId, com.id); onChange(); }}>
-              ✕
+                    aria-label="Borrar comentario" onClick={async () => { await analysisApi.deleteComment(projectId, categoryId, com.id); onChange(); }}>
+              <Icon name="close" size={14} />
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/useAuth";
 import Button from "@/shared/components/Button";
+import Icon from "@/shared/components/Icon";
 
 export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const { user, logout } = useAuth();
@@ -19,11 +20,11 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         aria-label="Mostrar u ocultar menú"
         title="Mostrar u ocultar menú"
       >
-        ☰
+        <Icon name="menu" size={20} />
       </button>
       <Link to="/" className="logo">
-        <span className="logo-mark">SI</span>
-        <span>Soft<em>Insight</em></span>
+        <span className="logo-mark">C</span>
+        <span>Celestica</span>
       </Link>
       <div className="header-user">
         <div className="avatar" title={user?.email}>{initials}</div>

@@ -5,9 +5,9 @@ export default function Documentation() {
     <div style={{ maxWidth: 820 }}>
       <h1 style={{ marginBottom: 18 }}>Documentación</h1>
 
-      <Card title="¿Qué es SoftInsight?">
+      <Card title="¿Qué es Celestica?">
         <p>
-          SoftInsight automatiza el análisis cualitativo de encuestas abiertas (evaluación docente,
+          Celestica automatiza el análisis cualitativo de encuestas abiertas (evaluación docente,
           acreditación, satisfacción) manteniendo el rigor metodológico: la IA propone, tu equipo decide,
           y toda decisión queda registrada para auditoría CNA/CNE.
         </p>
@@ -17,7 +17,7 @@ export default function Documentation() {
         <ol style={{ paddingLeft: 20, lineHeight: 2 }}>
           <li><strong>Crear proyecto:</strong> sube un CSV/XLSX con respuestas abiertas y define el marco teórico (o parte de una plantilla CNA).</li>
           <li><strong>Análisis léxico (Capa 1):</strong> frecuencias, bigramas y sentimiento. Determinístico, en segundos.</li>
-          <li><strong>Libro de códigos (Capa 2):</strong> la IA propone categorías ancladas al marco; tu equipo valida, edita o descarta cada una. Usa los comentarios 💬 para discutir con colegas.</li>
+          <li><strong>Libro de códigos (Capa 2):</strong> la IA propone categorías ancladas al marco; tu equipo valida, edita o descarta cada una. Usa los comentarios para discutir con colegas.</li>
           <li><strong>Codificación:</strong> Claude codifica el corpus contra las categorías validadas con justificación y confianza. Revisa las asignaciones de confianza baja y re-codifica donde corresponda.</li>
           <li><strong>Trazabilidad:</strong> revisa la tabla completa respuesta → categoría → justificación → fuente.</li>
           <li><strong>Informe:</strong> genera la lectura interpretativa (hipótesis, tensiones, preguntas).</li>
@@ -38,7 +38,7 @@ export default function Documentation() {
       <Card title="Preparación del archivo de datos">
         <p className="muted">
           El archivo debe tener al menos una columna con las respuestas abiertas. Si hay varias columnas,
-          SoftInsight detecta automáticamente la de texto (mayor largo promedio). Una columna
+          Celestica detecta automáticamente la de texto (mayor largo promedio). Una columna
           <code>id_respuesta</code> opcional permite conservar tus identificadores. El resto de las columnas
           se guarda como metadata de cada respuesta.
         </p>

@@ -4,6 +4,7 @@ import Card from "@/shared/components/Card";
 import { useDownload } from "@/shared/hooks/useDownload";
 import { useProject } from "@/features/projects/useProjectData";
 import { exportApi } from "./api";
+import Icon from "@/shared/components/Icon";
 
 export default function ExportReport() {
   const { project } = useProject();
@@ -47,11 +48,11 @@ export default function ExportReport() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Button busy={busyKey === "pdf"}
                     onClick={() => download("pdf", () => exportApi.downloadPdf(project.id, includeDetails))}>
-              ⬇ Descargar PDF
+              <Icon name="download" /> Descargar PDF
             </Button>
             <Button variant="secondary" busy={busyKey === "docx"}
                     onClick={() => download("docx", () => exportApi.downloadDocx(project.id, includeDetails))}>
-              ⬇ Descargar Word (.docx)
+              <Icon name="download" /> Descargar Word (.docx)
             </Button>
           </div>
         </Card>
@@ -64,11 +65,11 @@ export default function ExportReport() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
             <Button variant="secondary" busy={busyKey === "csv"}
                     onClick={() => download("csv", () => exportApi.downloadCsv(project.id))}>
-              ⬇ CSV (UTF-8)
+              <Icon name="download" /> CSV (UTF-8)
             </Button>
             <Button variant="secondary" busy={busyKey === "xlsx"}
                     onClick={() => download("xlsx", () => exportApi.downloadXlsx(project.id))}>
-              ⬇ Excel (.xlsx)
+              <Icon name="download" /> Excel (.xlsx)
             </Button>
           </div>
         </Card>
