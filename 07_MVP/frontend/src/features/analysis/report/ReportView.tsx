@@ -7,6 +7,7 @@ import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
 import { ReportProgress } from "../types";
 import ReportBody from "./ReportBody";
+import Icon from "@/shared/components/Icon";
 
 export default function ReportView() {
   const { project, refresh } = useProject();
@@ -123,7 +124,7 @@ export default function ReportView() {
       {!report ? (
         <Card>
           <div className="empty-state">
-            <div className="icon">★</div>
+            <div className="icon"><Icon name="file" size={40} /></div>
             <h2>Informe de resultados</h2>
             <p style={{ maxWidth: 560, margin: "0 auto 8px" }}>
               Lectura interpretativa profunda generada por un investigador cualitativo IA. No es un resumen
@@ -147,7 +148,7 @@ export default function ReportView() {
               <p className="muted small" style={{ margin: "3px 0 0" }}>Análisis cualitativo asistido por IA · Celestica</p></div>}
             actions={
               <>
-                <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}>⬇ Exportar PDF/Word</Button>
+                <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}><Icon name="download" size={16} /> Exportar PDF/Word</Button>
                 <Button variant="ghost" size="sm" onClick={() => generate(false)} busy={busy}>
                   {busy ? "Regenerando…" : "Regenerar"}
                 </Button>

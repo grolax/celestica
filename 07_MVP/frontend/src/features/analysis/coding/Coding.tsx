@@ -6,6 +6,7 @@ import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
 import { CodifyProgress, ResponseItem } from "../types";
 import ResponsesTable from "./ResponsesTable";
+import Icon from "@/shared/components/Icon";
 
 const PAGE_SIZE = 25;
 
@@ -129,10 +130,10 @@ export default function Coding() {
                         validated={validated} onRecode={recode} />
         <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
           <Button variant="secondary" size="sm" disabled={offset === 0}
-                  onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>← Anterior</Button>
+                  onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}><Icon name="arrowLeft" size={16} /> Anterior</Button>
           <span className="muted small">{offset + 1}–{Math.min(offset + PAGE_SIZE, total)} de {total}</span>
           <Button variant="secondary" size="sm" disabled={offset + PAGE_SIZE >= total}
-                  onClick={() => setOffset(offset + PAGE_SIZE)}>Siguiente →</Button>
+                  onClick={() => setOffset(offset + PAGE_SIZE)}>Siguiente <Icon name="arrowRight" size={16} /></Button>
         </div>
       </Card>
     </>

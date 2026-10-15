@@ -9,6 +9,7 @@ import { ProjectStats } from "../types";
 import CategoryBars from "./CategoryBars";
 import ConfidenceInfo from "./ConfidenceInfo";
 import { TraceRow, useTraceabilityFilters } from "./useTraceabilityFilters";
+import Icon from "@/shared/components/Icon";
 
 export default function Traceability() {
   const { project } = useProject();
@@ -40,8 +41,8 @@ export default function Traceability() {
         title={`Tabla de trazabilidad (${filtered.length}${filtered.length !== rows.length ? ` de ${rows.length}` : ""} filas)`}
         actions={
           <>
-            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadCsv(project.id).catch((e) => setError(e.message))}>⬇ CSV</Button>
-            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadXlsx(project.id).catch((e) => setError(e.message))}>⬇ Excel</Button>
+            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadCsv(project.id).catch((e) => setError(e.message))}><Icon name="download" size={16} /> CSV</Button>
+            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadXlsx(project.id).catch((e) => setError(e.message))}><Icon name="download" size={16} /> Excel</Button>
           </>
         }
       >

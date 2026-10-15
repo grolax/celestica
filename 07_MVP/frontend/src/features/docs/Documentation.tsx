@@ -17,7 +17,7 @@ export default function Documentation() {
         <ol style={{ paddingLeft: 20, lineHeight: 2 }}>
           <li><strong>Crear proyecto:</strong> sube un CSV/XLSX con respuestas abiertas y define el marco teórico (o parte de una plantilla CNA).</li>
           <li><strong>Análisis léxico (Capa 1):</strong> frecuencias, bigramas y sentimiento. Determinístico, en segundos.</li>
-          <li><strong>Libro de códigos (Capa 2):</strong> la IA propone categorías ancladas al marco; tu equipo valida, edita o descarta cada una. Usa los comentarios 💬 para discutir con colegas.</li>
+          <li><strong>Libro de códigos (Capa 2):</strong> la IA propone categorías ancladas al marco; tu equipo valida, edita o descarta cada una. Usa los comentarios para discutir con colegas.</li>
           <li><strong>Codificación:</strong> Claude codifica el corpus contra las categorías validadas con justificación y confianza. Revisa las asignaciones de confianza baja y re-codifica donde corresponda.</li>
           <li><strong>Trazabilidad:</strong> revisa la tabla completa respuesta → categoría → justificación → fuente.</li>
           <li><strong>Informe:</strong> genera la lectura interpretativa (hipótesis, tensiones, preguntas).</li>

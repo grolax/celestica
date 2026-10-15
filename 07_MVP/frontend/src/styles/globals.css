@@ -152,6 +152,8 @@ code {
   text-align: left;
   width: 100%;
 }
+.sidebar-link svg { color: var(--text-muted); }
+.sidebar-link.active svg { color: var(--primary-dark); }
 .sidebar-link:hover { background: var(--secondary); text-decoration: none; }
 .sidebar-link.active { background: var(--primary-soft); color: var(--primary-dark); font-weight: 600; }
 .sidebar-section {
@@ -325,6 +327,8 @@ table.si tbody tr:hover { background: var(--primary-soft); }
   color: var(--text-muted);
   white-space: nowrap;
 }
+.pill svg { vertical-align: -2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .pill.validada, .pill.positivo, .pill.ok { background: var(--success-soft); color: var(--success); }
 .pill.propuesta, .pill.mixto { background: var(--warning-soft); color: var(--warning); }
 .pill.descartada, .pill.negativo { background: var(--danger-soft); color: var(--danger); }
@@ -406,7 +410,8 @@ table.si tbody tr:hover { background: var(--primary-soft); }
 }
 .auth-hero h1 { font-size: 32px; color: #fff; margin-bottom: 14px; letter-spacing: -0.02em; }
 .auth-hero p { font-size: 15px; opacity: 0.92; max-width: 420px; }
-.auth-hero ul { padding-left: 18px; opacity: 0.92; font-size: 14px; line-height: 2; }
+.auth-hero ul { list-style: none; padding: 0; margin: 8px 0 0; opacity: 0.92; font-size: 14px; }
+.auth-hero li { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
 .auth-form-side {
   display: flex;
   align-items: center;
@@ -483,7 +488,7 @@ table.si tbody tr:hover { background: var(--primary-soft); }
   padding: 48px 20px;
   color: var(--text-muted);
 }
-.empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+.empty-state .icon { margin-bottom: 10px; color: var(--text-muted); }
 
 .template-option {
   border: 1.5px solid var(--border);

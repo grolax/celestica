@@ -3,20 +3,23 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
+import Icon, { IconName } from "@/shared/components/Icon";
+
+const POINTS: [IconName, string][] = [
+  ["users", "Temas propuestos por IA, validados por personas"],
+  ["shield", "Trazabilidad completa de cada decisión"],
+  ["file", "Informes PDF, Word y Excel"],
+];
 
 function AuthHero() {
   return (
     <div className="auth-hero">
-      <h1>Análisis cualitativo asistido por IA, auditable de principio a fin.</h1>
-      <p>
-        Celestica transforma semanas de codificación manual de encuestas abiertas en un
-        proceso de días — sin sacrificar rigor metodológico.
-      </p>
+      <h1>De la encuesta al informe, con evidencia en cada paso.</h1>
+      <p>Análisis de encuestas con IA y validación de tu equipo.</p>
       <ul>
-        <li>Análisis léxico y temático anclado a tu marco teórico</li>
-        <li>Cada decisión de la IA es validada por tu equipo</li>
-        <li>Trazabilidad completa para auditoría y acreditación (CNA/CNE, ISO)</li>
-        <li>Reportes PDF y Word listos para archivar</li>
+        {POINTS.map(([icon, text]) => (
+          <li key={text}><Icon name={icon} size={20} /> {text}</li>
+        ))}
       </ul>
     </div>
   );
