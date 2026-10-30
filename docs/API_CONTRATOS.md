@@ -127,3 +127,9 @@ Solo el **admin** de la organización. Todas responden **403** `"Tu rol (<rol>) 
 - **Miembro desactivado:** `POST /auth/login` y cualquier ruta con su token responden **401** — `"Tu cuenta fue desactivada. Contacta al administrador de tu organización."`
 - **Auditoría:** crear miembro, cambiar rol, desactivar/reactivar y cambiar contraseña quedan en `audit_events` con `org_id`, `project_id: null`, actor y detalle (sin contraseñas).
 
+
+---
+
+## Panel interno (`/api/admin/*`) · T-009
+
+- **Cambio de código de error:** con `X-Admin-Password` ausente o incorrecta, los 5 endpoints (`GET /api/admin/usage`, `GET /api/admin/health`, `GET /api/admin/prompts`, `PUT /api/admin/prompts/{key}`, `POST /api/admin/prompts/{key}/reset`) responden **403** — "Contraseña de administrador incorrecta" (antes 401). Motivo: el 401 se reserva para la sesión del usuario; el frontend lo interpreta como sesión vencida.

@@ -25,6 +25,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## En curso
 
+- T-009 panel interno responde 403 (backend), rama `tarea/T-009-admin-403` sobre la rama de T-008a (PR #15 sin fusionar).
 - En cola: T-008b pantalla de miembros y acciones por rol (frontend).
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
@@ -40,7 +41,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - Último admin: comprobar-y-escribir no atómico en `PATCH /api/org/members` (dos admins quitándose a la vez); transacción si hay uso concurrente real.
 - `store.list_members/get_member/update_member` sin resguardo ante `org_id` vacío (a diferencia de `_tenant_filter`).
 - Cambiar la contraseña no revoca sesiones abiertas (RNF-04).
-- `/api/admin/*` responde 401 con contraseña de admin incorrecta; como `adminApi` usa `req`, cierra la sesión del usuario (preexistente). Backend: responder 403.
+- `/api/admin/*` responde 401 con contraseña de admin incorrecta y cierra la sesión del usuario → en curso, T-009.
 - `Input` genera ids con `label.replace(/\W/g, "_")`: la ñ pasa a `_` (colisión posible entre etiquetas que solo difieren en ñ).
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
