@@ -47,7 +47,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 incorporada; T-011a aprobada por el supervisor, espera autorización; T-012 y T-013 en cola |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 y T-011a incorporadas; T-012 aprobada por el supervisor, espera autorización; T-013 en cola |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -460,6 +460,31 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Si un proyecto viejo tiene datos raros, ese se deja intacto y se avisa, sin tumbar el servidor.
   - Se borró una copia antigua del informe profundo que ya no servía y guardaba columnas con posibles datos personales.
 - **Verificación final:** sobre una nueva copia de la base real, se arrancó la aplicación tal como lo haría el servidor. Los 11 proyectos se abren con los mismos datos de antes. La copia se borró y la base original quedó intacta. Hay **195 pruebas automáticas** y todas pasan.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #19 en GitHub).
+
+### 38. T-012 · Pantalla "Revisa las preguntas": boceto aprobado
+
+- **Qué se hace:** "Nuevo proyecto" pasa a tener tres pasos:
+  1. **Sube tu encuesta.**
+  2. **Revisa las preguntas.** Una tabla con lo que la plataforma detectó en cada columna: el tipo, que se puede cambiar; cuántas respuestas tiene y cuántas quedaron como N/A; si se incluye; y si se envía a la IA como contexto. Ofrece **unir las columnas ramificadas**, como la comuna, y agrupa las respuestas escritas en "Otro".
+  3. **Datos del proyecto.**
+- **Decisión del responsable:** aprobó el boceto, con las preguntas abiertas primero y todas visibles, y pidió **ver capturas reales** del resultado antes de aprobarlo.
+- **Estado:** en desarrollo.
+
+### 39. T-012 · Resultado, verificado con capturas reales
+
+- **Qué quedó:** "Nuevo proyecto" ahora tiene tres pasos, con una barra que marca el paso actual.
+  - El paso 2, "Revisa las preguntas", muestra todas las preguntas con su tipo, cuántas respuestas tienen y cuántas son N/A, y si van a la IA como contexto.
+  - Las preguntas abiertas aparecen primero, con ejemplos de respuestas.
+  - Ofrece **unir las 16 columnas de comuna** en una sola, con opción de deshacer.
+  - En las preguntas de selección se pueden ver las opciones con su conteo. Las respuestas escritas en "Otro" se agrupan.
+  - El paso 3 resume qué se va a analizar y qué se va a enviar a la IA.
+- **Cómo se verificó:** el supervisor sacó **capturas reales** con la encuesta de vivienda (500 respuestas, 47 columnas). En ellas encontró tres detalles visuales:
+  - un campo sin el estilo de Celestica;
+  - una explicación que no calzaba en la comuna unida;
+  - opciones largas que ocultaban su número.
+
+  Se corrigieron y se confirmaron con capturas nuevas. Las capturas quedaron en el computador del responsable.
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---

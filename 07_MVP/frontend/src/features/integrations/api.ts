@@ -1,4 +1,5 @@
 import { jsonBody, req } from "@/shared/api/client";
+import { PreguntaProyecto } from "@/features/projects/types";
 
 export interface QualtricsStatus {
   configured: boolean;
@@ -20,6 +21,7 @@ interface ImportCommon {
   name: string;
   marco_teorico: string;
   template: string;
+  preguntas: PreguntaProyecto[];
 }
 
 export const integrationsApi = {

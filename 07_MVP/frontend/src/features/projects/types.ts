@@ -34,3 +34,33 @@ export interface FrameworkTemplate {
   marco_teorico: string;
   industria?: string;
 }
+
+export type TipoPregunta =
+  | "abierta" | "escala" | "nps" | "si_no" | "seleccion_unica" | "seleccion_multiple"
+  | "numerica" | "fecha" | "identificador" | "segmento" | "constante" | "sin_datos";
+
+export interface PreguntaDetectada {
+  columna: string;
+  tipo: TipoPregunta;
+  motivo: string;
+  n_respuestas: number;
+  n_vacias: number;
+  valores_distintos: number;
+  ejemplos: string[];
+  escala?: { min: number; max: number };
+  opciones?: { valor: string; n: number }[];
+}
+
+export interface VistaPrevia {
+  n_filas: number;
+  preguntas: PreguntaDetectada[];
+  advertencias: string[];
+}
+
+/** Lo que el usuario confirmó en la vista previa y se envía al crear el proyecto. */
+export interface PreguntaProyecto {
+  titulo: string;
+  columnas: string[];
+  tipo: TipoPregunta;
+  contexto_ia: boolean;
+}
