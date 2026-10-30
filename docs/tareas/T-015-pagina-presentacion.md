@@ -60,3 +60,11 @@ Usa estos textos tal cual. Si alguno no calza con el diseño, propón el cambio 
 ## Notas
 - La URL de la lista de proyectos cambia de `/` a `/proyectos`. Quien tenga marcada la URL vieja llegará a la presentación y desde ahí entra con un clic, así que es aceptable.
 - Diseño sobrio: aire generoso entre secciones, ancho máximo de contenido de unos 1100 px, una acción primaria por sección.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores; backend `pytest tests -q`: 18 pasan.
+- Rutas: `/` presentación pública, `/proyectos` protegida, `PublicOnly` y login/signup a `/proyectos`, `*` a `/`. Destinos actualizados en `App.tsx`, `LoginPage.tsx` (2), `NewProject.tsx`, `Header.tsx`, `Sidebar.tsx`; `grep` no muestra otros destinos a `/` dentro del área de trabajo.
+- Textos coinciden con la sección "Textos". Landmarks, un solo `h1` por página, foco visible heredado de T-014, sin librerías nuevas, CSS en la sección Landing con variables existentes.
+- Desviaciones aceptadas: "Crear cuenta" se oculta con sesión; el pie dice "Ir a mi espacio" con sesión; iconos `folder`/`sparkle`/`shield`/`file`.
+- No verificado: flujo con sesión real de punta a punta (sin backend corriendo); queda para la prueba manual del usuario.

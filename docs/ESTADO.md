@@ -10,10 +10,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (fusionada, PR #1) |
 | T-001 `prompt_store` sin `prompts.json` | backend | RNF-18, RNF-21 | 2026-10-14 | `tarea/T-001-prompts-fallback` (fusionada, PR #2) |
 | T-014 Identidad visual Celestica | frontend | RNF-16, RNF-14, RNF-13 | 2026-10-15 | `tarea/T-014-identidad-celestica` (fusionada, PR #3) |
+| T-015 Página de presentación y rutas | frontend | RNF-13, RNF-14, RNF-15, RNF-16 | 2026-10-30 | `tarea/T-015-pagina-presentacion` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- T-015 presentación pública (frontend), rama `tarea/T-015-pagina-presentacion`; textos aprobados por el usuario el 2026-10-30.
 - En cola (Fase UX): T-016 área de trabajo, T-017 nombre en exportaciones. T-002 queda después.
 
 ## Bloqueado / requiere decisión del usuario
@@ -26,5 +26,6 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - Los scripts de aislamiento (`test_e2e`, `test_fase1/3/5`) no los ejecuta pytest; hoy pasan corriéndolos a mano → T-002.
 - `backend/app/main.py` concentra todos los endpoints (~950 líneas); separar en routers (RNF-17).
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
+- La presentación muestra "Iniciar sesión" un instante mientras carga la sesión (`LandingPage` no espera `loading` de `useAuth`); menor.
 - Stopwords del análisis léxico fijas y orientadas a educación superior chilena (RF-14).
 - La bitácora para el equipo vive en `docs/BITACORA.md`, dentro del repositorio (pedido del usuario, 2026-10-30).

@@ -39,7 +39,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-000 | Actualizar herramientas de construcción de las pantallas | ✅ Incorporada a la versión oficial |
 | T-001 | Reparar las pruebas automáticas del sistema | ✅ Incorporada a la versión oficial |
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
-| T-015 | Página pública de presentación con acceso "Iniciar sesión" | 🔨 En desarrollo |
+| T-015 | Página pública de presentación con acceso "Iniciar sesión" | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 | T-016 | Orden visual del área de trabajo | ⏳ En cola |
 | T-017 | Nombre Celestica en los informes PDF y Word | ⏳ En cola |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
@@ -173,6 +173,19 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 
 - **Qué se hizo:** a pedido del responsable, esta bitácora se trasladó a `docs/BITACORA.md`, dentro del repositorio del proyecto.
 - **Por qué:** para que todo el equipo vea los avances en GitHub, junto con el código.
+
+---
+
+### 14. T-015 · Página pública de presentación
+
+- **Qué se hizo:**
+  - Al entrar a Celestica, ahora se ve primero una **página de presentación**: portada, "Quiénes somos" y "Nuestro objetivo", cuatro tarjetas de "Qué hace Celestica" y un pie de página. Arriba hay una barra con el botón **"Iniciar sesión"**. Si la persona ya inició sesión, el botón dice **"Ir a mi espacio"**.
+  - La lista de proyectos se trasladó a la dirección `/proyectos`. Todos los enlaces internos se actualizaron.
+  - Las pantallas de acceso y registro quedaron más simples: solo el formulario, con un enlace "Volver al inicio".
+- **Por qué:** quien llega desde fuera necesita saber qué es Celestica antes de entrar.
+- **Cómo se verificó:** la plataforma se construye sin errores y las 18 pruebas automáticas siguen pasando. Se revisó la página en computador, tablet y celular, y se recorrió completa con el teclado.
+- **Pendiente:** que el responsable pruebe una vez el ingreso real con su cuenta.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
