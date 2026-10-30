@@ -71,3 +71,10 @@ Antes de crear un proyecto, la plataforma lee la encuesta y propone el tipo de c
 4. **Columnas con muy pocas respuestas.** Con 2 y 6 respuestas no vacías iguales salió `constante` ("Tiene el mismo valor en todas las filas" es falso: 498 filas están vacías); con 5–7 respuestas de 2 palabras salió `abierta` con el motivo contradictorio "Textos largos y casi todos distintos (promedio 2 palabras)". Esperado: `constante` solo si **todas** las filas tienen ese valor (o al menos la gran mayoría tienen respuesta); con pocas respuestas y valores cortos, `seleccion_unica`/`segmento`; `abierta` exige promedio ≥ 3 palabras, y el `motivo` debe ser coherente con los números que muestra.
 
 La única modificación permitida en pruebas existentes sigue siendo la de `test_permisos_pytest.py` (ya hecha). Los casos del dataset demo deben seguir dando lo mismo.
+
+## Revisión 3
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 168 pasan; dataset demo con los mismos tipos.
+- El supervisor repitió la detección sobre la encuesta real (solo lectura local): de 11 columnas `abierta` (9 falsas) se pasó a **2, las correctas**; las de selección múltiple con opciones largas quedan `seleccion_multiple`; edad, género, región, nivel educacional y las 16 columnas de comuna quedan `segmento`; escalas, sí/no y fecha sin cambios.
+- Pendientes menores aceptados (el usuario los corrige en la revisión de preguntas, sin costo de IA): una selección única con comas dentro de las alternativas sale `seleccion_multiple`; "educación financiera" sale `segmento` por la pista de título; "1 valores distintos" (gramática del motivo).
+- Excepción aceptada: la pista de grupo no aplica a títulos que evalúan (`evalu|calific|satisf|opin`).

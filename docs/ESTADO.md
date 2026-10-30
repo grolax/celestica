@@ -36,6 +36,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 - **RF-51 (ampliación, 2026-10-30):** comparar temas **entre preguntas abiertas** de una misma encuesta (qué temas se repiten entre preguntas; quién menciona un tema en una y otro en otra). Conteos y cruces en Python sobre codificaciones validadas, **sin llamadas nuevas a la IA**; la IA solo redacta la lectura de conjunto sobre números ya calculados. Pendiente que el usuario lo agregue a `CONTEXTO_SOFTINSIGHT.md` §4.6 (el supervisor no escribe fuera de `docs/`).
 
+- **Columnas ramificadas de Google Forms (propuesta, esperando decisión del usuario):** una misma pregunta repartida en varias columnas ("¿En qué comuna vives actualmente?", "… 2", … "… 16", una por región). Propuesta: detectarlas y ofrecer unirlas en una sola en la revisión de preguntas (T-011/T-012).
+
 ## Bloqueado / requiere decisión del usuario
 
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
@@ -51,7 +53,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - `Input` genera ids con `label.replace(/\W/g, "_")`: la ñ pasa a `_` (colisión posible entre etiquetas que solo difieren en ñ).
 - `Input` sin `type` explícito pierde el estilo del campo (CSS por selector de tipo).
 - El rol en la UI viene de `/auth/me` al cargar; un cambio de rol hecho por otro admin se ve tras recargar.
-- `question_types.motivo` repite la palabra del título tal cual ("genero" sin tilde); detección por texto sobre muestra de 1.000 valores; enteros casi todos distintos → identificador (posible falso positivo).
+- `question_types`: selección única con comas dentro de las alternativas sale `seleccion_multiple`; pistas de título pueden dar `segmento` de más ("educación financiera"); motivo "1 valores distintos"; motivo repite la palabra del título sin tilde; detección por texto sobre muestra de 1.000 valores; enteros casi todos distintos → identificador (posible falso positivo).
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
 - La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
