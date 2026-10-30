@@ -46,7 +46,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 incorporada; T-007 aprobada por el supervisor, espera autorización; T-008 en cola |
+| T-006 a T-008 | Roles y gestión de miembros | 🔨 T-006 y T-007 incorporadas; T-008a en desarrollo; T-008b en cola |
 
 ---
 
@@ -346,7 +346,17 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Pendientes menores:**
   - Cambiar la contraseña todavía no cierra las otras sesiones abiertas de esa persona. Se resolverá con la seguridad de producción.
   - Si dos administradores se quitaran el rol mutuamente en el mismo instante, la organización podría quedar sin administrador. Es muy improbable.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #14 en GitHub).
+
+### 28. T-008 · Las pantallas de roles y miembros
+
+- **Cómo se organizó:** en dos partes.
+  - **T-008a, la cuenta:** la pantalla para cambiar la contraseña, que es obligatoria después del primer ingreso con contraseña temporal y también está disponible desde Configuración. Además, un aviso claro cuando la cuenta fue desactivada.
+  - **T-008b, el equipo:** la pantalla "Miembros" para el administrador, y que cada persona vea solo los botones que su rol permite. El lector verá una marca de **"Solo lectura"** en cada proyecto.
+- **Textos propuestos por el supervisor**, que el responsable puede ajustar:
+  - El aviso de contraseña temporal: "Por seguridad, cambia la contraseña temporal que te entregó tu administrador antes de continuar."
+  - La explicación de cada rol en la pantalla Miembros.
+- **Estado:** T-008a en desarrollo.
 
 ---
 
