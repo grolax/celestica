@@ -45,7 +45,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
-| T-005 | Mostrar la organización y el rol en pantalla | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
+| T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
+| T-006 a T-008 | Roles y gestión de miembros | 📝 Diseño listo, espera visto bueno del responsable |
 
 ---
 
@@ -299,7 +300,22 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hizo:** el responsable levantó la plataforma en su computador para ver cómo se ve tras la fase de diseño. Se hizo sin clave de IA, así que no hubo ningún gasto.
 - **T-005:** tarea corta de pantallas. El encabezado y Configuración mostrarán el nombre de la organización y el rol de la persona (Administrador, Analista o Lector). En el registro, el campo "Institución / Empresa" pasa a llamarse "Organización (institución o empresa)", porque ese texto es ahora el nombre de la organización.
 - **Resultado:** el encabezado muestra la organización bajo el nombre de la persona, y Configuración muestra "Organización" y "Rol: Administrador". Se verificó registrando una cuenta de prueba en la plataforma local, sin usar IA.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #12 en GitHub).
+
+### 25. Roles y miembros: decisiones y diseño
+
+- **Qué se decidió (responsable, 30 de octubre):**
+  1. Quien recibe una contraseña temporal **debe cambiarla** en su primer ingreso. Cualquier persona podrá cambiar su contraseña.
+  2. "Quitar" a un miembro significa **desactivarlo**: no puede volver a entrar, pero su nombre se conserva en la auditoría y en los proyectos que creó.
+  3. Una organización **nunca puede quedar sin un administrador activo**.
+  4. El administrador puede **cambiar el rol** de cualquier miembro.
+  5. El lector solo puede **borrar sus propios comentarios**.
+- **Cómo se organizó:** en tres tareas:
+  - **T-006:** el servidor verifica en cada operación que el rol de la persona la permita.
+  - **T-007:** las operaciones para gestionar miembros.
+  - **T-008:** la pantalla "Miembros" y ocultar los botones que cada rol no puede usar.
+- **Un detalle de diseño:** la contraseña temporal la **genera el sistema**, no el administrador, y se muestra **una sola vez** al crear al miembro. Así no se usan contraseñas fáciles de adivinar, y nadie puede consultarla después.
+- **Estado:** contratos de API escritos; esperan el visto bueno del responsable.
 
 ---
 

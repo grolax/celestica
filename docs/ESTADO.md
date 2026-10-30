@@ -18,11 +18,13 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
 | T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
 | T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (fusionada, PR #11) |
-| T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (aprobada, pendiente de subir) |
+| T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (fusionada, PR #12) |
 
 ## En curso
 
-- En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
+- T-006 permisos por rol (backend), rama `tarea/T-006-permisos-por-rol`; contratos RF-03 (T-006 y T-007) escritos, esperando visto bueno del usuario antes de delegar.
+- En cola: T-007 gestión de miembros (backend) → T-008 pantalla de miembros y acciones por rol (frontend).
+- Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
 ## Bloqueado / requiere decisión del usuario
 
