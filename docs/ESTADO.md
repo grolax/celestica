@@ -22,7 +22,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## En curso
 
-- T-006 permisos por rol (backend), rama `tarea/T-006-permisos-por-rol`; contratos RF-03 (T-006 y T-007) escritos, esperando visto bueno del usuario antes de delegar.
+- T-006 permisos por rol (backend), rama `tarea/T-006-permisos-por-rol`; contratos RF-03 (T-006 y T-007) aprobados por el usuario (2026-10-30, incluye contraseña temporal generada por el servidor y `/api/admin/*` sin cambios); en desarrollo.
 - En cola: T-007 gestión de miembros (backend) → T-008 pantalla de miembros y acciones por rol (frontend).
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 

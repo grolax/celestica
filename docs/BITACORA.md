@@ -46,7 +46,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 📝 Diseño listo, espera visto bueno del responsable |
+| T-006 a T-008 | Roles y gestión de miembros | 🔨 T-006 en desarrollo |
 
 ---
 
@@ -315,7 +315,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - **T-007:** las operaciones para gestionar miembros.
   - **T-008:** la pantalla "Miembros" y ocultar los botones que cada rol no puede usar.
 - **Un detalle de diseño:** la contraseña temporal la **genera el sistema**, no el administrador, y se muestra **una sola vez** al crear al miembro. Así no se usan contraseñas fáciles de adivinar, y nadie puede consultarla después.
-- **Estado:** contratos de API escritos; esperan el visto bueno del responsable.
+- **Estado:** el responsable aprobó los contratos, incluida la contraseña temporal generada por el sistema. T-006 en desarrollo.
 
 ---
 
