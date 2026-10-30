@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import zipfile
+from collections import Counter
 from pathlib import Path
 
 import mongomock
@@ -231,6 +232,73 @@ def test_rev2_abierta_exige_tres_palabras_y_el_motivo_es_coherente():
     # todas distintas pero de 2 palabras, en una columna llena: sigue siendo abierta y el motivo no dice "largos"
     p = detectar(pd.DataFrame({"c": [f"respuesta {i}" for i in range(30)]}))["preguntas"][0]
     assert p["tipo"] == "abierta" and "2 palabras" in p["motivo"] and "largos" not in p["motivo"]
+
+
+# ---------- revisión 4: opciones con comas internas, selección única con comas, redacción del motivo ----------
+
+def _filas(opciones, marcas, n=N500):
+    """Respuestas tipo Google Forms: las opciones marcadas unidas con ', '. `marcas` es una lista de tuplas de índices."""
+    return [", ".join(opciones[i] for i in marcas[k % len(marcas)]) for k in range(n)]
+
+
+def test_rev4_opciones_con_coma_interna_se_reconstruyen():
+    ops = ["Invertir en depósitos a plazo, fondos mutuos, acciones u otros instrumentos",
+           "Subsidios habitacionales (DS1, DS19, DS49)", "Transparencia en los precios, condiciones de compra y financiamiento",
+           "Ahorrar", "Viajar"]
+    marcas = [(0,), (1,), (2,), (3,), (4,), (0, 3), (1, 4), (2, 3, 4), (0, 1), (3, 4), (1, 2, 0)]
+    p = tipo500("Selecciona tus metas", _filas(ops, marcas))
+    assert p["tipo"] == "seleccion_multiple"
+    # antes: 8 trozos falsos ("Invertir en depósitos a plazo", "fondos mutuos", "…(DS1", "DS19", "DS49)", …)
+    assert {o["valor"] for o in p["opciones"]} == set(ops)
+    esperado = Counter(ops[i] for k in range(N500) for i in marcas[k % len(marcas)])
+    assert {o["valor"]: o["n"] for o in p["opciones"]} == dict(esperado)
+
+
+def test_rev4_parentesis_sin_cerrar_no_se_corta_aunque_sea_ambiguo():
+    # "(DS1" a veces aparece sin los demás trozos: no hay par fijo, pero el paréntesis manda
+    ops = ["Subsidios (DS1, DS19)", "Ahorro", "Crédito"]
+    marcas = [(0,), (1,), (2,), (0, 1), (1, 2)]
+    p = tipo500("Selecciona tus metas", _filas(ops, marcas))
+    assert p["tipo"] == "seleccion_multiple" and {o["valor"] for o in p["opciones"]} == set(ops)
+
+
+def test_rev4_mezcla_ambigua_queda_separada():
+    # "fondos mutuos" aparece a veces sin "Invertir en depósitos": no se puede saber, se dejan separadas
+    ops = ["Invertir en depósitos", "fondos mutuos", "Ahorrar", "Viajar"]
+    marcas = [(0, 1), (1,), (2,), (3,), (0, 1, 2), (2, 3)]
+    p = tipo500("Selecciona tus metas", _filas(ops, marcas))
+    assert p["tipo"] == "seleccion_multiple" and {o["valor"] for o in p["opciones"]} == set(ops)
+
+
+def test_rev4_seleccion_unica_con_comas_dentro_de_las_alternativas():
+    alt = [f"Me interesa comprar, pero todavía no he buscado ({i})" if i % 2 else f"No me interesa, tengo otros planes ({i})"
+           for i in range(21)]
+    # cada alternativa completa trae una coma y se repite: 21 valores en 500 filas
+    p = tipo500("¿Cuál es tu situación actual?", [alt[i % 21] for i in range(N500)])
+    assert p["tipo"] == "seleccion_unica" and p["valores_distintos"] == 21
+    assert {o["valor"] for o in p["opciones"]} <= set(alt)
+    # trozos compartidos (ambiguos tras reconstruir) pero sin ningún trozo suelto: sigue siendo única
+    comp = ["Me interesa comprar, pero ya busqué", "Me interesa comprar, pero aún no busco", "No me interesa, por ahora"]
+    p = tipo500("¿Cuál es tu situación actual?", [comp[i % 3] for i in range(N500)])
+    assert p["tipo"] == "seleccion_unica" and {o["valor"] for o in p["opciones"]} == set(comp)
+    # con pista de grupo: segmento
+    reg = ["Valparaíso, V Región", "Santiago, RM", "Concepción, VIII Región"]
+    assert tipo500("¿En qué región vives?", [reg[i % 3] for i in range(N500)])["tipo"] == "segmento"
+
+
+def test_rev4_no_rompe_la_multiple_real_con_pocos_valores():
+    # 4 combinaciones en 40 filas (10 %), cada una se repite, pero "Web" y "App" también aparecen solas: es múltiple
+    assert tipo("canales", ["Web, App", "Web", "App, Tienda", "Tienda"] * 10)["tipo"] == "seleccion_multiple"
+
+
+def test_rev4_motivo_con_concordancia_y_ortografia():
+    p = tipo500("Opcional", ["Sí"] * 1)
+    assert "1 valor distinto en 1 respuesta" in p["motivo"]
+    p = tipo500("¿En qué región vives?", ["Valparaíso", "Maule"] * 5)
+    assert "(región)" in p["motivo"] and "2 valores distintos en 10 respuestas" in p["motivo"]
+    assert "(género)" in tipo500("¿Con qué género te identificas?", ["F", "M", "Otro"] * 10)["motivo"]
+    assert "(educación)" in tipo500("Educación", ["Básica", "Media", "Técnica"] * 20)["motivo"]
+    assert "(área)" in tipo500("¿En qué área trabajas?", ["Ventas", "TI", "Finanzas"] * 20)["motivo"]
 
 
 # ---------- dataset demo ----------

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections import Counter
 
 import pandas as pd
 
@@ -30,6 +31,54 @@ def _sin_tildes(t: str) -> str:
 
 def _opciones(vc: pd.Series) -> list[dict]:
     return [{"valor": str(v), "n": int(n)} for v, n in vc.head(MAX_OPCIONES).items()]
+
+
+def _pl(n: int, uno: str, otros: str) -> str:
+    return f"{n} {uno if n == 1 else otros}"
+
+
+def _reconstruir(vc: pd.Series, sep: str) -> tuple[list, Counter]:
+    """Opciones de una selección múltiple, volviendo a unir las que traen el separador adentro.
+
+    Google Forms une las opciones marcadas con ", ": una opción con coma ("Subsidios (DS1, DS19)") llega partida.
+    Se une (1) lo que queda dentro de un paréntesis sin cerrar y (2) los trozos A y B que siempre van juntos:
+    B solo aparece justo después de A y A siempre va seguido de B. Si A aparece a veces sin B, queda ambiguo y se deja separado.
+    Devuelve ([(opciones de la respuesta, n)], conteo de cada opción).
+    """
+    filas = []
+    for v, n in vc.items():
+        ch = [c.strip() for c in v.split(sep) if c.strip()]
+        out, i = [], 0
+        while i < len(ch):
+            j, txt = i, ch[i]
+            while txt.count("(") > txt.count(")") and j + 1 < len(ch):
+                j += 1
+                txt += f"{sep} {ch[j]}"
+            if txt.count("(") > txt.count(")"):  # el paréntesis nunca cierra: no se une
+                j, txt = i, ch[i]
+            out.append(txt)
+            i = j + 1
+        filas.append((out, int(n)))
+    while True:
+        ca, cp = Counter(), Counter()
+        for ch, n in filas:
+            for x in ch:
+                ca[x] += n
+            for par in zip(ch, ch[1:]):
+                cp[par] += n
+        ligas = {par for par, k in cp.items() if k == ca[par[0]] == ca[par[1]]}
+        if not ligas:
+            return filas, ca
+        nuevas = []
+        for ch, n in filas:
+            out = []
+            for x in ch:
+                if out and (out[-1], x) in ligas:
+                    out[-1] += f"{sep} {x}"
+                else:
+                    out.append(x)
+            nuevas.append((out, n))
+        filas = nuevas
 
 
 def _recortar(v: str) -> str:
@@ -96,31 +145,42 @@ def _clasificar(col: str, vals: pd.Series, vc: pd.Series, n: int) -> tuple[str, 
                 {"opciones": _opciones(vc)}
         return "numerica", "Valores numéricos con muchos valores distintos.", {}
 
-    # 8. selección múltiple: las partes son pocas y se repiten, aunque cada parte sea una frase larga
+    # 8. selección múltiple: las opciones (ya reconstruidas) son pocas y se repiten, aunque cada una sea una frase larga
     pista = bool(re.search(MULTIPLE, titulo))
+    umbral = 0.05 if pista else 0.2
     for sep in (";", ","):
-        if m.str.contains(sep, regex=False).mean() >= (0.05 if pista else 0.2)                 and m.str.split(sep).explode().str.strip().nunique() <= MAX_PARTES:
-            partes = vals.str.split(sep).explode().str.strip()
-            partes = partes[partes != ""]
-            pc = partes.value_counts()
-            if len(pc) <= MAX_PARTES and len(partes) >= 2 * len(pc) and pc.head(MAX_OPCIONES).sum() >= 0.8 * len(partes):
-                return "seleccion_multiple", f'Cada respuesta puede tener varias opciones separadas por "{sep}".',                     {"opciones": _opciones(pc)}
+        if m.str.contains(sep, regex=False).mean() < umbral or m.str.split(sep).explode().str.strip().nunique() > 3 * MAX_PARTES:
+            continue
+        filas, conteo = _reconstruir(vc, sep)
+        total = sum(conteo.values())
+        # casi todas las respuestas con una sola opción: la coma era parte de la opción, no un separador
+        if sum(k for ch, k in filas if len(ch) > 1) / n_resp < umbral:
+            continue
+        pc = pd.Series(dict(conteo.most_common()))
+        if len(pc) > MAX_PARTES or total < 2 * len(pc) or pc.head(MAX_OPCIONES).sum() < 0.8 * total:
+            continue
+        # pocos valores completos que todos se repiten y ningún trozo aparece solo en otra respuesta: son alternativas con comas
+        # shortcut: una "marca exactamente dos" donde nadie elige una sola opción se toma como selección única; revisar en T-012.
+        if nd <= 0.1 * n_resp and vc.min() >= 2 and not any(x in vc.index for ch, _ in filas if len(ch) > 1 for x in ch):
+            continue
+        return "seleccion_multiple", f'Cada respuesta puede tener varias opciones separadas por "{sep}".', {"opciones": _opciones(pc)}
 
     # 9. segmento / selección única. En texto la pista de grupo vale con cualquier largo de título (salvo que evalúe algo).
     clave = sorted(set(tokens) & TITULO_GRUPO)
+    escritas = {_sin_tildes(w): w for w in re.findall(r"[^\W_]+", col.lower())}  # "región", no "region"
     grupo = bool(clave) and (corto or not re.search(EVALUA, titulo))
     palabras = m.str.count(r"\s+").mean() + 1
     escasa = n_resp < 10 and n_resp < n / 2  # casi toda la columna está vacía: no alcanza para hablar de texto libre
     if escasa or (nd <= 0.5 * n_resp and (nd <= MAX_OPCIONES or (grupo and nd <= min(100, 0.3 * n_resp))
                                           or (n_resp >= 30 and nd <= 0.1 * n_resp)))             or (palabras < 3 and nd <= 0.5 * n_resp):
         if grupo:
-            return "segmento", f"{nd} valores distintos en {n_resp} respuestas y el título sugiere un grupo ({', '.join(clave)}).",                 {"opciones": _opciones(vc)}
-        return "seleccion_unica", f"{nd} valores distintos en {n_resp} respuestas: parecen opciones a elegir.",             {"opciones": _opciones(vc)}
+            return "segmento", f"{_pl(nd, 'valor distinto', 'valores distintos')} en {_pl(n_resp, 'respuesta', 'respuestas')} y el título sugiere un grupo ({', '.join(escritas.get(k, k) for k in clave)}).",                 {"opciones": _opciones(vc)}
+        return "seleccion_unica", f"{_pl(nd, 'valor distinto', 'valores distintos')} en {_pl(n_resp, 'respuesta', 'respuestas')}: parecen opciones a elegir.",             {"opciones": _opciones(vc)}
 
     # 10. abierta
     if palabras >= 3:
-        return "abierta", f"Textos de {palabras:.0f} palabras en promedio, con {nd} respuestas distintas de {n_resp}.", {}
-    return "abierta", f"Respuestas cortas ({palabras:.0f} palabras en promedio) y casi todas distintas ({nd} de {n_resp}).", {}
+        return "abierta", f"Textos de {_pl(round(palabras), 'palabra', 'palabras')} en promedio, con {_pl(nd, 'respuesta distinta', 'respuestas distintas')} de {n_resp}.", {}
+    return "abierta", f"Respuestas cortas ({_pl(round(palabras), 'palabra', 'palabras')} en promedio) y casi todas distintas ({nd} de {n_resp}).", {}
 
 
 def detectar(df: pd.DataFrame) -> dict:
