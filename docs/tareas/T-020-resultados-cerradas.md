@@ -45,3 +45,12 @@ Un endpoint de solo lectura que calcula, sin IA, los resultados de todas las pre
 - `respondentes[].valores[q_id]` es `str | null`; en preguntas con varias columnas ya viene unido (primer no vacío).
 - Desviación muestral: `statistics.stdev` (0 si hay una sola respuesta).
 - El archivo de la encuesta real está en `C:/Users/isral/Downloads/Encuesta proyecto de título (respuestas).xlsx` (datos personales: solo local).
+
+## Revisión 1
+2026-10-30 — **Con cambios** (supervisor).
+
+Bien: servicio puro y legible, `separar_opciones` reutiliza `_reconstruir` sin tocar `detectar`, endpoint con `_get_or_404` (filtro de organización), cobertura de aislamiento y permisos, 209 pruebas en verde. Los números de la encuesta real (P10, P15, P5) cuadran. La base de los % sobre respuestas válidas en escala/NPS queda aceptada; el contrato ya se actualizó.
+
+Un cambio:
+
+1. **`quantitative.py` `_escala`: el mínimo de la escala no puede salir del menor valor respondido.** Con una escala 1–5 donde nadie eligió 1 (frecuente en muestras chicas y satisfechas), hoy queda `min: 2` y `bottom2: [2, 3]`, que mete a los neutrales (3) en "las dos notas más bajas": un error metodológico que el usuario vería como dato. Esperado (contrato actualizado): `min` = 0 si alguien respondió 0, y 1 si no; `max` = el mayor valor respondido (sin cambio). Ajusta el `shortcut:` del comentario y agrega una prueba: escala con valores 2–5 → `opciones` desde "1" (n: 0), `bottom2.valores == [1, 2]`.
