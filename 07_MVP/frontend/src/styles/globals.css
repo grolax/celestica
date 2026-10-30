@@ -429,6 +429,10 @@ table.si tbody tr:hover { background: var(--primary-soft); }
 
 /* ---------- Tabs de proyecto ---------- */
 
+.pregunta-selector { max-width: 640px; margin-bottom: 14px; }
+.pregunta-selector label.field-label { margin-top: 0; }
+.pregunta-selector p { margin: 6px 0 0; }
+
 .project-tabs {
   display: flex;
   gap: 4px;
