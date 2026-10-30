@@ -46,7 +46,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 y T-007 incorporadas; T-008a publicada para revisión (PR #15); T-008b en cola |
+| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 y T-007 incorporadas; T-008a incorporada (PR #15); T-008b en cola |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | 🟡 Aprobada por el supervisor, espera autorización |
 
 ---
@@ -368,7 +368,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hizo:** si alguien escribe mal la contraseña del panel interno de prompts, el servidor ahora responde "no tienes permiso" en vez de "tu sesión venció". Así la persona **no pierde su sesión** y sigue viendo "Contraseña incorrecta.".
 - **Por qué:** el error lo encontró el programador durante T-008a, y el responsable pidió corregirlo cuanto antes.
 - **Cómo se verificó:** hay **128 pruebas automáticas** y todas pasan. Las nuevas prueban las 5 operaciones del panel con la contraseña correcta, con una incorrecta y sin contraseña.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla. Debe fusionarse después de T-008a.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

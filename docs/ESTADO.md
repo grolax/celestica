@@ -21,8 +21,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (fusionada, PR #12) |
 | T-006 Permisos por rol en el backend | backend | RF-03, RNF-02, RNF-01 | 2026-10-30 | `tarea/T-006-permisos-por-rol` (fusionada, PR #13) |
 | T-007 Gestión de miembros y cambio de contraseña | backend | RF-03, RF-04 (sin correo), RNF-02 | 2026-10-30 | `tarea/T-007-gestion-de-miembros` (fusionada, PR #14) |
-| T-008a Cambio de contraseña y estados de cuenta | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008a-cuenta-y-contrasena` (aprobada, PR #15 abierto) |
-| T-009 Panel interno responde 403 | backend | RNF-13, RNF-02 | 2026-10-30 | `tarea/T-009-admin-403` (aprobada, pendiente de subir; base: rama de T-008a) |
+| T-008a Cambio de contraseña y estados de cuenta | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008a-cuenta-y-contrasena` (fusionada, PR #15) |
+| T-009 Panel interno responde 403 | backend | RNF-13, RNF-02 | 2026-10-30 | `tarea/T-009-admin-403` (aprobada, pendiente de subir) |
 
 ## En curso
 
