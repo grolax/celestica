@@ -43,7 +43,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ✅ Incorporada a la versión oficial (T-016a y T-016b) |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
-| T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | 🟡 T-003a incorporada; T-003b aprobada por el supervisor, espera autorización |
+| T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
+| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 
 ---
 
@@ -261,7 +262,34 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cómo se organizó:** en dos partes, para revisar cada una con calma. T-003a cubre la base común, los proyectos y las integraciones. T-003b cubre el análisis, los informes y la administración.
 - **T-003a, resultado:** la base común, los proyectos y las integraciones ya viven en sus propios archivos. El archivo principal bajó de 948 a 639 líneas. La huella de la API quedó **idéntica** y las 51 pruebas pasan sin cambios.
 - **T-003b, resultado:** el análisis, los informes y exportaciones y la administración también quedaron en sus propios archivos. El archivo principal pasó de 948 líneas al inicio a **88**, solo con la configuración. La huella de la API sigue idéntica y las 51 pruebas pasan sin cambios.
-- **Estado:** T-003a incorporada a la versión oficial (PR #9 en GitHub). T-003b aprobada por el supervisor; espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial (PR #9 y PR #10 en GitHub).
+
+---
+
+### 22. T-004 · Organizaciones: decisiones y diseño
+
+- **Qué se decidió (responsable, 30 de octubre):**
+  1. Al registrarse, cada persona crea su organización y queda como su **administradora**. La organización toma el nombre escrito en "Institución / Empresa".
+  2. Los usuarios actuales reciben **cada uno su propia organización**, con sus proyectos. No se unen automáticamente aunque hayan escrito la misma empresa: ese texto es libre y una unión por error mostraría datos de una persona a otra.
+  3. Las credenciales de Qualtrics siguen siendo de cada persona.
+  4. Para la etapa de roles: los nuevos miembros los crea el administrador con una contraseña temporal.
+- **Qué cambia:** los proyectos dejan de pertenecer a una persona y pasan a pertenecer a su organización. Cada proyecto recuerda además quién lo creó. Por ahora cada organización tiene un solo miembro, así que **para el usuario todo se ve igual**. El cambio prepara el terreno para los equipos y los permisos.
+- **Datos actuales:** un proceso de migración los reacomoda solo al iniciar el servidor. Está hecho para poder ejecutarse varias veces sin duplicar nada.
+- **Estado:** el responsable aprobó el contrato de API y que la migración se ejecute sola al iniciar el servidor.
+
+### 23. T-004 · Organizaciones, implementadas
+
+- **Qué se hizo:**
+  - Existe la **organización**. Cada persona que se registra crea la suya y queda como administradora.
+  - Los proyectos ahora pertenecen a la organización, y la regla de seguridad pasó de "¿este proyecto es tuyo?" a **"¿este proyecto es de tu organización?"**.
+  - Los datos existentes se migran solos al iniciar el servidor: cada usuario actual recibe su propia organización con sus proyectos.
+- **Revisión del supervisor:** hubo una ronda de correcciones, con tres puntos:
+  1. Una parte de la prueba de seguridad de T-002 había dejado de verificar que el proyecto quedara intacto. Se reparó y se agregó un control para que no vuelva a fallar en silencio.
+  2. Se agregó un resguardo: si una cuenta llegara a quedar sin organización, no ve ningún proyecto.
+  3. La migración automática se movió al núcleo de la aplicación, para que el servidor arranque igual cuando se publique en internet.
+- **Cómo se verificó:** hay **59 pruebas automáticas** y todas pasan. Las 25 operaciones sobre proyectos se prueban ahora entre organizaciones distintas. Hay pruebas nuevas del registro, de dos personas de la misma organización que comparten proyectos y de la migración: no une a usuarios con la misma empresa y, si se ejecuta dos veces, no cambia nada.
+- **Para el usuario:** todavía no cambia nada visible. Cada organización tiene un solo miembro hasta que lleguen los roles (RF-03).
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

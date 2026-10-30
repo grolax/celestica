@@ -16,22 +16,24 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-016b Encabezados en pestañas del proyecto | frontend | RNF-13, RNF-16 | 2026-10-30 | `tarea/T-016b-encabezados-de-analisis` (fusionada, PR #7) |
 | T-002 Aislamiento multi-tenant en pytest | backend | RNF-01, RNF-18 | 2026-10-30 | `tarea/T-002-aislamiento-pytest` (fusionada, PR #8) |
 | T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
-| T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (aprobada, pendiente de subir) |
+| T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
+| T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (aprobada en revisión 2, pendiente de subir) |
 
 ## En curso
 
-- En cola: RF-02 organizaciones → RF-03 roles.
-- RF-02: propuesta de diseño enviada al usuario (registro crea organización, migración 1 usuario → 1 organización sin unir por `empresa`, Qualtrics sigue por usuario, alta de miembros por el admin con contraseña temporal).
+- Siguiente sugerido: tarea corta de frontend para mostrar la organización (campo `organizacion` del contrato RF-02).
+- En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
 
 ## Bloqueado / requiere decisión del usuario
 
-- RF-02: esperando respuesta del usuario a las 4 decisiones de diseño (2026-10-30).
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
 
 - Docs de prompts desactualizados: `COMO_FUNCIONA.md` §6 dice "4 prompts" (son 10); `schemas_v2.py:16` y el docstring de `thematic.py` nombran solo `prompts.json`.
-- Para RF-02: `store.inc_project_usage` filtra solo por `id`, y `_codify_progress`/`_report_progress` en memoria se indexan solo por `project_id` (hoy protegidos por `_get_or_404`).
+- `store.inc_project_usage` filtra solo por `id` (escritura del sistema), y `_codify_progress`/`_report_progress` en memoria se indexan solo por `project_id` (protegidos por `_get_or_404`).
+- Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
+- Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
 - La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
 - La presentación muestra "Iniciar sesión" un instante mientras carga la sesión (`LandingPage` no espera `loading` de `useAuth`); menor.

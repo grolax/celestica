@@ -6,7 +6,7 @@ desde plantilla) → análisis léxico → propuesta de categorías (Claude) →
 humana → codificación (Claude) → revisión/re-codificación → trazabilidad →
 informe cualitativo → exportación PDF/DOCX/CSV/XLSX.
 
-Multi-tenant: cada endpoint de proyecto exige JWT y filtra por user_id.
+Multi-tenant: cada endpoint de proyecto exige JWT y filtra por org_id.
 """
 from __future__ import annotations
 

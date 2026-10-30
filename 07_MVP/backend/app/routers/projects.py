@@ -29,7 +29,7 @@ def apply_template(project_id: str, template: str, user: User = Depends(get_curr
         raise HTTPException(404, f"Plantilla '{template}' no existe")
     if not project["marco_teorico"]:
         project["marco_teorico"] = tpl["marco_teorico"]
-        store.set_project_field(project_id, user.id, "marco_teorico", tpl["marco_teorico"])
+        store.set_project_field(project_id, user.org_id, "marco_teorico", tpl["marco_teorico"])
     for c in tpl["categorias_default"]:
         cat = {
             "id": store.new_id("cat"),
@@ -43,7 +43,7 @@ def apply_template(project_id: str, template: str, user: User = Depends(get_curr
             "comments": [],
         }
         project["categories"].append(cat)
-        store.push_category(project_id, user.id, cat)
+        store.push_category(project_id, user.org_id, cat)
     store.log_event(project, "analista", "aplicacion_plantilla", {
         "plantilla": template, "usuario": user.email,
         "n_categorias": len(tpl["categorias_default"]),
@@ -55,7 +55,7 @@ def apply_template(project_id: str, template: str, user: User = Depends(get_curr
 
 @router.get("/api/projects")
 def list_projects(user: User = Depends(get_current_user)):
-    return store.list_projects(user.id)
+    return store.list_projects(user.org_id)
 
 
 def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
@@ -92,7 +92,7 @@ def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
     if tpl and not marco_teorico:
         marco_teorico = tpl["marco_teorico"]
 
-    project = store.create_project(user.id, name, marco_teorico, columns, text_column, responses)
+    project = store.create_project(user.org_id, user.id, name, marco_teorico, columns, text_column, responses)
     store.log_event(project, "analista", "creacion_proyecto", {
         **source_detail, "n_respuestas": len(responses),
         "columna_texto": text_column, "marco_teorico": marco_teorico,
@@ -153,7 +153,7 @@ def get_project(project_id: str, user: User = Depends(get_current_user)):
 
 @router.delete("/api/projects/{project_id}")
 def delete_project(project_id: str, user: User = Depends(get_current_user)):
-    if not store.delete_project(project_id, user.id):
+    if not store.delete_project(project_id, user.org_id):
         raise HTTPException(404, "Proyecto no encontrado")
     return {"deleted": project_id}
 
@@ -161,7 +161,7 @@ def delete_project(project_id: str, user: User = Depends(get_current_user)):
 @router.post("/api/projects/import-legacy")
 def import_legacy(user: User = Depends(get_current_user)):
     """Importa a esta cuenta los proyectos del antiguo store JSON (pre-auth)."""
-    n = store.import_legacy_projects(user.id)
+    n = store.import_legacy_projects(user.org_id, user.id)
     return {"imported": n}
 
 

@@ -16,6 +16,8 @@ import os
 from pymongo import ASCENDING, DESCENDING, MongoClient
 from pymongo.database import Database
 
+from app.migrations import migrate_orgs
+
 MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/softinsight")
 
 _client = None  # lazy: se crea en el primer uso (y es reemplazable en tests)
@@ -37,11 +39,17 @@ def init_db() -> None:
     """Crea los índices si no existen. Idempotente.
 
     - users.email: único (una cuenta por email)
-    - projects.user_id: aislamiento multi-tenant (toda lista filtra por dueño)
+    - projects.org_id: aislamiento multi-tenant (toda lista filtra por organización)
+    - users.org_id: miembros de una organización
     - audit_events.project_id: consultas de auditoría por proyecto
+    Al final corre la migración a organizaciones (RF-02), barata si no hay nada pendiente.
     """
     db = get_db()
     db.users.create_index([("email", ASCENDING)], unique=True)
+    db.users.create_index([("org_id", ASCENDING)])
     db.projects.create_index([("user_id", ASCENDING)])
     db.projects.create_index([("user_id", ASCENDING), ("created_at", DESCENDING)])
+    db.projects.create_index([("org_id", ASCENDING)])
+    db.projects.create_index([("org_id", ASCENDING), ("created_at", DESCENDING)])
     db.audit_events.create_index([("project_id", ASCENDING)])
+    migrate_orgs(db)
