@@ -40,9 +40,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-001 | Reparar las pruebas automáticas del sistema | ✅ Incorporada a la versión oficial |
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
-| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | 🟡 T-016a incorporada; T-016b aprobada por el supervisor, espera autorización |
+| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ✅ Incorporada a la versión oficial (T-016a y T-016b) |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
-| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
+| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 
 ---
 
@@ -227,7 +227,28 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hizo:** las 8 pestañas de cada proyecto (Resumen, Análisis léxico, Libro de códigos, Codificación, Trazabilidad, Informe, Exportar y Auditoría) empiezan ahora con su título y una línea de ayuda, con los textos que aprobó el responsable. Se quitaron las explicaciones que repetían esa línea y se dejaron las que dan más detalle.
 - **Por qué:** para que quien no sabe de análisis entienda qué hace cada paso.
 - **Cómo se verificó:** la plataforma se construye sin errores y el supervisor revisó todos los cambios. El informe en pantalla sigue indicando que es contenido generado por IA. Falta recorrerla en el navegador.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla. Con esta tarea termina la fase de diseño.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #7 en GitHub). Con esta tarea terminó la fase de diseño.
+
+---
+
+### 19. De vuelta al trabajo interno: T-002
+
+- **Qué se hizo:** terminada la fase de diseño, se retomó el backend. La primera tarea es T-002.
+- **De qué se trata:** hoy, las pruebas que verifican que **un cliente no pueda ver ni modificar los proyectos de otro** existen, pero hay que ejecutarlas a mano, y cubren solo 8 de las 25 operaciones que se pueden hacer sobre un proyecto. T-002 las incorpora a las pruebas automáticas y las extiende a las 25. Además, si en el futuro alguien agrega una operación nueva sin su prueba de seguridad, las pruebas fallarán y lo avisarán.
+- **Por qué ahora:** la siguiente gran etapa cambia cómo se separan los datos de cada cliente (de "por usuario" a "por organización"). Antes de mover algo tan delicado, hay que tener una alarma que suene si algo se rompe.
+- **Estado:** en desarrollo.
+
+---
+
+### 20. T-002 · Pruebas de seguridad entre clientes, ahora automáticas
+
+- **Qué se hizo:**
+  - Las pruebas que antes había que ejecutar a mano ahora corren solas, junto con todas las demás.
+  - Se agregó una prueba que intenta, como un usuario ajeno, cada una de las **25 operaciones** posibles sobre un proyecto: verlo, borrarlo, editar categorías, comentar, codificar, exportar, generar el informe, etc. En todas, el sistema debe responder "no encontrado". Además, la prueba revisa que el proyecto original no haya cambiado y que la IA no se haya activado.
+  - Si alguien agrega en el futuro una operación nueva sin su prueba de seguridad, las pruebas fallan y lo avisan.
+- **Resultado:** **no se encontró ninguna fuga**: las 25 operaciones ya estaban protegidas. Ahora hay **51 pruebas automáticas** (antes 19) y todas pasan. Como control, se desactivó a propósito la protección de forma temporal y las pruebas lo detectaron de inmediato.
+- **Por qué importa:** la siguiente etapa cambia la forma de separar los datos, de "por usuario" a "por organización". Esta alarma garantiza que ese cambio no abra una puerta sin que nadie lo note.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
