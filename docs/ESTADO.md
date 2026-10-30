@@ -17,11 +17,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-002 Aislamiento multi-tenant en pytest | backend | RNF-01, RNF-18 | 2026-10-30 | `tarea/T-002-aislamiento-pytest` (fusionada, PR #8) |
 | T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
 | T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
-| T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (aprobada en revisión 2, pendiente de subir) |
+| T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (fusionada, PR #11) |
 
 ## En curso
 
-- Siguiente sugerido: tarea corta de frontend para mostrar la organización (campo `organizacion` del contrato RF-02).
+- T-005 mostrar organización y rol en la UI (frontend), rama `tarea/T-005-organizacion-en-ui`.
 - En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
 
 ## Bloqueado / requiere decisión del usuario

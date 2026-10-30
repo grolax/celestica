@@ -44,7 +44,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
-| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
+| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
+| T-005 | Mostrar la organización y el rol en pantalla | 🔨 En desarrollo |
 
 ---
 
@@ -289,7 +290,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   3. La migración automática se movió al núcleo de la aplicación, para que el servidor arranque igual cuando se publique en internet.
 - **Cómo se verificó:** hay **59 pruebas automáticas** y todas pasan. Las 25 operaciones sobre proyectos se prueban ahora entre organizaciones distintas. Hay pruebas nuevas del registro, de dos personas de la misma organización que comparten proyectos y de la migración: no une a usuarios con la misma empresa y, si se ejecuta dos veces, no cambia nada.
 - **Para el usuario:** todavía no cambia nada visible. Cada organización tiene un solo miembro hasta que lleguen los roles (RF-03).
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #11 en GitHub).
+
+---
+
+### 24. Primera vista general y T-005
+
+- **Qué se hizo:** el responsable levantó la plataforma en su computador para ver cómo se ve tras la fase de diseño. Se hizo sin clave de IA, así que no hubo ningún gasto.
+- **T-005:** tarea corta de pantallas. El encabezado y Configuración mostrarán el nombre de la organización y el rol de la persona (Administrador, Analista o Lector). En el registro, el campo "Institución / Empresa" pasa a llamarse "Organización (institución o empresa)", porque ese texto es ahora el nombre de la organización.
+- **Estado:** en desarrollo.
 
 ---
 
