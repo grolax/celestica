@@ -10,7 +10,7 @@ export default function Input({ label, error, id, ...rest }: InputProps) {
   return (
     <div>
       {label && <label className="field-label" htmlFor={inputId}>{label}</label>}
-      <input id={inputId} aria-invalid={error ? true : undefined}
+      <input id={inputId} type="text" aria-invalid={error ? true : undefined}
              aria-describedby={error && inputId ? `${inputId}_err` : undefined} {...rest} />
       {error && <div className="field-error" id={inputId ? `${inputId}_err` : undefined}>{error}</div>}
     </div>
