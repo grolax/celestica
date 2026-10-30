@@ -31,8 +31,8 @@ def run_lexical(project_id: str, user: User = Depends(get_current_user)):
 
     project["lexical"] = result
     project["lexical_interpretation"] = interpretation
-    store.set_project_field(project_id, user.id, "lexical", result)
-    store.set_project_field(project_id, user.id, "lexical_interpretation", interpretation)
+    store.set_project_field(project_id, user.org_id, "lexical", result)
+    store.set_project_field(project_id, user.org_id, "lexical_interpretation", interpretation)
     store.log_event(project, "sistema", "analisis_lexico", {
         "n_respuestas": result["n_responses"], "metodo": result["method_note"],
     })
@@ -70,7 +70,7 @@ def propose_categories(project_id: str, user: User = Depends(get_current_user)):
             "comments": [],
         }
         project["categories"].append(cat)
-        store.push_category(project_id, user.id, cat)
+        store.push_category(project_id, user.org_id, cat)
         store.log_event(project, "claude", "propuesta_categoria", {"categoria": cat})
     return project["categories"]
 
@@ -94,7 +94,7 @@ def update_category(project_id: str, category_id: str, update: CategoryUpdate,
     changes = {k: v for k, v in update.model_dump().items() if v is not None}
     before = {k: cat[k] for k in changes if k in cat}
     cat.update(changes)
-    store.update_category_fields(project_id, user.id, category_id, changes)  # $set puntual
+    store.update_category_fields(project_id, user.org_id, category_id, changes)  # $set puntual
     store.log_event(project, "analista", "validacion_categoria", {
         "categoria_id": category_id, "antes": before, "despues": changes, "usuario": user.email,
     })
@@ -121,7 +121,7 @@ def create_category(project_id: str, body: CategoryCreate,
         "comments": [],
     }
     project["categories"].append(cat)
-    store.push_category(project_id, user.id, cat)  # $push puntual
+    store.push_category(project_id, user.org_id, cat)  # $push puntual
     store.log_event(project, "analista", "creacion_categoria_manual",
                     {"categoria": cat, "usuario": user.email})
     return cat
@@ -147,7 +147,7 @@ def add_comment(project_id: str, category_id: str, body: CommentCreate,
         "timestamp": store.now_iso(),
     }
     cat.setdefault("comments", []).append(comment)
-    store.push_comment(project_id, user.id, category_id, comment)  # $push puntual
+    store.push_comment(project_id, user.org_id, category_id, comment)  # $push puntual
     store.log_event(project, "analista", "comentario_categoria", {
         "categoria_id": category_id, "comentario": comment["text"], "usuario": user.email,
     })
@@ -161,7 +161,7 @@ def delete_comment(project_id: str, category_id: str, comment_id: str,
     cat = next((c for c in project["categories"] if c["id"] == category_id), None)
     if not cat:
         raise HTTPException(404, "Categoría no encontrada")
-    if not store.pull_comment(project_id, user.id, category_id, comment_id):  # $pull puntual
+    if not store.pull_comment(project_id, user.org_id, category_id, comment_id):  # $pull puntual
         raise HTTPException(404, "Comentario no encontrado")
     store.log_event(project, "analista", "eliminacion_comentario", {
         "categoria_id": category_id, "comentario_id": comment_id, "usuario": user.email,
@@ -180,12 +180,12 @@ def codify(project_id: str, user: User = Depends(get_current_user)):
 
     total = len(project["responses"])
     _codify_progress[project_id] = {"done": 0, "total": total, "status": "running"}
-    user_id = user.id
+    org_id = user.org_id
 
     def run():
         claude_log.current_project_id.set(project_id)  # hilo nuevo: sin contexto heredado
         try:
-            proj = store.get_project(project_id, user_id)
+            proj = store.get_project(project_id, org_id)
             if not proj:
                 _codify_progress[project_id] = {"status": "error", "error": "Proyecto no encontrado", "done": 0, "total": 0}
                 return
@@ -212,7 +212,7 @@ def codify(project_id: str, user: User = Depends(get_current_user)):
 
             # $set masivo de codings: no pisa comentarios/categorías agregados
             # por el analista mientras corría la codificación
-            store.set_codings_bulk(project_id, user_id, new_codings)
+            store.set_codings_bulk(project_id, org_id, new_codings)
             proj["codings"].update(new_codings)
             store.log_event(proj, "claude", "codificacion_corpus", {
                 "n_respuestas": len(results), "n_asignaciones": n_assigned,
@@ -253,7 +253,7 @@ def recode(project_id: str, response_id: str, body: RecodeBody,
         for cid in body.category_ids
     ]
     # $set de UNA respuesta: no reescribe el resto del corpus codificado
-    store.set_codings_for_response(project_id, user.id, response_id, project["codings"][response_id])
+    store.set_codings_for_response(project_id, user.org_id, response_id, project["codings"][response_id])
     store.log_event(project, "analista", "recodificacion_manual", {
         "response_id": response_id, "antes": before,
         "despues": project["codings"][response_id], "usuario": user.email,

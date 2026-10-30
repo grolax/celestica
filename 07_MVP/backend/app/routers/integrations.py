@@ -98,7 +98,7 @@ def create_project_from_qualtrics(body: QualtricsImportBody, user: User = Depend
         source_detail={"fuente": "qualtrics", "encuesta_id": body.survey_id,
                        "encuesta": body.survey_name or body.survey_id},
     )
-    project = store.get_project(result["id"], user.id)
+    project = store.get_project(result["id"], user.org_id)
     store.log_event(project, "sistema", "importacion_qualtrics", {
         "encuesta_id": body.survey_id, "encuesta": body.survey_name or body.survey_id,
         "n_respuestas": result["n_responses"], "usuario": user.email,
@@ -116,7 +116,7 @@ def create_project_from_google_forms(body: GoogleFormsImportBody, user: User = D
         df, body.name, body.marco_teorico, body.text_column, body.template, user,
         source_detail={"fuente": "google_forms", "planilla": body.sheet_url},
     )
-    project = store.get_project(result["id"], user.id)
+    project = store.get_project(result["id"], user.org_id)
     store.log_event(project, "sistema", "importacion_google_forms", {
         "planilla": body.sheet_url, "n_respuestas": result["n_responses"], "usuario": user.email,
     })

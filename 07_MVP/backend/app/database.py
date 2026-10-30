@@ -37,11 +37,19 @@ def init_db() -> None:
     """Crea los índices si no existen. Idempotente.
 
     - users.email: único (una cuenta por email)
-    - projects.user_id: aislamiento multi-tenant (toda lista filtra por dueño)
+    - projects.org_id: aislamiento multi-tenant (toda lista filtra por organización)
+    - users.org_id: miembros de una organización
     - audit_events.project_id: consultas de auditoría por proyecto
+    Al final corre la migración a organizaciones (RF-02), barata si no hay nada pendiente.
     """
+    from scripts.migrate_orgs import migrate  # import tardío: scripts/ cuelga de backend/
+
     db = get_db()
     db.users.create_index([("email", ASCENDING)], unique=True)
+    db.users.create_index([("org_id", ASCENDING)])
     db.projects.create_index([("user_id", ASCENDING)])
     db.projects.create_index([("user_id", ASCENDING), ("created_at", DESCENDING)])
+    db.projects.create_index([("org_id", ASCENDING)])
+    db.projects.create_index([("org_id", ASCENDING), ("created_at", DESCENDING)])
     db.audit_events.create_index([("project_id", ASCENDING)])
+    migrate(db)

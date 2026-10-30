@@ -31,7 +31,7 @@ def _check_admin(request: Request) -> None:
 
 
 def _get_or_404(project_id: str, user: User) -> dict:
-    project = store.get_project(project_id, user.id)
+    project = store.get_project(project_id, user.org_id)
     if not project:
         raise HTTPException(404, "Proyecto no encontrado")
     # Las llamadas a Claude que haga este request quedan atribuidas al

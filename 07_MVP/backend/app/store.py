@@ -2,8 +2,9 @@
 Almacenamiento multi-tenant sobre MongoDB.
 
 Mantiene la interfaz documental del MVP original (el proyecto viaja como dict),
-pero cada proyecto pertenece a un usuario y TODA lectura/escritura filtra por
-user_id — el aislamiento entre cuentas vive aquí, no en los routers.
+pero cada proyecto pertenece a una organización y TODA lectura/escritura filtra
+por org_id — el aislamiento entre organizaciones vive aquí, no en los routers.
+(`user_id` del proyecto solo significa "creado por".)
 
 v1.1: además del ciclo clásico get_project → mutar → save_project (que
 reescribe el documento y sigue siendo correcto para operaciones masivas como
@@ -54,15 +55,16 @@ def _empty_project(name: str, marco_teorico: str, columns: list[str],
     }
 
 
-def _tenant_filter(project_id: str, user_id: str) -> dict:
-    """Filtro base de TODO acceso a un proyecto: id + dueño."""
-    return {"_id": project_id, "user_id": user_id}
+def _tenant_filter(project_id: str, org_id: str) -> dict:
+    """Filtro base de TODO acceso a un proyecto: id + organización dueña."""
+    return {"_id": project_id, "org_id": org_id}
 
 
-def create_project(user_id: str, name: str, marco_teorico: str, columns: list[str],
+def create_project(org_id: str, created_by: str, name: str, marco_teorico: str, columns: list[str],
                    text_column: str, responses: list[dict]) -> dict:
     project = _empty_project(name, marco_teorico, columns, text_column, responses)
-    project["user_id"] = user_id
+    project["org_id"] = org_id
+    project["user_id"] = created_by  # "creado por", no aislamiento
     save_project(project)
     return project
 
@@ -76,27 +78,27 @@ def save_project(project: dict) -> None:
     get_db().projects.replace_one({"_id": project["id"]}, doc, upsert=True)
 
 
-def get_project(project_id: str, user_id: str) -> Optional[dict]:
-    doc = get_db().projects.find_one(_tenant_filter(project_id, user_id))
+def get_project(project_id: str, org_id: str) -> Optional[dict]:
+    doc = get_db().projects.find_one(_tenant_filter(project_id, org_id))
     if doc is None:
         return None  # no existe O no es suyo → la API responde 404 sin distinguir
     doc.pop("_id", None)
     return doc
 
 
-def delete_project(project_id: str, user_id: str) -> bool:
-    result = get_db().projects.delete_one(_tenant_filter(project_id, user_id))
+def delete_project(project_id: str, org_id: str) -> bool:
+    result = get_db().projects.delete_one(_tenant_filter(project_id, org_id))
     if result.deleted_count == 0:
         return False
     get_db().audit_events.delete_many({"project_id": project_id})
     return True
 
 
-def list_projects(user_id: str) -> list[dict]:
-    """Resumen de proyectos del usuario, calculado en el servidor de Mongo
+def list_projects(org_id: str) -> list[dict]:
+    """Resumen de proyectos de la organización, calculado en el servidor de Mongo
     (no viaja el documento completo con sus cientos de respuestas)."""
     pipeline = [
-        {"$match": {"user_id": user_id}},
+        {"$match": {"org_id": org_id}},
         {"$project": {
             "_id": 0,
             "id": 1, "name": 1, "created_at": 1,
@@ -117,45 +119,45 @@ def list_projects(user_id: str) -> list[dict]:
 
 # ---------- Actualizaciones parciales (v1.1: aprovechar Mongo de verdad) ----------
 
-def update_category_fields(project_id: str, user_id: str, category_id: str,
+def update_category_fields(project_id: str, org_id: str, category_id: str,
                            changes: dict) -> bool:
     """$set sobre los campos de UNA categoría (operador posicional)."""
     if not changes:
         return True
     result = get_db().projects.update_one(
-        {**_tenant_filter(project_id, user_id), "categories.id": category_id},
+        {**_tenant_filter(project_id, org_id), "categories.id": category_id},
         {"$set": {f"categories.$.{k}": v for k, v in changes.items()}},
     )
     return result.matched_count > 0
 
 
-def push_category(project_id: str, user_id: str, category: dict) -> bool:
+def push_category(project_id: str, org_id: str, category: dict) -> bool:
     result = get_db().projects.update_one(
-        _tenant_filter(project_id, user_id),
+        _tenant_filter(project_id, org_id),
         {"$push": {"categories": category}},
     )
     return result.matched_count > 0
 
 
-def _set_categories_array(project_id: str, user_id: str, mutate) -> bool:
+def _set_categories_array(project_id: str, org_id: str, mutate) -> bool:
     """Fallback parcial: lee SOLO el array categories, lo muta en memoria y
     lo re-escribe con $set (sin tocar responses/codings). Se usa cuando el
     servidor no soporta el operador posicional con $push/$pull (ej: mocks)."""
-    doc = get_db().projects.find_one(_tenant_filter(project_id, user_id), {"categories": 1})
+    doc = get_db().projects.find_one(_tenant_filter(project_id, org_id), {"categories": 1})
     if doc is None:
         return False
     categories = doc.get("categories", [])
     if not mutate(categories):
         return False
-    get_db().projects.update_one(_tenant_filter(project_id, user_id),
+    get_db().projects.update_one(_tenant_filter(project_id, org_id),
                                  {"$set": {"categories": categories}})
     return True
 
 
-def push_comment(project_id: str, user_id: str, category_id: str, comment: dict) -> bool:
+def push_comment(project_id: str, org_id: str, category_id: str, comment: dict) -> bool:
     try:
         result = get_db().projects.update_one(
-            {**_tenant_filter(project_id, user_id), "categories.id": category_id},
+            {**_tenant_filter(project_id, org_id), "categories.id": category_id},
             {"$push": {"categories.$.comments": comment}},
         )
         return result.matched_count > 0
@@ -166,14 +168,14 @@ def push_comment(project_id: str, user_id: str, category_id: str, comment: dict)
                     c.setdefault("comments", []).append(comment)
                     return True
             return False
-        return _set_categories_array(project_id, user_id, mutate)
+        return _set_categories_array(project_id, org_id, mutate)
 
 
-def pull_comment(project_id: str, user_id: str, category_id: str, comment_id: str) -> bool:
+def pull_comment(project_id: str, org_id: str, category_id: str, comment_id: str) -> bool:
     """Devuelve True solo si el comentario existía y fue eliminado."""
     try:
         result = get_db().projects.update_one(
-            {**_tenant_filter(project_id, user_id), "categories.id": category_id},
+            {**_tenant_filter(project_id, org_id), "categories.id": category_id},
             {"$pull": {"categories.$.comments": {"id": comment_id}}},
         )
         return result.modified_count > 0
@@ -185,37 +187,37 @@ def pull_comment(project_id: str, user_id: str, category_id: str, comment_id: st
                     c["comments"] = [x for x in c.get("comments", []) if x["id"] != comment_id]
                     return len(c["comments"]) < n
             return False
-        return _set_categories_array(project_id, user_id, mutate)
+        return _set_categories_array(project_id, org_id, mutate)
 
 
-def set_codings_for_response(project_id: str, user_id: str, response_id: str,
+def set_codings_for_response(project_id: str, org_id: str, response_id: str,
                              assignments: list[dict]) -> bool:
     """$set de las asignaciones de UNA respuesta (re-codificación manual):
     no reescribe el resto del corpus."""
     result = get_db().projects.update_one(
-        _tenant_filter(project_id, user_id),
+        _tenant_filter(project_id, org_id),
         {"$set": {f"codings.{response_id}": assignments}},
     )
     return result.matched_count > 0
 
 
-def set_codings_bulk(project_id: str, user_id: str, codings: dict) -> bool:
+def set_codings_bulk(project_id: str, org_id: str, codings: dict) -> bool:
     """$set de las asignaciones de muchas respuestas en una sola operación
     (resultado de la codificación del corpus). No toca responses, categories
     ni comentarios agregados mientras corría el hilo."""
     if not codings:
         return True
     result = get_db().projects.update_one(
-        _tenant_filter(project_id, user_id),
+        _tenant_filter(project_id, org_id),
         {"$set": {f"codings.{rid}": assignments for rid, assignments in codings.items()}},
     )
     return result.matched_count > 0
 
 
-def set_project_field(project_id: str, user_id: str, field: str, value: Any) -> bool:
+def set_project_field(project_id: str, org_id: str, field: str, value: Any) -> bool:
     """$set de un campo de primer nivel (ej: qualitative_report, marco_teorico)."""
     result = get_db().projects.update_one(
-        _tenant_filter(project_id, user_id),
+        _tenant_filter(project_id, org_id),
         {"$set": {field: value}},
     )
     return result.matched_count > 0
@@ -227,7 +229,7 @@ def inc_project_usage(project_id: str, step: str, input_tokens: int,
                       output_tokens: int, cost_usd: float) -> bool:
     """Acumula con $inc el consumo de Claude en `claude_usage` del proyecto.
 
-    Se filtra solo por id de proyecto (sin user_id) a propósito: lo llama el
+    Se filtra solo por id de proyecto (sin org_id) a propósito: lo llama el
     sink de claude_log desde hilos de fondo que solo conocen el proyecto, y es
     una escritura del sistema (contabilidad), no una acción de usuario. Los
     endpoints que LEEN este campo sí pasan por el filtro multi-tenant.
@@ -292,12 +294,13 @@ def log_event(project: dict, actor: str, action: str, detail: dict[str, Any]) ->
     try:
         db = get_db()
         db.projects.update_one(
-            _tenant_filter(project["id"], project.get("user_id", "")),
+            _tenant_filter(project["id"], project.get("org_id", "")),
             {"$push": {"audit_log": event}},
         )
         db.audit_events.insert_one({
             "_id": event["id"],
             "project_id": project["id"],
+            "org_id": project.get("org_id", ""),
             "user_id": project.get("user_id", ""),
             "actor": actor,
             "action": action,
@@ -310,8 +313,8 @@ def log_event(project: dict, actor: str, action: str, detail: dict[str, Any]) ->
 
 # ---------- Importación de proyectos antiguos ----------
 
-def import_legacy_projects(user_id: str) -> int:
-    """Importa proyectos del antiguo store JSON (pre-auth) a la cuenta indicada.
+def import_legacy_projects(org_id: str, created_by: str) -> int:
+    """Importa proyectos del antiguo store JSON (pre-auth) a la organización indicada.
     Cada archivo importado se renombra a .imported para no duplicar."""
     if not LEGACY_DIR.exists():
         return 0
@@ -321,7 +324,8 @@ def import_legacy_projects(user_id: str) -> int:
             project = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             continue
-        project["user_id"] = user_id
+        project["org_id"] = org_id
+        project["user_id"] = created_by
         save_project(project)
         f.rename(f.with_suffix(".json.imported"))
         n += 1

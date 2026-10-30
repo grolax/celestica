@@ -7,9 +7,13 @@ dependencia (`user: User = Depends(get_current_user)`) y acceden a sus
 atributos (user.id, user.email, ...).
 
 Colecciones en Mongo:
-- `users`:        {_id, email, password_hash, nombre, empresa, created_at, integrations}
-- `projects`:     {_id, user_id, name, created_at, ...documento completo del proyecto}
-- `audit_events`: {_id, project_id, user_id, actor, action, timestamp, detail}
+- `organizations`: {_id: "org_<10 hex>", nombre, created_at}
+- `users`:        {_id, email, password_hash, nombre, empresa, created_at, integrations, org_id, rol}
+                  (una sola organización por usuario; `rol` es "admin" hasta RF-03)
+- `projects`:     {_id, org_id, user_id, name, created_at, ...documento completo del proyecto}
+                  `org_id` es el dueño y la clave de aislamiento; `user_id` significa
+                  "creado por" y NO se usa para filtrar acceso.
+- `audit_events`: {_id, project_id, org_id, user_id, actor, action, timestamp, detail}
   (copia consultable del audit log; el registro canónico vive en el proyecto)
 """
 from __future__ import annotations
@@ -27,6 +31,8 @@ class User:
     empresa: str = ""
     created_at: str = ""
     integrations: dict = field(default_factory=dict)  # credenciales cifradas (Qualtrics, etc.)
+    org_id: str = ""
+    rol: str = "admin"
 
 
 def user_from_doc(doc: Optional[dict]) -> Optional[User]:
@@ -40,6 +46,8 @@ def user_from_doc(doc: Optional[dict]) -> Optional[User]:
         empresa=doc.get("empresa", ""),
         created_at=doc.get("created_at", ""),
         integrations=doc.get("integrations", {}) or {},
+        org_id=doc.get("org_id", ""),
+        rol=doc.get("rol", "admin"),
     )
 
 
@@ -52,4 +60,6 @@ def user_to_doc(user: User) -> dict:
         "empresa": user.empresa,
         "created_at": user.created_at,
         "integrations": user.integrations,
+        "org_id": user.org_id,
+        "rol": user.rol,
     }

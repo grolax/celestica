@@ -117,12 +117,12 @@ def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
         return {"status": "already_running"}
 
     _report_progress[project_id] = {"status": "running", "done": 0, "total": _REPORT_EXPECTED_CHARS, "section": None}
-    user_id = user.id
+    org_id = user.org_id
 
     def run():
         claude_log.current_project_id.set(project_id)  # hilo nuevo: sin contexto heredado
         try:
-            proj = store.get_project(project_id, user_id)
+            proj = store.get_project(project_id, org_id)
             if not proj:
                 _report_progress[project_id] = {"status": "error", "error": "Proyecto no encontrado"}
                 return
@@ -147,7 +147,7 @@ def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
                 # respuestas y el marco teórico no cambien (ver fingerprint).
                 def save_v2_analyses_cb(fingerprint: str, analyses: list) -> None:
                     store.set_project_field(
-                        project_id, user_id, "v2_analyses_cache",
+                        project_id, org_id, "v2_analyses_cache",
                         {"fingerprint": fingerprint, "analyses": analyses},
                     )
 
@@ -189,7 +189,7 @@ def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
                 }
 
             proj["qualitative_report"] = report
-            store.set_project_field(project_id, user_id, "qualitative_report", report)  # $set puntual
+            store.set_project_field(project_id, org_id, "qualitative_report", report)  # $set puntual
             store.log_event(proj, "claude", "generacion_informe_cualitativo", {
                 "n_categorias": len(validated), "n_codificadas": len(proj["codings"]),
                 "modo": mode,
