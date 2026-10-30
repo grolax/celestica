@@ -1,9 +1,10 @@
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 
 export default function Documentation() {
   return (
     <div style={{ maxWidth: 820 }}>
-      <h1 style={{ marginBottom: 18 }}>Documentación</h1>
+      <PageHeader title="Documentación" help="Guía de uso y explicación de cada concepto de la plataforma." />
 
       <Card title="¿Qué es Celestica?">
         <p>

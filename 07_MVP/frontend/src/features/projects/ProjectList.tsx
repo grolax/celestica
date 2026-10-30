@@ -6,6 +6,7 @@ import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Table from "@/shared/components/Table";
 import Icon from "@/shared/components/Icon";
+import PageHeader from "@/shared/components/PageHeader";
 
 export default function ProjectList() {
   const navigate = useNavigate();
@@ -29,19 +30,17 @@ export default function ProjectList() {
 
   return (
     <>
-      <div className="card-title" style={{ marginBottom: 18 }}>
-        <h1>Mis proyectos</h1>
+      <PageHeader title="Mis proyectos" help="Aquí están tus encuestas en análisis. Abre una para continuar o crea un proyecto nuevo.">
         <Button onClick={() => navigate("/proyectos/nuevo")}>+ Nuevo proyecto</Button>
-      </div>
+      </PageHeader>
       {error && <div className="alert alert-error">{error}</div>}
 
       {projects && projects.length === 0 && (
         <Card>
           <div className="empty-state">
             <div className="icon"><Icon name="chart" size={40} /></div>
-            <h3>Aún no tienes proyectos</h3>
-            <p>Crea tu primer proyecto subiendo un CSV o XLSX con respuestas abiertas.</p>
-            <Button onClick={() => navigate("/proyectos/nuevo")}>Crear primer proyecto</Button>
+            <p>Todavía no tienes proyectos. Crea el primero subiendo tu encuesta.</p>
+            <Button onClick={() => navigate("/proyectos/nuevo")}>Crear proyecto</Button>
           </div>
         </Card>
       )}
