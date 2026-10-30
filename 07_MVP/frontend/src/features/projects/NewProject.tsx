@@ -179,7 +179,7 @@ export default function NewProject() {
 
         {origin === "gforms" && (
           <div style={{ maxWidth: 560 }}>
-            <Input label="URL de la planilla de respuestas (Google Sheets)" value={sheetUrl}
+            <Input label="URL de la planilla de respuestas (Google Sheets)" type="text" value={sheetUrl}
                    onChange={(e) => setSheetUrl(e.target.value)}
                    placeholder="https://docs.google.com/spreadsheets/d/…" />
             <p className="small muted" style={{ marginTop: 6 }}>
@@ -215,7 +215,7 @@ export default function NewProject() {
       {step === 3 && (
       <>
       <Card title="Datos del proyecto">
-        <Input label="Nombre del proyecto" value={name} onChange={(e) => setName(e.target.value)}
+        <Input label="Nombre del proyecto" type="text" value={name} onChange={(e) => setName(e.target.value)}
                placeholder="Ej: Evaluación Docente 2026-1" required autoFocus />
         <p className="small muted" style={{ marginTop: 10 }}>
           Se {nAbiertas === 1 ? "analizará 1 pregunta abierta" : `analizarán ${nAbiertas} preguntas abiertas`};{" "}

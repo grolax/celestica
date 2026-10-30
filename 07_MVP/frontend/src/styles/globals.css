@@ -593,6 +593,7 @@ table.si tbody tr:hover { background: var(--primary-soft); }
 .qr-help { margin: 4px 0 0; max-width: 230px; }
 .qr-ejemplos { margin: 4px 0 0; padding-left: 18px; max-width: 300px; }
 .qr-ejemplos li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qr-ejemplos.qr-opciones li { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; } /* las opciones se parten en líneas para que el conteo siempre se vea */
 .qr-link { background: none; border: 0; padding: 0; color: var(--primary-dark); text-decoration: underline; cursor: pointer; font: inherit; }
 .qr-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
 table.si input[type="checkbox"] { width: 18px; height: 18px; }

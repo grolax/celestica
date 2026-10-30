@@ -41,7 +41,7 @@ function FilaPregunta({ f, onChange, onUndo }: {
         {CON_OPCIONES.includes(f.tipo) && !!f.opciones?.length && (
           <details className="small">
             <summary>Ver opciones</summary>
-            <ul className="qr-ejemplos">
+            <ul className="qr-ejemplos qr-opciones">
               {f.opciones.filter((o) => o.n > 1).map((o) => <li key={o.valor}>{o.valor} · {o.n}</li>)}
               {unicas > 0 && <li>Otras respuestas ({unicas})</li>}
             </ul>

@@ -55,7 +55,7 @@ export function unir(filas: Fila[], base: string, nFilas: number): Fila[] {
   const n_respuestas = grupo.reduce((s, g) => s + g.n_respuestas, 0);
   const unida: Fila = {
     titulo: base, columnas: grupo.flatMap((g) => g.columnas), tipo,
-    motivo: grupo.find((g) => g.tipo === tipo)!.motivo,
+    motivo: `${opciones.size ? `${opciones.size} valores distintos en ` : ""}${n_respuestas} respuestas, unidas desde ${grupo.length} columnas.`,
     n_respuestas, n_na: Math.max(0, nFilas - n_respuestas), // cada persona responde en una sola columna
     ejemplos: grupo.flatMap((g) => g.ejemplos).slice(0, 3),
     opciones: opciones.size ? [...opciones].map(([valor, n]) => ({ valor, n })).sort((a, b) => b.n - a.n) : undefined,
