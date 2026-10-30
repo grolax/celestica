@@ -420,7 +420,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hizo:** a pedido del responsable, se probó la detección con una encuesta real sobre vivienda (500 respuestas, 47 preguntas, hecha en Google Forms). Se leyó solo en el computador del responsable: **no se subió al repositorio**, porque contiene datos de personas.
 - **Qué se encontró:** la primera versión tomaba como "abiertas" **9 preguntas que en realidad eran de selección múltiple**, con opciones largas como "Comprar una vivienda propia, Viajar…". Esto habría hecho que la IA trabajara de más y **gastara sin necesidad**. Además, edad, género, región y comuna no quedaban como segmentos para cruzar resultados.
 - **Resultado tras la corrección:** ahora solo quedan como abiertas las **2 preguntas que de verdad lo son**. Las de selección múltiple y los segmentos se reconocen bien. Quedan dos detalles menores, que el usuario podrá corregir en la pantalla de revisión, sin costo. Hay **168 pruebas automáticas** y todas pasan.
-- **Propuesta pendiente de decisión:** Google Forms guardó la comuna en 16 columnas, una por región. Se propone que la plataforma las detecte y ofrezca unirlas en una sola.
+- **Decisiones del responsable:**
+  - Las 16 columnas de comuna que Google Forms separó por región se ofrecerán unir en una sola columna "Comuna".
+  - Cuando una persona **no respondió** una pregunta, la plataforma mostrará **"N/A"**. Así no parece que eligió alguna opción. "N/A" se cuenta aparte y no como una respuesta más.
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---

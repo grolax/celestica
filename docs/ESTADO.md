@@ -36,7 +36,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 - **RF-51 (ampliación, 2026-10-30):** comparar temas **entre preguntas abiertas** de una misma encuesta (qué temas se repiten entre preguntas; quién menciona un tema en una y otro en otra). Conteos y cruces en Python sobre codificaciones validadas, **sin llamadas nuevas a la IA**; la IA solo redacta la lectura de conjunto sobre números ya calculados. Pendiente que el usuario lo agregue a `CONTEXTO_SOFTINSIGHT.md` §4.6 (el supervisor no escribe fuera de `docs/`).
 
-- **Columnas ramificadas de Google Forms (propuesta, esperando decisión del usuario):** una misma pregunta repartida en varias columnas ("¿En qué comuna vives actualmente?", "… 2", … "… 16", una por región). Propuesta: detectarlas y ofrecer unirlas en una sola en la revisión de preguntas (T-011/T-012).
+- **Columnas ramificadas de Google Forms (decisión del usuario 2026-10-30):** una misma pregunta repartida en varias columnas ("¿En qué comuna vives actualmente?", "… 2", … "… 16", una por región) se ofrece unir en una sola en la revisión de preguntas (T-011/T-012).
+- **Respuestas vacías = "N/A" (decisión del usuario 2026-10-30):** donde una persona no respondió (o la columna ramificada no le correspondía), la plataforma muestra **"N/A"**, nunca un valor que parezca elegido. "N/A" se cuenta aparte y no se trata como una opción más de la pregunta.
 
 ## Bloqueado / requiere decisión del usuario
 
