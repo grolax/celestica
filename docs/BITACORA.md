@@ -39,9 +39,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-000 | Actualizar herramientas de construcción de las pantallas | ✅ Incorporada a la versión oficial |
 | T-001 | Reparar las pruebas automáticas del sistema | ✅ Incorporada a la versión oficial |
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
-| T-015 | Página pública de presentación con acceso "Iniciar sesión" | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
-| T-016 | Orden visual del área de trabajo | ⏳ En cola |
-| T-017 | Nombre Celestica en los informes PDF y Word | ⏳ En cola |
+| T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
+| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ⏳ En cola |
+| T-017 | Nombre y colores Celestica en los informes PDF y Word | 🔨 En desarrollo |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
 
 ---
@@ -186,6 +186,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cómo se verificó:** la plataforma se construye sin errores y las 18 pruebas automáticas siguen pasando. Se revisó la página en computador, tablet y celular, y se recorrió completa con el teclado.
 - **Pendiente:** que el responsable pruebe una vez el ingreso real con su cuenta.
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+
+---
+
+### 15. T-015 incorporada y decisiones para las siguientes tareas
+
+- **T-015:** el responsable aprobó e incorporó la página de presentación (PR #4 en GitHub).
+- **T-017 · Informes:** los PDF y Word dirán **Celestica** y usarán los mismos azules de la plataforma. El pie de página será "Análisis realizado con Celestica · Auditable y trazable" y los archivos descargados se llamarán `informe_celestica_...`.
+- **Nombre interno:** por ahora, el nombre técnico interno (servidor, base de datos, registros) sigue siendo SoftInsight, para evitar confusiones. Nadie fuera del equipo técnico lo ve.
+- **T-016 · Área de trabajo:** el responsable aprobó las líneas de ayuda de las 12 pantallas. La tarea se dividió en dos partes para revisarla mejor: T-016a (encabezados, menú lateral y lista vacía) y T-016b (pantallas de análisis).
+- **Después del diseño:** se retoma el trabajo interno (backend): pruebas de seguridad entre clientes, orden del código del servidor, organizaciones y roles.
 
 ---
 

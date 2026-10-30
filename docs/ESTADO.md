@@ -10,15 +10,17 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-000 Vite 8 + React Router 7 | frontend | RNF-17, RNF-19 | 2026-10-14 | `tarea/T-000-deps-frontend` (fusionada, PR #1) |
 | T-001 `prompt_store` sin `prompts.json` | backend | RNF-18, RNF-21 | 2026-10-14 | `tarea/T-001-prompts-fallback` (fusionada, PR #2) |
 | T-014 Identidad visual Celestica | frontend | RNF-16, RNF-14, RNF-13 | 2026-10-15 | `tarea/T-014-identidad-celestica` (fusionada, PR #3) |
-| T-015 Página de presentación y rutas | frontend | RNF-13, RNF-14, RNF-15, RNF-16 | 2026-10-30 | `tarea/T-015-pagina-presentacion` (aprobada, pendiente de subir) |
+| T-015 Página de presentación y rutas | frontend | RNF-13, RNF-14, RNF-15, RNF-16 | 2026-10-30 | `tarea/T-015-pagina-presentacion` (fusionada, PR #4) |
 
 ## En curso
 
-- En cola (Fase UX): T-016 área de trabajo, T-017 nombre en exportaciones. T-002 queda después.
+- T-017 nombre y colores Celestica en PDF/DOCX (backend), rama `tarea/T-017-exportaciones-celestica`.
+- En cola (Fase UX): T-016a encabezados y menú, T-016b encabezados de análisis (textos aprobados 2026-10-30).
+- Después, de vuelta al backend (pedido del usuario): T-002 aislamiento en pytest → separar `main.py` en routers → RF-02 organizaciones → RF-03 roles.
 
 ## Bloqueado / requiere decisión del usuario
 
-- Ninguno. (Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
+- Ninguno. (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
 
