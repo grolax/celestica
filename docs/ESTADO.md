@@ -19,11 +19,12 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
 | T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (fusionada, PR #11) |
 | T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (fusionada, PR #12) |
-| T-006 Permisos por rol en el backend | backend | RF-03, RNF-02, RNF-01 | 2026-10-30 | `tarea/T-006-permisos-por-rol` (aprobada en revisión 2, pendiente de subir) |
+| T-006 Permisos por rol en el backend | backend | RF-03, RNF-02, RNF-01 | 2026-10-30 | `tarea/T-006-permisos-por-rol` (fusionada, PR #13) |
 
 ## En curso
 
-- En cola: T-007 gestión de miembros (backend) → T-008 pantalla de miembros y acciones por rol (frontend).
+- T-007 gestión de miembros y cambio de contraseña (backend), rama `tarea/T-007-gestion-de-miembros`.
+- En cola: T-008 pantalla de miembros, cambio de contraseña y acciones por rol (frontend).
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
 ## Bloqueado / requiere decisión del usuario

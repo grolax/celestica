@@ -46,7 +46,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 aprobada por el supervisor, espera autorización; T-007 y T-008 en cola |
+| T-006 a T-008 | Roles y gestión de miembros | 🔨 T-006 incorporada; T-007 en desarrollo; T-008 en cola |
 
 ---
 
@@ -328,7 +328,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - El lector solo puede borrar sus propios comentarios.
 - **Hallazgo en la revisión:** el programador descubrió que una de las pruebas de seguridad de T-002 había dejado de vigilar sin avisar. Era la que alerta si se agrega una operación nueva sin su prueba de acceso cruzado, y se rompió cuando se ordenó el código del servidor (T-003). **No hubo ninguna fuga:** las pruebas que verifican que un ajeno no ve nada siguieron funcionando, y hoy todas las operaciones están cubiertas. El supervisor debió detectarlo en la revisión de T-003 y no lo hizo. Se corrigió en esta tarea, y la prueba ahora falla si no encuentra operaciones que revisar.
 - **Cómo se verificó:** hay **99 pruebas automáticas** (antes 59) y todas pasan. Las nuevas cubren cada operación con cada rol, comprueban que la IA no se active cuando un lector intenta analizar, y fallan si se agrega una operación sin declarar quién puede usarla.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #13 en GitHub). T-007 (gestión de miembros) en desarrollo.
 
 ---
 
