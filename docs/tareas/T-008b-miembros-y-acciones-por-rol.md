@@ -10,7 +10,7 @@ El admin gestiona a su equipo desde una pantalla "Miembros". Cada persona ve sol
 ## Alcance
 - SÍ: helper único en `auth/api.ts`, por ejemplo `puede(user, "analista" | "admin")`, con el orden `lector < analista < admin` (un rol desconocido cuenta como lector, como en el backend). Nada de comparar strings de rol sueltos en los componentes.
 - SÍ: **pantalla `/miembros`** (`src/features/org/Members.tsx` y `api.ts` con `GET/POST /api/org/members` y `PATCH /api/org/members/{user_id}`):
-  - Solo admin: el ítem **"Miembros"** aparece en el sidebar (grupo "Ayuda y configuración") solo para admin, y la ruta redirige a `/proyectos` a otros roles.
+  - Solo admin: el sidebar gana un grupo nuevo **"Organización"** (entre "Trabajo" y "Ayuda y configuración"), visible solo para admin, con el ítem **"Miembros"** (icono de personas, `users` de `Icon`). La ruta redirige a `/proyectos` a otros roles. El grupo quedará también para el perfil de organización (RF-10).
   - `PageHeader`: título "Miembros", ayuda **"Las personas de tu organización y lo que puede hacer cada una."**
   - Tabla: nombre, email, rol (selector), estado ("Activo" / "Desactivado") y acción "Desactivar"/"Reactivar". El usuario actual se marca "(tú)".
   - Leyenda breve de roles, con estos textos: **Lector:** "Ve resultados, descarga informes y comenta." · **Analista:** "Hace todo el análisis, incluido crear y borrar proyectos." · **Administrador:** "Lo mismo que el analista, más la gestión de miembros."
@@ -22,6 +22,11 @@ El admin gestiona a su equipo desde una pantalla "Miembros". Cada persona ve sol
   - Borrar comentario: el botón aparece si `puede(user, "analista")` o si `comentario.author_id === user.id`. El tipo del comentario gana `author_id?: string`.
   - En `ProjectView`, para el lector, una píldora junto al nombre del proyecto: **"Solo lectura"**.
 - NO: cambios en el backend, renombrar la organización, invitar por correo.
+
+## Decisiones del usuario (2026-10-30)
+- Ocultar (no deshabilitar) las acciones que el rol no permite.
+- Textos de esta orden aprobados tal cual.
+- "Miembros" va en un grupo nuevo "Organización" del menú.
 
 ## Contrato de API
 `docs/API_CONTRATOS.md`: **RF-03 · Permisos por rol (T-006)** (matriz y `author_id`) y **RF-03 · Gestión de miembros (T-007)** (objeto `member`, endpoints y errores).
