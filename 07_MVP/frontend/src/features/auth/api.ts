@@ -8,6 +8,13 @@ export const ROL_LABEL: Record<Rol, string> = {
   lector: "Lector",
 };
 
+const ORDEN: Record<Rol, number> = { lector: 0, analista: 1, admin: 2 };
+
+/** Solo refleja permisos en la UI (el backend valida). Un rol desconocido cuenta como lector. */
+export function puede(user: User | null | undefined, minimo: Rol): boolean {
+  return (ORDEN[user?.rol as Rol] ?? 0) >= ORDEN[minimo];
+}
+
 export interface User {
   id: string;
   email: string;

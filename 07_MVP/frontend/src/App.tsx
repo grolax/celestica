@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/features/auth/useAuth";
+import { puede, Rol } from "@/features/auth/api";
 import Header from "@/shared/layout/Header";
 import Sidebar from "@/shared/layout/Sidebar";
 import LoginPage, { SignupPage } from "@/features/auth/LoginPage";
@@ -17,6 +18,7 @@ import Traceability from "@/features/analysis/traceability/Traceability";
 import ReportView from "@/features/analysis/report/ReportView";
 import AuditLog from "@/features/analysis/audit/AuditLog";
 import ExportReport from "@/features/export/ExportReport";
+import Members from "@/features/org/Members";
 import Settings from "@/features/settings/Settings";
 import Documentation from "@/features/docs/Documentation";
 
@@ -49,6 +51,12 @@ function ProtectedLayout() {
   );
 }
 
+/** Redirige a /proyectos si el rol no alcanza (el backend igual valida). */
+function RequireRole({ min, children }: { min: Rol; children: JSX.Element }) {
+  const { user } = useAuth();
+  return puede(user, min) ? children : <Navigate to="/proyectos" replace />;
+}
+
 function PublicOnly({ children }: { children: JSX.Element }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
@@ -66,7 +74,7 @@ export default function App() {
           <Route path="/signup" element={<PublicOnly><SignupPage /></PublicOnly>} />
           <Route element={<ProtectedLayout />}>
             <Route path="/proyectos" element={<ProjectList />} />
-            <Route path="/proyectos/nuevo" element={<NewProject />} />
+            <Route path="/proyectos/nuevo" element={<RequireRole min="analista"><NewProject /></RequireRole>} />
             <Route path="/proyectos/:id" element={<ProjectView />}>
               <Route index element={<ProjectDashboard />} />
               <Route path="lexico" element={<LexicalAnalysis />} />
@@ -77,6 +85,7 @@ export default function App() {
               <Route path="exportar" element={<ExportReport />} />
               <Route path="auditoria" element={<AuditLog />} />
             </Route>
+            <Route path="/miembros" element={<RequireRole min="admin"><Members /></RequireRole>} />
             <Route path="/cambiar-contrasena" element={<ChangePasswordPage />} />
             <Route path="/configuracion" element={<Settings />} />
             <Route path="/documentacion" element={<Documentation />} />
