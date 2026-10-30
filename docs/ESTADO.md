@@ -16,16 +16,15 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-016b Encabezados en pestañas del proyecto | frontend | RNF-13, RNF-16 | 2026-10-30 | `tarea/T-016b-encabezados-de-analisis` (fusionada, PR #7) |
 | T-002 Aislamiento multi-tenant en pytest | backend | RNF-01, RNF-18 | 2026-10-30 | `tarea/T-002-aislamiento-pytest` (fusionada, PR #8) |
 | T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
-| T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (aprobada, pendiente de subir) |
+| T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
 
 ## En curso
 
-- En cola: RF-02 organizaciones → RF-03 roles.
-- RF-02: propuesta de diseño enviada al usuario (registro crea organización, migración 1 usuario → 1 organización sin unir por `empresa`, Qualtrics sigue por usuario, alta de miembros por el admin con contraseña temporal).
+- T-004 RF-02 organizaciones (backend), rama `tarea/T-004-organizaciones`; contrato en `docs/API_CONTRATOS.md`. Esperando visto bueno del usuario al contrato antes de delegar.
+- En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
 
 ## Bloqueado / requiere decisión del usuario
 
-- RF-02: esperando respuesta del usuario a las 4 decisiones de diseño (2026-10-30).
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
