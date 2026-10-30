@@ -45,7 +45,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
-| T-005 | Mostrar la organización y el rol en pantalla | 🔨 En desarrollo |
+| T-005 | Mostrar la organización y el rol en pantalla | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 
 ---
 
@@ -298,7 +298,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 
 - **Qué se hizo:** el responsable levantó la plataforma en su computador para ver cómo se ve tras la fase de diseño. Se hizo sin clave de IA, así que no hubo ningún gasto.
 - **T-005:** tarea corta de pantallas. El encabezado y Configuración mostrarán el nombre de la organización y el rol de la persona (Administrador, Analista o Lector). En el registro, el campo "Institución / Empresa" pasa a llamarse "Organización (institución o empresa)", porque ese texto es ahora el nombre de la organización.
-- **Estado:** en desarrollo.
+- **Resultado:** el encabezado muestra la organización bajo el nombre de la persona, y Configuración muestra "Organización" y "Rol: Administrador". Se verificó registrando una cuenta de prueba en la plataforma local, sin usar IA.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

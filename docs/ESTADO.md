@@ -18,10 +18,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
 | T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
 | T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (fusionada, PR #11) |
+| T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- T-005 mostrar organización y rol en la UI (frontend), rama `tarea/T-005-organizacion-en-ui`.
 - En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
 
 ## Bloqueado / requiere decisión del usuario

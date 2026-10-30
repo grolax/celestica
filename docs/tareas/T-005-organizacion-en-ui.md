@@ -27,3 +27,10 @@ El usuario ve a qué organización pertenece y con qué rol, usando los datos qu
 - [ ] La etiqueta del registro dice "Organización (institución o empresa)".
 - [ ] Diff pequeño (menos de unas 60 líneas).
 - [ ] Commits con el formato `T-005 RF-02: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff de +22/-3 en 4 archivos, solo frontend.
+- `User` coincide con el objeto `user` del contrato RF-02; `Rol` y `ROL_LABEL` exportados para RF-03.
+- Encabezado y "Mi cuenta" muestran organización (respaldo a `empresa` si falta) y rol en español; etiqueta del registro actualizada.
+- Verificado por el programador contra el backend local sin IA: registro desde la UI muestra organización y "Rol: Administrador". Quedaron dos usuarios de prueba en la base local (`t005@prueba.cl` y `ui<timestamp>@prueba.cl`).
