@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { adminApi, AdminHealth, PromptEntry, PromptsData, UsageProject } from "./api";
 import { ClaudeUsageTotals } from "@/features/analysis/types";
 import { projectsApi } from "@/features/projects/api";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/useAuth";
 import { ROL_LABEL } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
@@ -15,6 +16,8 @@ const PROMPT_ORDER = ["propose_categories", "codify", "interpret_lexical", "qual
 
 export default function Settings() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const passwordChanged = (useLocation().state as { passwordChanged?: boolean } | null)?.passwordChanged;
   const [imported, setImported] = useState<number | null>(null);
   const [error, setError] = useState("");
 
@@ -31,6 +34,7 @@ export default function Settings() {
     <>
       <PageHeader title="Configuración" help="Ajusta los textos que guían a la IA y revisa el consumo." />
       {error && <div className="alert alert-error">{error}</div>}
+      {passwordChanged && <div className="alert alert-success">Tu contraseña se cambió.</div>}
 
       <Card title="Mi cuenta">
         <p><strong>{user?.nombre || "—"}</strong> · {user?.email}</p>
@@ -40,6 +44,7 @@ export default function Settings() {
             <p className="muted">Rol: {ROL_LABEL[user.rol] ?? user.rol}</p>
           </>
         )}
+        <Button variant="secondary" onClick={() => navigate("/cambiar-contrasena")}>Cambiar contraseña</Button>
       </Card>
 
       <Card title="Importar proyectos antiguos">

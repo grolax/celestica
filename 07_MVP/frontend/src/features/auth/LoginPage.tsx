@@ -1,11 +1,11 @@
-import { FormEvent, ReactNode, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import Icon from "@/shared/components/Icon";
 
-function AuthLayout({ children }: { children: ReactNode }) {
+export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="auth-page">
       <Link to="/" className="auth-back"><Icon name="arrowLeft" size={16} /> Volver al inicio</Link>
@@ -15,11 +15,12 @@ function AuthLayout({ children }: { children: ReactNode }) {
 }
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, sessionNotice, clearSessionNotice } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(sessionNotice);
+  useEffect(clearSessionNotice, []); // el aviso se muestra una sola vez
   const [busy, setBusy] = useState(false);
 
   async function submit(e: FormEvent) {

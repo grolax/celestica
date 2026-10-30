@@ -19,8 +19,8 @@ export function setToken(token: string | null) {
 }
 
 /** Se registra desde useAuth para redirigir a /login en 401. */
-let onUnauthorized: (() => void) | null = null;
-export function setUnauthorizedHandler(fn: () => void) {
+let onUnauthorized: ((detail: string) => void) | null = null;
+export function setUnauthorizedHandler(fn: (detail: string) => void) {
   onUnauthorized = fn;
 }
 
@@ -33,15 +33,15 @@ export async function req<T>(path: string, init?: RequestInit, base = BASE): Pro
       ...(init?.headers ?? {}),
     },
   });
-  if (r.status === 401 && onUnauthorized && !path.startsWith("/login") && !path.startsWith("/signup")) {
-    onUnauthorized();
-  }
   if (!r.ok) {
     let detail = r.statusText;
     try {
       const data = await r.json();
       detail = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail ?? detail);
     } catch {}
+    if (r.status === 401 && onUnauthorized && !path.startsWith("/login") && !path.startsWith("/signup")) {
+      onUnauthorized(detail);
+    }
     throw new Error(detail);
   }
   return r.json();

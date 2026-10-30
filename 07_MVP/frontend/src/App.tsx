@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/features/auth/useAuth";
 import Header from "@/shared/layout/Header";
 import Sidebar from "@/shared/layout/Sidebar";
 import LoginPage, { SignupPage } from "@/features/auth/LoginPage";
+import ChangePasswordPage from "@/features/auth/ChangePasswordPage";
 import LandingPage from "@/features/landing/LandingPage";
 import ProjectList from "@/features/projects/ProjectList";
 import NewProject from "@/features/projects/NewProject";
@@ -20,7 +21,8 @@ import Settings from "@/features/settings/Settings";
 import Documentation from "@/features/docs/Documentation";
 
 function ProtectedLayout() {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+  const { pathname } = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   if (loading) {
@@ -31,6 +33,10 @@ function ProtectedLayout() {
     );
   }
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.debe_cambiar_password && pathname !== "/cambiar-contrasena") {
+    return <Navigate to="/cambiar-contrasena" replace />;
+  }
+  if (pathname === "/cambiar-contrasena") return <Outlet />; // pantalla centrada, sin menú
 
   return (
     <div className="app-shell">
@@ -71,6 +77,7 @@ export default function App() {
               <Route path="exportar" element={<ExportReport />} />
               <Route path="auditoria" element={<AuditLog />} />
             </Route>
+            <Route path="/cambiar-contrasena" element={<ChangePasswordPage />} />
             <Route path="/configuracion" element={<Settings />} />
             <Route path="/documentacion" element={<Documentation />} />
           </Route>
