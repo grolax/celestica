@@ -28,13 +28,13 @@ Quien entra a Celestica desde fuera ve primero una **carta de presentación**: q
 ## Contrato de API
 No aplica: la página es estática.
 
-## Textos (versión resumida, 2026-10-15)
+## Textos (aprobados por el usuario, 2026-10-30)
 Usa estos textos tal cual. Si alguno no calza con el diseño, propón el cambio en tu resumen en vez de inventar. **No agregues funciones que la plataforma aún no tiene.** Por ejemplo, NPS y preguntas cerradas todavía no existen.
 
-- **Frase principal:** "De la encuesta al informe, con evidencia en cada paso."
+- **Frase principal:** "De la encuesta al informe en minutos"
 - **Línea:** "Análisis de encuestas con IA y validación de tu equipo."
-- **Quiénes somos:** "Somos SoftInsight: análisis social, metodología y tecnología al servicio de las organizaciones que escuchan a su gente."
-- **Nuestro objetivo:** "Que pasar de las respuestas a las decisiones tome horas, no semanas, con cada hallazgo respaldado por evidencia."
+- **Quiénes somos:** "Somos Celestica: análisis social, metodología y tecnología al servicio de las organizaciones que escuchan a su gente."
+- **Nuestro objetivo:** "Que pasar de las respuestas a las decisiones tome minutos, no semanas, con cada objetivo respaldado por evidencia."
 - **Qué hace Celestica:** 4 tarjetas.
   - *Importa tus datos:* "CSV, Excel, Qualtrics o Google Forms."
   - *La IA propone, tu equipo decide:* "Temas sugeridos que tu equipo valida."
