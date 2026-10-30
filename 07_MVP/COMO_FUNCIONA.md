@@ -86,17 +86,33 @@ MongoDB (base "softinsight")
   "_id": "proj_...", "id": "proj_...", "org_id": "org_...", "user_id": "usr_...",
   "name": "Evaluación Docente 2026-1",
   "marco_teorico": "Modelo de competencias docentes...",
-  "text_column": "respuesta",
-  "responses":  [ {"id": "R0001", "text": "...", "meta": {...}}, ... ],
-  "lexical":    { "top_terms": [...], "sentiment_by_response": {...} },
-  "categories": [ {"id": "cat_...", "nombre": "...", "status": "validada",
-                   "criterios_inclusion": "...", "comments": [...]}, ... ],
-  "codings":    { "R0001": [ {"category_id": "cat_...", "rationale": "...",
-                              "confidence": 0.88, "source": "claude"} ], ... },
-  "audit_log":  [ {"timestamp": "...", "actor": "claude", "action": "...", "detail": {...}} ],
-  "qualitative_report": "RESUMEN INTERPRETATIVO\n\n..."
+  "columns": ["id_respuesta", "Género", "Comentario", ...],   // solo dato de origen
+  "text_column": "Comentario",                                 // solo dato de origen
+  "preguntas": [ {"id": "q_1", "titulo": "Comentario", "columnas": ["Comentario"],
+                  "tipo": "abierta", "contexto_ia": false},
+                 {"id": "q_2", "titulo": "Género", "columnas": ["Género"],
+                  "tipo": "segmento", "contexto_ia": true}, ... ],
+  "respondentes": [ {"id": "R0001", "valores": {"q_1": "texto...", "q_2": "F", "q_3": null}}, ... ],
+  "analisis": { "q_1": {                                       // uno por pregunta ABIERTA
+      "lexical":    { "top_terms": [...], "sentiment_by_response": {...} },
+      "lexical_interpretation": "...",
+      "categories": [ {"id": "cat_...", "nombre": "...", "status": "validada",
+                       "criterios_inclusion": "...", "comments": [...]}, ... ],
+      "codings":    { "R0001": [ {"category_id": "cat_...", "rationale": "...",
+                                  "confidence": 0.88, "source": "claude"} ], ... },
+      "qualitative_report": "RESUMEN INTERPRETATIVO\n\n...",
+      "v2_analyses_cache": {...} } },
+  "audit_log":  [ {"timestamp": "...", "actor": "claude", "action": "...", "detail": {...}} ]
 }
 ```
+
+**Preguntas y respondentes (RF-23, T-011a).** El proyecto guarda **todas** las preguntas confirmadas (con su tipo de T-010) y **una fila por persona** en `respondentes`; `valores` tiene una clave por pregunta (`q_<n>`) y **respuesta vacía = `null` (N/A), nunca una opción**. Las columnas ramificadas (ej. comuna por región) se unen en una sola pregunta (`columnas` con varias): el valor de cada persona es el primero no vacío. El `id` de la persona es `id_respuesta` si la fuente lo trae, o `R0001`…. Cada pregunta **abierta** tiene su propio análisis independiente en `analisis.<id>`: léxico, categorías, codificaciones, informe y caché del informe v2. Las preguntas cerradas solo se guardan (su análisis cuantitativo llega con RF-30).
+
+**Vista única por pregunta.** Ningún router, exportador ni función de IA lee `respondentes`/`analisis` directamente: todo pasa por `store.vista_pregunta(project, pregunta_id)`, que arma para esa pregunta abierta un diccionario con la forma de siempre (`responses` = `[{id, text, meta}]` solo de personas con texto, más `categories`, `codings`, `lexical`, `lexical_interpretation`, `qualitative_report`, `v2_analyses_cache`, `audit_log`…). Los routers la piden con `_get_vista(project_id, user, pregunta)` (en `deps.py`): el 404 de proyecto va primero, y una pregunta inexistente o que no es abierta da 404 "Pregunta no encontrada"; sin `?pregunta=` se usa la primera abierta, así que el frontend anterior sigue funcionando sin cambios. Las escrituras (`push_category`, `update_category_fields`, `push_comment`, `pull_comment`, `set_codings_*`, `set_project_field(..., pregunta_id)`) reciben el id de la pregunta y escriben con `$set`/`$push` puntuales en `analisis.<id>.…`. El progreso de codificación y de informe se indexa por `(proyecto, pregunta)`: dos preguntas del mismo proyecto pueden tener estados distintos, y los hilos de fondo capturan la pregunta al lanzarse.
+
+**Qué se le envía a la IA (privacidad y tokens).** `meta` de cada respuesta en la vista lleva **solo** las preguntas con `contexto_ia: true` (clave = título) y **jamás** las de tipo `identificador`, aunque alguien las haya marcado; una respuesta N/A de contexto no se envía. Por defecto solo van **género y edad** (en la creación sin `preguntas` y en la migración: preguntas `segmento`, `numerica` o `seleccion_unica` cuyo título menciona género/sexo o edad; la edad puede detectarse como número). El texto enviado es solo el de la pregunta elegida: la otra pregunta abierta, los identificadores y el resto de las columnas no salen del servidor. Una prueba (`tests/test_preguntas_pytest.py`) captura lo que recibiría Anthropic en propuesta, codificación, léxico e informe v1/v2 y verifica que nada de eso aparezca. La IA solo corre a pedido y pregunta por pregunta.
+
+**Migración a preguntas (RF-23).** `app/migrations.py::migrate_preguntas(db)` (envoltorio: `scripts/migrate_preguntas.py`; `init_db()` la corre en cada arranque) convierte todo proyecto sin `preguntas`: la columna de texto de siempre pasa a ser la pregunta `abierta` `q_1`; cada otra columna original pasa a una pregunta (`q_2`…) con el tipo que da `detectar()` sobre los valores guardados en `meta` (`contexto_ia: true` solo para género/sexo/edad); `responses` pasa a `respondentes` (`""` → `null`); y `categories`, `codings`, `lexical`, `lexical_interpretation` y `qualitative_report` se mueven a `analisis.q_1` y se quitan de la raíz; `v2_analyses_cache` se **descarta**. Es idempotente (el filtro exige `preguntas` ausente, también en el update) y el proyecto se ve igual por la API, salvo que `meta` ahora solo trae el contexto marcado. El caché del informe v2 antiguo se elimina (su huella ya no coincide y su snapshot guardaba las columnas antiguas, incluidos posibles identificadores): el primer informe después de migrar vuelve a analizar a cada respondente. La conversión de **cada** proyecto va en `try/except`: si uno falla, se registra en el log (id y tipo de error, sin datos de respuestas), queda sin tocar (se reintenta en el siguiente arranque) y se cuenta en `{"proyectos": n, "fallidos": m}`; el arranque nunca se cae por eso. `import_legacy_projects` convierte igual los proyectos pre-auth.
 
 **`audit_events`** — copia plana del audit log (consultable por `project_id`, indexado; cada evento lleva también `org_id`), además del registro canónico que vive dentro del proyecto.
 
@@ -110,10 +126,10 @@ En v1.0 el proyecto vivía como JSON dentro de una columna de SQLite y **cada gu
 | --- | --- | --- |
 | Validar/editar una categoría | reescribir todo el proyecto | `$set` sobre esa categoría (operador posicional) |
 | Agregar categoría o comentario | reescribir todo | `$push` al array correspondiente |
-| Re-codificar una respuesta | reescribir todo | `$set` de `codings.R0001` |
+| Re-codificar una respuesta | reescribir todo | `$set` de `analisis.q_1.codings.R0001` |
 | Evento de auditoría | reescribir todo | `$push` a `audit_log` + insert en `audit_events` |
-| Resultado de la codificación masiva | reescribir todo | un `$set` con todas las claves de `codings` |
-| Guardar informe | reescribir todo | `$set` de `qualitative_report` |
+| Resultado de la codificación masiva | reescribir todo | un `$set` con todas las claves de `analisis.<pregunta>.codings` |
+| Guardar informe | reescribir todo | `$set` de `analisis.<pregunta>.qualitative_report` |
 
 Beneficio concreto: agregar un comentario ya no reescribe las 320 respuestas, y la codificación (que corre en un hilo durante minutos) ya no pisa los comentarios o categorías que el analista agregue mientras tanto.
 
@@ -191,7 +207,7 @@ El proyecto nace de un **DataFrame de pandas**, venga de donde venga — esa es 
 2. **Qualtrics**: con las credenciales cifradas del usuario, el backend usa la API oficial de exportación (iniciar export → poll → descargar ZIP con CSV) y produce el mismo DataFrame.
 3. **Google Forms**: el usuario pega la URL de la planilla de respuestas (compartida como "cualquiera con el enlace puede ver"); el backend la descarga como CSV. *Decisión documentada: OAuth completo de Google queda para el futuro; esta vía cubre la importación puntual sin fricción de configuración.*
 
-En los tres casos: si no se indica columna de texto se usa la heurística de **mayor largo promedio**; cada fila se convierte en una respuesta con ID estable; la plantilla elegida crea marco + categorías base; y todo queda auditado (`creacion_proyecto` con la fuente, más `importacion_qualtrics`/`importacion_google_forms` con encuesta/planilla y n° de respuestas).
+En los tres casos: el usuario puede enviar `preguntas` (lo confirmado en la vista previa; ver sección 3.1); sin ellas se detectan con T-010 y, si no se indica columna de texto, se usa la heurística de **mayor largo promedio** (esa columna fuerza `abierta`). Errores: 422 si una columna no existe, está en dos preguntas, el tipo no es válido o se marca `contexto_ia` en un identificador; 400 si no hay ninguna pregunta abierta. Cada fila es una persona (`respondentes`) con ID estable; la plantilla elegida crea marco + categorías base; y todo queda auditado (`creacion_proyecto` con la fuente y el número de preguntas por tipo —sin valores—, más `importacion_qualtrics`/`importacion_google_forms` con encuesta/planilla y n° de respuestas).
 
 ### Paso 0b — Vista previa con tipos de pregunta (RF-22/RF-25, T-010)
 
@@ -211,6 +227,8 @@ Antes de crear el proyecto, `POST /api/projects/preview` (archivo), `/preview/qu
 10. Texto restante con promedio de 3 palabras o más, o con la mayoría de valores distintos → `abierta` (el motivo cita promedio de palabras y valores distintos reales); si no, `seleccion_unica`.
 
 Ajustes respecto de la regla sugerida en la orden: el "título corto" (solo para columnas numéricas) evita que una pregunta como "¿Cómo evalúa el curso?" (escala 1–5) se tome por un grupo; "pocos valores" exige además repetición (no más de la mitad de las filas), para que 15 comentarios todos distintos no se tomen por opciones; y el identificador por valores ignora los decimales (una medida continua no es un código). Advertencias: sin abiertas, menos de 10 filas y columnas con más de la mitad vacía. Rendimiento medido: 10.000 filas × 30 columnas en menos de 1 s.
+
+**Los pasos 1 a 6 se hacen por pregunta abierta** (RF-23): todas esas operaciones aceptan `?pregunta=<id>` (ver `docs/API_CONTRATOS.md`) y, sin él, trabajan sobre la primera abierta. Cada pregunta tiene su propio libro de códigos, codificación, léxico, informe y exportaciones.
 
 ### Paso 1 — Análisis léxico (Capa 1, sin IA generativa)
 

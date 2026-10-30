@@ -24,16 +24,16 @@ GRAY_ROW = "#F5F5F5"
 # Helpers de datos (compartidos por PDF/DOCX/CSV)
 # =====================================================================
 
-def _cat_names(project: dict) -> dict[str, str]:
-    names = {c["id"]: c["nombre"] for c in project["categories"]}
+def _cat_names(vista: dict) -> dict[str, str]:
+    names = {c["id"]: c["nombre"] for c in vista["categories"]}
     names["SIN_CATEGORIA"] = "Sin categoría"
     return names
 
 
-def _category_counts(project: dict) -> list[tuple[str, int]]:
-    names = _cat_names(project)
+def _category_counts(vista: dict) -> list[tuple[str, int]]:
+    names = _cat_names(vista)
     counts: dict[str, int] = {}
-    for assignments in project["codings"].values():
+    for assignments in vista["codings"].values():
         for a in assignments:
             counts[a["category_id"]] = counts.get(a["category_id"], 0) + 1
     return sorted(((names.get(cid, cid), n) for cid, n in counts.items()), key=lambda x: -x[1])
@@ -49,11 +49,11 @@ def _confidence_note(conf) -> str:
     return "Baja"
 
 
-def traceability_rows(project: dict) -> list[dict]:
-    names = _cat_names(project)
+def traceability_rows(vista: dict) -> list[dict]:
+    names = _cat_names(vista)
     rows = []
-    for r in project["responses"]:
-        assignments = project["codings"].get(r["id"], [])
+    for r in vista["responses"]:
+        assignments = vista["codings"].get(r["id"], [])
         if not assignments:
             rows.append({"id_respuesta": r["id"], "texto": r["text"], "categoria": "(no codificada)",
                          "justificacion": "", "confianza": None, "nivel_confianza": "",
@@ -70,11 +70,11 @@ def traceability_rows(project: dict) -> list[dict]:
     return rows
 
 
-def _category_examples(project: dict, max_per_cat: int = 3) -> dict[str, list[dict]]:
+def _category_examples(vista: dict, max_per_cat: int = 3) -> dict[str, list[dict]]:
     """Hasta N respuestas ejemplares por categoría (mayor confianza primero)."""
     by_cat: dict[str, list[dict]] = {}
-    text_by_id = {r["id"]: r["text"] for r in project["responses"]}
-    for rid, assignments in project["codings"].items():
+    text_by_id = {r["id"]: r["text"] for r in vista["responses"]}
+    for rid, assignments in vista["codings"].items():
         for a in assignments:
             by_cat.setdefault(a["category_id"], []).append({
                 "text": text_by_id.get(rid, ""),
@@ -87,9 +87,9 @@ def _category_examples(project: dict, max_per_cat: int = 3) -> dict[str, list[di
     }
 
 
-def _freq_chart_png(project: dict) -> Optional[bytes]:
+def _freq_chart_png(vista: dict) -> Optional[bytes]:
     """Barras horizontales de los términos más frecuentes (matplotlib, backend Agg)."""
-    lexical = project.get("lexical")
+    lexical = vista.get("lexical")
     if not lexical or not lexical.get("top_terms"):
         return None
     try:
@@ -112,15 +112,15 @@ def _freq_chart_png(project: dict) -> Optional[bytes]:
     return buf.getvalue()
 
 
-def _metadata(project: dict) -> list[tuple[str, str]]:
-    validated = [c for c in project["categories"] if c["status"] == "validada"]
+def _metadata(vista: dict) -> list[tuple[str, str]]:
+    validated = [c for c in vista["categories"] if c["status"] == "validada"]
     return [
-        ("Proyecto", project["name"]),
+        ("Proyecto", vista["name"]),
         ("Fecha de generación", datetime.now().strftime("%d-%m-%Y %H:%M")),
-        ("N° de respuestas analizadas", str(len(project["responses"]))),
+        ("N° de respuestas analizadas", str(len(vista["responses"]))),
         ("N° de categorías validadas", str(len(validated))),
-        ("N° de respuestas codificadas", str(len(project["codings"]))),
-        ("Marco teórico", project.get("marco_teorico") or "(no especificado)"),
+        ("N° de respuestas codificadas", str(len(vista["codings"]))),
+        ("Marco teórico", vista.get("marco_teorico") or "(no especificado)"),
     ]
 
 
@@ -142,19 +142,19 @@ _METHODOLOGY = (
 # CSV
 # =====================================================================
 
-def generate_csv_export(project: dict) -> bytes:
-    df = pd.DataFrame(traceability_rows(project))
+def generate_csv_export(vista: dict) -> bytes:
+    df = pd.DataFrame(traceability_rows(vista))
     buf = io.BytesIO()
     # utf-8-sig: BOM para que Excel en Windows abra bien acentos/ñ
     df.to_csv(buf, index=False, encoding="utf-8-sig")
     return buf.getvalue()
 
 
-def generate_xlsx_export(project: dict) -> bytes:
+def generate_xlsx_export(vista: dict) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
-        pd.DataFrame(traceability_rows(project)).to_excel(writer, sheet_name="Trazabilidad", index=False)
-        pd.DataFrame(_category_counts(project), columns=["Categoría", "N° respuestas"]).to_excel(
+        pd.DataFrame(traceability_rows(vista)).to_excel(writer, sheet_name="Trazabilidad", index=False)
+        pd.DataFrame(_category_counts(vista), columns=["Categoría", "N° respuestas"]).to_excel(
             writer, sheet_name="Resumen por categoría", index=False)
     return buf.getvalue()
 
@@ -163,7 +163,7 @@ def generate_xlsx_export(project: dict) -> bytes:
 # PDF (reportlab / platypus)
 # =====================================================================
 
-def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
+def generate_pdf_report(vista: dict, include_details: bool = True) -> bytes:
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER
     from reportlab.lib.pagesizes import letter
@@ -216,7 +216,7 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=letter, topMargin=2 * cm, bottomMargin=2 * cm,
                             leftMargin=2 * cm, rightMargin=2 * cm,
-                            title=f"Informe Celestica — {project['name']}")
+                            title=f"Informe Celestica — {vista['name']}")
     story = []
 
     # ---- Portada ----
@@ -224,20 +224,20 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
     story.append(Paragraph("Celestica", cover_title))
     story.append(Paragraph("Informe de Análisis Cualitativo", cover_sub))
     story.append(Spacer(1, 1.4 * cm))
-    story.append(Paragraph(project["name"], ParagraphStyle(
+    story.append(Paragraph(vista["name"], ParagraphStyle(
         "projname", parent=styles["Title"], fontSize=18, alignment=TA_CENTER)))
     story.append(Spacer(1, 2 * cm))
-    meta_rows = [[Paragraph(f"<b>{k}</b>", small), Paragraph(str(v), small)] for k, v in _metadata(project)]
+    meta_rows = [[Paragraph(f"<b>{k}</b>", small), Paragraph(str(v), small)] for k, v in _metadata(vista)]
     story.append(_table(meta_rows, col_widths=[5.5 * cm, 10.5 * cm], header=False, font_size=8.5))
     story.append(PageBreak())
 
     # ---- Resumen ejecutivo ----
     story.append(Paragraph("1. Resumen ejecutivo", h1))
-    counts = _category_counts(project)
-    n_resp, n_coded = len(project["responses"]), len(project["codings"])
+    counts = _category_counts(vista)
+    n_resp, n_coded = len(vista["responses"]), len(vista["codings"])
     resumen = (
         f"Se analizaron <b>{n_resp}</b> respuestas abiertas, de las cuales <b>{n_coded}</b> fueron "
-        f"codificadas contra un libro de códigos de <b>{len([c for c in project['categories'] if c['status'] == 'validada'])}</b> "
+        f"codificadas contra un libro de códigos de <b>{len([c for c in vista['categories'] if c['status'] == 'validada'])}</b> "
         f"categorías validadas por el equipo analista."
     )
     story.append(Paragraph(resumen, body))
@@ -248,9 +248,9 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
                             col_widths=[11 * cm, 4 * cm]))
 
     # ---- Informe cualitativo (Fase 2) si existe ----
-    if project.get("qualitative_report"):
+    if vista.get("qualitative_report"):
         story.append(Paragraph("2. Informe cualitativo", h1))
-        for block in str(project["qualitative_report"]).split("\n\n"):
+        for block in str(vista["qualitative_report"]).split("\n\n"):
             block = block.strip()
             if not block:
                 continue
@@ -261,9 +261,9 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
 
     # ---- Análisis léxico ----
     story.append(Paragraph("3. Análisis léxico", h1))
-    lexical = project.get("lexical")
+    lexical = vista.get("lexical")
     if lexical:
-        chart = _freq_chart_png(project)
+        chart = _freq_chart_png(vista)
         if chart:
             story.append(Image(io.BytesIO(chart), width=15 * cm, height=9 * cm))
         top20 = lexical.get("top_terms", [])[:20]
@@ -275,16 +275,16 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
             story.append(Paragraph("Distribución de sentimiento:", body))
             story.append(_table([["Sentimiento", "N° respuestas"]] + [[k, str(v)] for k, v in dist.items()],
                                 col_widths=[11 * cm, 4 * cm]))
-        if project.get("lexical_interpretation"):
+        if vista.get("lexical_interpretation"):
             story.append(Paragraph("Interpretación léxica (IA):", h2))
-            story.append(Paragraph(str(project["lexical_interpretation"]), body))
+            story.append(Paragraph(str(vista["lexical_interpretation"]), body))
     else:
         story.append(Paragraph("El análisis léxico no fue ejecutado en este proyecto.", body))
 
     # ---- Análisis temático ----
     story.append(Paragraph("4. Análisis temático — libro de códigos", h1))
-    examples = _category_examples(project)
-    validated = [c for c in project["categories"] if c["status"] == "validada"]
+    examples = _category_examples(vista)
+    validated = [c for c in vista["categories"] if c["status"] == "validada"]
     for cat in validated:
         story.append(Paragraph(cat["nombre"], h2))
         if cat.get("definicion"):
@@ -306,7 +306,7 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
             "Cada fila vincula una respuesta con su categoría, justificación, confianza y fuente "
             "(IA o analista). Esta tabla es el insumo de auditoría CNA/CNE.", body))
         story.append(Spacer(1, 6))
-        rows = traceability_rows(project)
+        rows = traceability_rows(vista)
         header = ["ID", "Respuesta", "Categoría", "Justificación", "Conf.", "Fuente"]
         data = [header]
         for r in rows:
@@ -334,7 +334,7 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
 # DOCX (python-docx)
 # =====================================================================
 
-def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
+def generate_docx_report(vista: dict, include_details: bool = True) -> bytes:
     import docx
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.shared import Pt, RGBColor
@@ -377,28 +377,28 @@ def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     name_p = doc.add_paragraph()
     name_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    name_run = name_p.add_run(project["name"])
+    name_run = name_p.add_run(vista["name"])
     name_run.font.size = Pt(20)
     name_run.bold = True
     doc.add_paragraph()
-    add_table(["Campo", "Valor"], [[k, v] for k, v in _metadata(project)])
+    add_table(["Campo", "Valor"], [[k, v] for k, v in _metadata(vista)])
     doc.add_page_break()
 
     # ---- Resumen ejecutivo ----
     heading("1. Resumen ejecutivo")
-    counts = _category_counts(project)
+    counts = _category_counts(vista)
     doc.add_paragraph(
-        f"Se analizaron {len(project['responses'])} respuestas abiertas, de las cuales "
-        f"{len(project['codings'])} fueron codificadas contra un libro de códigos de "
-        f"{len([c for c in project['categories'] if c['status'] == 'validada'])} categorías validadas."
+        f"Se analizaron {len(vista['responses'])} respuestas abiertas, de las cuales "
+        f"{len(vista['codings'])} fueron codificadas contra un libro de códigos de "
+        f"{len([c for c in vista['categories'] if c['status'] == 'validada'])} categorías validadas."
     )
     if counts:
         add_table(["Categoría", "N° respuestas"], [[c, str(n)] for c, n in counts])
 
     # ---- Informe cualitativo ----
-    if project.get("qualitative_report"):
+    if vista.get("qualitative_report"):
         heading("2. Informe cualitativo")
-        for block in str(project["qualitative_report"]).split("\n\n"):
+        for block in str(vista["qualitative_report"]).split("\n\n"):
             block = block.strip()
             if not block:
                 continue
@@ -409,25 +409,25 @@ def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
 
     # ---- Análisis léxico ----
     heading("3. Análisis léxico")
-    lexical = project.get("lexical")
+    lexical = vista.get("lexical")
     if lexical:
-        chart = _freq_chart_png(project)
+        chart = _freq_chart_png(vista)
         if chart:
             from docx.shared import Cm
             doc.add_picture(io.BytesIO(chart), width=Cm(15))
         top20 = lexical.get("top_terms", [])[:20]
         if top20:
             add_table(["Término", "Frecuencia"], [[t["term"], str(t["count"])] for t in top20])
-        if project.get("lexical_interpretation"):
+        if vista.get("lexical_interpretation"):
             heading("Interpretación léxica (IA)", level=2)
-            doc.add_paragraph(str(project["lexical_interpretation"]))
+            doc.add_paragraph(str(vista["lexical_interpretation"]))
     else:
         doc.add_paragraph("El análisis léxico no fue ejecutado en este proyecto.")
 
     # ---- Análisis temático ----
     heading("4. Análisis temático — libro de códigos")
-    examples = _category_examples(project)
-    for cat in [c for c in project["categories"] if c["status"] == "validada"]:
+    examples = _category_examples(vista)
+    for cat in [c for c in vista["categories"] if c["status"] == "validada"]:
         heading(cat["nombre"], level=2)
         if cat.get("definicion"):
             doc.add_paragraph(f"Definición: {cat['definicion']}")
@@ -447,7 +447,7 @@ def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
             "Cada fila vincula una respuesta con su categoría, justificación, confianza y fuente. "
             "Insumo de auditoría CNA/CNE."
         )
-        rows = traceability_rows(project)
+        rows = traceability_rows(vista)
         add_table(
             ["ID", "Respuesta", "Categoría", "Justificación", "Conf.", "Fuente"],
             [[r["id_respuesta"], str(r["texto"])[:400], r["categoria"], str(r["justificacion"])[:300],

@@ -135,7 +135,7 @@ def env():
     cid = c.post(f"/api/projects/{pid}/categories", headers=ha, json={"nombre": "Docencia"}).json()["id"]
     com = c.post(f"/api/projects/{pid}/categories/{cid}/comments", headers=ha, json={"text": "nota"}).json()["id"]
     c.post(f"/api/projects/{pid}/lexical", headers=ha)
-    store.set_project_field(pid, orgs["a"], "qualitative_report", "# Informe de A")
+    store.set_project_field(pid, orgs["a"], "qualitative_report", "# Informe de A", "q_1")
     ai_calls.clear()
 
     yield {"c": c, "ha": ha, "hl": hl, "hn": hn, "hr": hr, "hl_otra": hl_otra, "lector": lector, "analista": analista,
@@ -232,7 +232,7 @@ def test_comentarios_lector_solo_borra_los_suyos(env):
 
     # comentario antiguo (sin author_id): el lector no puede borrarlo, el analista sí
     viejo = {"id": store.new_id("com"), "text": "antiguo", "author": "Ana", "timestamp": store.now_iso()}
-    store.push_comment(ids["project_id"], env["org"], ids["category_id"], viejo)
+    store.push_comment(ids["project_id"], env["org"], "q_1", ids["category_id"], viejo)
     assert c.delete(f"{base}/{viejo['id']}", headers=hl).status_code == 403
     assert c.delete(f"{base}/{viejo['id']}", headers=hn).status_code == 200
     assert c.delete(f"{base}/{ids['comment_id']}", headers=hn).status_code == 200  # el del admin, siendo analista

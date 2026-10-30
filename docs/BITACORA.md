@@ -47,7 +47,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 aprobada por el supervisor, espera autorización |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 incorporada; T-011a aprobada por el supervisor, espera autorización; T-012 y T-013 en cola |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -436,6 +436,30 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - une al anterior todo trozo que empieza con minúscula, como "pero todavía no he buscado".
 - **Resultado:** en la encuesta real, todas las opciones quedan completas y con sus conteos correctos. La pregunta "¿Cuál de estas alternativas describe mejor…?" quedó bien reconocida como selección única. Hay **176 pruebas automáticas** y todas pasan.
 - **Para la pantalla de revisión (T-012):** las respuestas escritas a mano en la opción "Otro" de Google Forms se agruparán bajo "Otro".
+- **Estado:** incorporada a la versión oficial por el responsable (PR #18 en GitHub).
+
+### 36. T-011 · Guardar la encuesta completa y ordenada
+
+- **Qué es, en simple:** hasta ahora, cada proyecto giraba en torno a **una sola columna** de texto, y el resto de la encuesta quedaba guardada sin orden. Con T-011, el proyecto guarda **la encuesta completa y ordenada**:
+  - todas las preguntas, cada una con su tipo;
+  - las columnas repetidas unidas en una sola, como la comuna;
+  - las respuestas vacías como "N/A";
+  - **un análisis separado por cada pregunta abierta**, con su propio libro de códigos, su codificación y su informe.
+- **Hallazgo importante:** el informe profundo enviaba a la IA, por cada persona, **todas** las demás columnas del archivo. Eso gastaba tokens de más y, si el archivo tenía email o RUT, también los enviaba.
+- **Decisión del responsable:** para el análisis, a la IA solo le importan **el género y la edad**. Desde ahora, la IA recibe solo el texto de la pregunta abierta y las columnas marcadas como contexto, que por defecto son solo género y edad. **Nombre, RUT y email nunca se envían.** Una prueba automática lo vigila. Así los informes deberían salir más baratos, sin perder calidad.
+- **Proyectos existentes:** se reacomodan solos y se verán igual que hoy.
+- **Para el usuario:** todavía no cambia nada visible. Las pantallas que aprovechan este orden vienen en T-012 (revisar las preguntas al crear el proyecto) y T-013 (elegir qué pregunta analizar).
+- **Estado:** T-011a en desarrollo.
+
+### 37. T-011a · Resultado y una revisión que evitó un problema grave
+
+- **Qué quedó hecho:** el proyecto guarda la encuesta completa y ordenada, con un análisis separado por cada pregunta abierta. A la IA solo le llega el texto de la pregunta y, como contexto, **edad y género**, incluso cuando la edad viene como número. Nombre, RUT y email nunca se envían.
+- **El problema que se encontró en la revisión:** las pruebas automáticas usan una base de datos simulada. El supervisor hizo **una copia de la base de datos real** del responsable, con 11 proyectos, entre ellos la encuesta de vivienda, y probó ahí. Descubrió que **la migración no se ejecutaba al iniciar el servidor**. Si se hubiera publicado así, los proyectos existentes no se habrían podido abrir.
+- **Correcciones:**
+  - La migración ahora se ejecuta al arrancar.
+  - Si un proyecto viejo tiene datos raros, ese se deja intacto y se avisa, sin tumbar el servidor.
+  - Se borró una copia antigua del informe profundo que ya no servía y guardaba columnas con posibles datos personales.
+- **Verificación final:** sobre una nueva copia de la base real, se arrancó la aplicación tal como lo haría el servidor. Los 11 proyectos se abren con los mismos datos de antes. La copia se borró y la base original quedó intacta. Hay **195 pruebas automáticas** y todas pasan.
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---

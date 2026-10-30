@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import unicodedata
+from typing import Optional
 
 from fastapi import Depends, HTTPException, Request
 
@@ -12,7 +13,7 @@ from app.models import User
 from app.services import claude_log
 
 
-# Estado de progreso de codificación y de informe por proyecto (en memoria)
+# Estado de progreso de codificación y de informe por (proyecto, pregunta) (en memoria)
 _codify_progress: dict = {}
 _report_progress: dict = {}
 
@@ -55,6 +56,19 @@ def _get_or_404(project_id: str, user: User) -> dict:
     # no heredan el contexto y lo fijan ellos mismos en su `run()`.
     claude_log.current_project_id.set(project_id)
     return project
+
+
+def _vista_or_404(project: dict, pregunta: Optional[str]) -> dict:
+    """Vista de la pregunta abierta pedida (`?pregunta=`) o de la primera abierta (ver store.vista_pregunta)."""
+    vista = store.vista_pregunta(project, pregunta)
+    if vista is None:
+        raise HTTPException(404, "Pregunta no encontrada")
+    return vista
+
+
+def _get_vista(project_id: str, user: User, pregunta: Optional[str] = None) -> dict:
+    """Como _get_or_404 pero entrega la vista de una pregunta: el 404 de proyecto va primero (no revela si existe)."""
+    return _vista_or_404(_get_or_404(project_id, user), pregunta)
 
 
 def _slug(text: str) -> str:

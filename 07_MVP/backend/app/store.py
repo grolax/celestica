@@ -23,6 +23,7 @@ from typing import Any, Optional
 from pymongo.errors import OperationFailure
 
 from app.database import get_db
+from app.migrations import CAMPOS_VIEJOS, convertir_proyecto
 
 # Carpeta del antiguo store JSON (para importar proyectos pre-auth)
 LEGACY_DIR = Path(__file__).resolve().parent.parent / "data_store"
@@ -36,8 +37,22 @@ def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:10]}"
 
 
+# Campos de análisis de UNA pregunta abierta: viven en project["analisis"][pregunta_id].
+def analisis_vacio() -> dict:
+    return {
+        "lexical": None,
+        "lexical_interpretation": None,
+        "categories": [],                # [{id, nombre, definicion, status, origen, comments:[...]}]
+        "codings": {},                   # response_id -> [{category_id, rationale, confidence, source, status}]
+        "qualitative_report": None,
+        "v2_analyses_cache": None,
+    }
+
+
 def _empty_project(name: str, marco_teorico: str, columns: list[str],
-                   text_column: str, responses: list[dict]) -> dict:
+                   text_column: str, preguntas: list[dict], respondentes: list[dict] | None = None) -> dict:
+    """preguntas: [{id, titulo, columnas, tipo, contexto_ia}]; respondentes: [{id, valores: {pregunta_id: str|None}}]
+    (None = N/A). `columns` y `text_column` quedan solo como dato informativo del origen."""
     return {
         "id": new_id("proj"),
         "name": name,
@@ -45,13 +60,56 @@ def _empty_project(name: str, marco_teorico: str, columns: list[str],
         "created_at": now_iso(),
         "columns": columns,
         "text_column": text_column,
-        "responses": responses,          # [{id, text, meta:{...}}]
-        "lexical": None,
-        "categories": [],                # [{id, nombre, definicion, status, origen, comments:[...]}]
-        "codings": {},                   # response_id -> [{category_id, rationale, confidence, source, status}]
+        "preguntas": preguntas,
+        "respondentes": respondentes or [],
+        "analisis": {q["id"]: analisis_vacio() for q in preguntas if q["tipo"] == "abierta"},
         "audit_log": [],
-        "lexical_interpretation": None,
-        "qualitative_report": None,
+    }
+
+
+# ---------- Vista por pregunta: ÚNICO punto que lee respondentes/analisis ----------
+
+def pregunta_abierta(project: dict, pregunta_id: Optional[str] = None) -> Optional[dict]:
+    """La pregunta abierta pedida, o la primera abierta si no se pide ninguna. None si no existe o no es abierta."""
+    abiertas = [q for q in project.get("preguntas", []) if q["tipo"] == "abierta"]
+    if pregunta_id is None:
+        return abiertas[0] if abiertas else None
+    return next((q for q in abiertas if q["id"] == pregunta_id), None)
+
+
+def preguntas_publicas(project: dict) -> list[dict]:
+    """Todas las preguntas con su n_respuestas/n_na (sin las respuestas)."""
+    filas = project.get("respondentes", [])
+    out = []
+    for q in project.get("preguntas", []):
+        n = sum(1 for r in filas if r["valores"].get(q["id"]) is not None)
+        out.append({**q, "n_respuestas": n, "n_na": len(filas) - n})
+    return out
+
+
+def vista_pregunta(project: dict, pregunta_id: Optional[str] = None) -> Optional[dict]:
+    """Proyecto "como antes" para UNA pregunta abierta: mismos nombres de campo que usaban routers, export.py
+    y thematic.py (responses, categories, codings, lexical, qualitative_report...).
+
+    Privacidad: `meta` de cada respuesta lleva SOLO las preguntas con contexto_ia (clave = título) y nunca un
+    identificador, aunque alguien lo haya marcado. Las respuestas vacías (N/A) no entran ni como texto ni como meta.
+    """
+    q = pregunta_abierta(project, pregunta_id)
+    if q is None:
+        return None
+    contexto = [c for c in project["preguntas"]
+                if c["contexto_ia"] and c["tipo"] != "identificador" and c["id"] != q["id"]]
+    responses = [
+        {"id": r["id"], "text": r["valores"][q["id"]],
+         "meta": {c["titulo"]: r["valores"][c["id"]] for c in contexto if r["valores"].get(c["id"]) is not None}}
+        for r in project.get("respondentes", []) if r["valores"].get(q["id"]) is not None
+    ]
+    return {
+        **{k: project.get(k) for k in ("id", "name", "marco_teorico", "created_at", "columns", "org_id", "user_id")},
+        "audit_log": project.setdefault("audit_log", []),  # misma lista: log_event escribe en el proyecto
+        "text_column": q["titulo"], "pregunta": q["id"], "responses": responses,
+        "contexto": [c["titulo"] for c in contexto],
+        **{**analisis_vacio(), **project.get("analisis", {}).get(q["id"], {})},
     }
 
 
@@ -62,8 +120,8 @@ def _tenant_filter(project_id: str, org_id: str) -> dict:
 
 
 def create_project(org_id: str, created_by: str, name: str, marco_teorico: str, columns: list[str],
-                   text_column: str, responses: list[dict]) -> dict:
-    project = _empty_project(name, marco_teorico, columns, text_column, responses)
+                   text_column: str, preguntas: list[dict], respondentes: list[dict]) -> dict:
+    project = _empty_project(name, marco_teorico, columns, text_column, preguntas, respondentes)
     project["org_id"] = org_id
     project["user_id"] = created_by  # "creado por", no aislamiento
     save_project(project)
@@ -95,19 +153,37 @@ def delete_project(project_id: str, org_id: str) -> bool:
     return True
 
 
+# Pregunta por defecto (primera abierta) y su análisis, calculados en el servidor de Mongo.
+_PREGUNTA_POR_DEFECTO = [
+    {"$addFields": {"_q": {"$let": {
+        "vars": {"ab": {"$filter": {"input": {"$ifNull": ["$preguntas", []]}, "as": "p",
+                                    "cond": {"$eq": ["$$p.tipo", "abierta"]}}}},
+        "in": {"$arrayElemAt": ["$$ab.id", 0]}}}}},
+    {"$addFields": {"_a": {"$let": {
+        "vars": {"kv": {"$filter": {"input": {"$objectToArray": {"$ifNull": ["$analisis", {}]}}, "as": "e",
+                                    "cond": {"$eq": ["$$e.k", "$_q"]}}}},
+        "in": {"$ifNull": [{"$arrayElemAt": ["$$kv.v", 0]}, {}]}}}}},
+]
+# Personas con texto (no N/A) en la pregunta por defecto.
+_N_RESPONSES = {"$size": {"$filter": {"input": {"$ifNull": ["$respondentes", []]}, "as": "r", "cond": {"$gt": [
+    {"$size": {"$filter": {"input": {"$objectToArray": "$$r.valores"}, "as": "e",
+                           "cond": {"$and": [{"$eq": ["$$e.k", "$_q"]}, {"$ne": ["$$e.v", None]}]}}}}, 0]}}}}
+
+
 def list_projects(org_id: str) -> list[dict]:
-    """Resumen de proyectos de la organización, calculado en el servidor de Mongo
+    """Resumen de proyectos de la organización (según la pregunta por defecto), calculado en el servidor de Mongo
     (no viaja el documento completo con sus cientos de respuestas)."""
     pipeline = [
         {"$match": {"org_id": org_id if org_id else {"$in": []}}},  # org_id falsy: no lista nada
+        *_PREGUNTA_POR_DEFECTO,
         {"$project": {
             "_id": 0,
             "id": 1, "name": 1, "created_at": 1,
-            "n_responses": {"$size": {"$ifNull": ["$responses", []]}},
-            "has_lexical": {"$ne": [{"$ifNull": ["$lexical", None]}, None]},
-            "n_categories": {"$size": {"$ifNull": ["$categories", []]}},
-            "n_coded": {"$size": {"$objectToArray": {"$ifNull": ["$codings", {}]}}},
-            "report": {"$ifNull": ["$qualitative_report", ""]},
+            "n_responses": _N_RESPONSES,
+            "has_lexical": {"$ne": [{"$ifNull": ["$_a.lexical", None]}, None]},
+            "n_categories": {"$size": {"$ifNull": ["$_a.categories", []]}},
+            "n_coded": {"$size": {"$objectToArray": {"$ifNull": ["$_a.codings", {}]}}},
+            "report": {"$ifNull": ["$_a.qualitative_report", ""]},
         }},
         {"$sort": {"created_at": -1}},
     ]
@@ -120,46 +196,48 @@ def list_projects(org_id: str) -> list[dict]:
 
 # ---------- Actualizaciones parciales (v1.1: aprovechar Mongo de verdad) ----------
 
-def update_category_fields(project_id: str, org_id: str, category_id: str,
+def update_category_fields(project_id: str, org_id: str, pregunta_id: str, category_id: str,
                            changes: dict) -> bool:
-    """$set sobre los campos de UNA categoría (operador posicional)."""
+    """$set sobre los campos de UNA categoría de una pregunta (operador posicional)."""
     if not changes:
         return True
+    base = f"analisis.{pregunta_id}.categories"
     result = get_db().projects.update_one(
-        {**_tenant_filter(project_id, org_id), "categories.id": category_id},
-        {"$set": {f"categories.$.{k}": v for k, v in changes.items()}},
+        {**_tenant_filter(project_id, org_id), f"{base}.id": category_id},
+        {"$set": {f"{base}.$.{k}": v for k, v in changes.items()}},
     )
     return result.matched_count > 0
 
 
-def push_category(project_id: str, org_id: str, category: dict) -> bool:
+def push_category(project_id: str, org_id: str, pregunta_id: str, category: dict) -> bool:
     result = get_db().projects.update_one(
         _tenant_filter(project_id, org_id),
-        {"$push": {"categories": category}},
+        {"$push": {f"analisis.{pregunta_id}.categories": category}},
     )
     return result.matched_count > 0
 
 
-def _set_categories_array(project_id: str, org_id: str, mutate) -> bool:
-    """Fallback parcial: lee SOLO el array categories, lo muta en memoria y
-    lo re-escribe con $set (sin tocar responses/codings). Se usa cuando el
+def _set_categories_array(project_id: str, org_id: str, pregunta_id: str, mutate) -> bool:
+    """Fallback parcial: lee SOLO el array categories de la pregunta, lo muta en memoria y
+    lo re-escribe con $set (sin tocar respondentes/codings). Se usa cuando el
     servidor no soporta el operador posicional con $push/$pull (ej: mocks)."""
-    doc = get_db().projects.find_one(_tenant_filter(project_id, org_id), {"categories": 1})
+    campo = f"analisis.{pregunta_id}.categories"
+    doc = get_db().projects.find_one(_tenant_filter(project_id, org_id), {campo: 1})
     if doc is None:
         return False
-    categories = doc.get("categories", [])
+    categories = doc.get("analisis", {}).get(pregunta_id, {}).get("categories", [])
     if not mutate(categories):
         return False
-    get_db().projects.update_one(_tenant_filter(project_id, org_id),
-                                 {"$set": {"categories": categories}})
+    get_db().projects.update_one(_tenant_filter(project_id, org_id), {"$set": {campo: categories}})
     return True
 
 
-def push_comment(project_id: str, org_id: str, category_id: str, comment: dict) -> bool:
+def push_comment(project_id: str, org_id: str, pregunta_id: str, category_id: str, comment: dict) -> bool:
+    base = f"analisis.{pregunta_id}.categories"
     try:
         result = get_db().projects.update_one(
-            {**_tenant_filter(project_id, org_id), "categories.id": category_id},
-            {"$push": {"categories.$.comments": comment}},
+            {**_tenant_filter(project_id, org_id), f"{base}.id": category_id},
+            {"$push": {f"{base}.$.comments": comment}},
         )
         return result.matched_count > 0
     except OperationFailure:
@@ -169,15 +247,16 @@ def push_comment(project_id: str, org_id: str, category_id: str, comment: dict) 
                     c.setdefault("comments", []).append(comment)
                     return True
             return False
-        return _set_categories_array(project_id, org_id, mutate)
+        return _set_categories_array(project_id, org_id, pregunta_id, mutate)
 
 
-def pull_comment(project_id: str, org_id: str, category_id: str, comment_id: str) -> bool:
+def pull_comment(project_id: str, org_id: str, pregunta_id: str, category_id: str, comment_id: str) -> bool:
     """Devuelve True solo si el comentario existía y fue eliminado."""
+    base = f"analisis.{pregunta_id}.categories"
     try:
         result = get_db().projects.update_one(
-            {**_tenant_filter(project_id, org_id), "categories.id": category_id},
-            {"$pull": {"categories.$.comments": {"id": comment_id}}},
+            {**_tenant_filter(project_id, org_id), f"{base}.id": category_id},
+            {"$pull": {f"{base}.$.comments": {"id": comment_id}}},
         )
         return result.modified_count > 0
     except OperationFailure:
@@ -188,38 +267,40 @@ def pull_comment(project_id: str, org_id: str, category_id: str, comment_id: str
                     c["comments"] = [x for x in c.get("comments", []) if x["id"] != comment_id]
                     return len(c["comments"]) < n
             return False
-        return _set_categories_array(project_id, org_id, mutate)
+        return _set_categories_array(project_id, org_id, pregunta_id, mutate)
 
 
-def set_codings_for_response(project_id: str, org_id: str, response_id: str,
+def set_codings_for_response(project_id: str, org_id: str, pregunta_id: str, response_id: str,
                              assignments: list[dict]) -> bool:
     """$set de las asignaciones de UNA respuesta (re-codificación manual):
     no reescribe el resto del corpus."""
     result = get_db().projects.update_one(
         _tenant_filter(project_id, org_id),
-        {"$set": {f"codings.{response_id}": assignments}},
+        {"$set": {f"analisis.{pregunta_id}.codings.{response_id}": assignments}},
     )
     return result.matched_count > 0
 
 
-def set_codings_bulk(project_id: str, org_id: str, codings: dict) -> bool:
+def set_codings_bulk(project_id: str, org_id: str, pregunta_id: str, codings: dict) -> bool:
     """$set de las asignaciones de muchas respuestas en una sola operación
-    (resultado de la codificación del corpus). No toca responses, categories
+    (resultado de la codificación del corpus). No toca respondentes, categories
     ni comentarios agregados mientras corría el hilo."""
     if not codings:
         return True
     result = get_db().projects.update_one(
         _tenant_filter(project_id, org_id),
-        {"$set": {f"codings.{rid}": assignments for rid, assignments in codings.items()}},
+        {"$set": {f"analisis.{pregunta_id}.codings.{rid}": assignments for rid, assignments in codings.items()}},
     )
     return result.matched_count > 0
 
 
-def set_project_field(project_id: str, org_id: str, field: str, value: Any) -> bool:
-    """$set de un campo de primer nivel (ej: qualitative_report, marco_teorico)."""
+def set_project_field(project_id: str, org_id: str, field: str, value: Any,
+                      pregunta_id: Optional[str] = None) -> bool:
+    """$set de un campo: de primer nivel (ej: marco_teorico) o, con `pregunta_id`, del análisis de esa
+    pregunta (ej: qualitative_report, lexical, v2_analyses_cache)."""
     result = get_db().projects.update_one(
         _tenant_filter(project_id, org_id),
-        {"$set": {field: value}},
+        {"$set": {f"analisis.{pregunta_id}.{field}" if pregunta_id else field: value}},
     )
     return result.matched_count > 0
 
@@ -261,9 +342,10 @@ def list_usage_all_projects() -> list[dict]:
     Solo campos de resumen: nunca viaja el documento completo."""
     pipeline = [
         {"$match": {"claude_usage": {"$exists": True}}},
+        *_PREGUNTA_POR_DEFECTO,
         {"$project": {
             "_id": 0, "id": 1, "name": 1, "user_id": 1, "created_at": 1,
-            "n_responses": {"$size": {"$ifNull": ["$responses", []]}},
+            "n_responses": _N_RESPONSES,
             "claude_usage": 1,
         }},
         {"$sort": {"claude_usage.cost_usd": -1}},
@@ -352,6 +434,10 @@ def import_legacy_projects(org_id: str, created_by: str) -> int:
             project = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             continue
+        if "preguntas" not in project:  # los proyectos pre-auth también nacen en el esquema por pregunta
+            project.update(convertir_proyecto(project))
+            for k in CAMPOS_VIEJOS:
+                project.pop(k, None)
         project["org_id"] = org_id
         project["user_id"] = created_by
         save_project(project)

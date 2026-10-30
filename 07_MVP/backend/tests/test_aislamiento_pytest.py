@@ -98,7 +98,7 @@ def env():
     c.put(f"/api/projects/{pid}/responses/E001/codings", headers=ha, json={"category_ids": [cid]})
     c.post(f"/api/projects/{pid}/lexical", headers=ha)
     # Informe ya generado: así GET /report filtrado mal devolvería 200, no el 404 de "aún no generado".
-    store.set_project_field(pid, users["a"][1], "qualitative_report", "# Informe de A")
+    store.set_project_field(pid, users["a"][1], "qualitative_report", "# Informe de A", "q_1")
     ai_calls.clear()  # solo interesa lo que ocurra a nombre de B
 
     yield {"c": c, "hb": users["b"][0], "ha": ha, "uid_a": users["a"][1], "uid_b": users["b"][1],
