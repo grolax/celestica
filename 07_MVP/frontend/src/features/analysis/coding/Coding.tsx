@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import { usePolling } from "@/shared/hooks/usePolling";
 import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
@@ -76,9 +77,11 @@ export default function Coding() {
 
   return (
     <>
+      <PageHeader level={2} title="Codificación" help="La IA asigna a cada respuesta sus temas validados, con el motivo y su nivel de confianza. Puedes corregir cualquier asignación.">
+        <span className="pill ok">{validated.length} categorías validadas</span>
+      </PageHeader>
       {error && <div className="alert alert-error">{error}</div>}
-      <Card title="Codificación asistida por IA"
-            actions={<span className="pill ok">{validated.length} categorías validadas</span>}>
+      <Card>
         <p className="muted">
           Cada asignación incluye justificación y nivel de confianza
           (<span className="conf-badge conf-high">alta</span>
