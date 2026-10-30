@@ -87,3 +87,13 @@ La única modificación permitida en pruebas existentes sigue siendo la de `test
 3. **Redacción del `motivo`.** Concordancia de número ("1 valor distinto", "1 respuesta") y la palabra del grupo con su forma escrita correcta en español (género, región, educación, área, etc.), no la versión normalizada sin tildes.
 
 Pruebas con datos sintéticos que reproduzcan cada patrón (opciones con coma interna y con paréntesis, mezcla ambigua que debe quedar separada, selección única con comas). Los casos anteriores (demo y revisión 2) deben seguir igual.
+
+## Revisión 5
+2026-10-30 — **Con cambios** (supervisor; tercera y última ronda de corrección).
+
+El supervisor repitió la detección sobre la encuesta real: las opciones con coma interna de las preguntas de ahorro, subsidios (DS1, DS19, DS49) y transparencia quedan **completas y con conteos correctos**; la redacción del `motivo` quedó bien. Pendiente:
+
+1. **Trozo final compartido por varias alternativas.** Caso real (selección única): `"Me interesa comprar para vivir, pero todavía no he buscado."` y `"Me interesa comprar como inversión, pero todavía no he buscado."`. El trozo `"pero todavía no he buscado."` sigue a dos prefijos distintos, así que la regla de "siempre juntos" no lo une, y la pregunta sale `seleccion_multiple` con una opción falsa de 186 menciones. Regla adicional: **un trozo que empieza con minúscula** (tras quitar espacios) se une al trozo anterior, salvo que ese mismo trozo aparezca también como respuesta completa por sí solo (entonces es una opción real). Las alternativas de Google Forms empiezan con mayúscula; las continuaciones ("pero…", "fondos mutuos…", "condiciones de compra…") con minúscula. Tras reconstruir, si casi todas las respuestas tienen una sola opción, la pregunta es `seleccion_unica` (ya implementado).
+2. **`COMO_FUNCIONA.md`** (está en `07_MVP/`, no en `docs/`: sí te corresponde): documenta la reconstrucción de opciones (paréntesis, trozos siempre juntos, continuación en minúscula) y la regla de selección única con comas.
+
+Pruebas sintéticas: dos prefijos con el mismo final en minúscula → `seleccion_unica` con las alternativas completas; un trozo en minúscula que también aparece solo → se mantiene separado. Lo demás debe seguir igual.
