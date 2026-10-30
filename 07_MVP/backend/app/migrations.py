@@ -16,12 +16,15 @@ Uso (desde 07_MVP/backend, con MongoDB corriendo):
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, timezone
 
 import pandas as pd
 
 from app.services.question_types import contexto_por_defecto, detectar
+
+log = logging.getLogger(__name__)
 
 SIN_ORG = {"org_id": {"$exists": False}}
 
@@ -63,9 +66,9 @@ def migrate_orgs(db) -> dict:
 # ---------- RF-23 (T-011a): un proyecto guarda todas sus preguntas y un análisis por pregunta abierta ----------
 
 # Campos que hoy viven en la raíz y pasan a analisis.q_1
-CAMPOS_ANALISIS = ("lexical", "lexical_interpretation", "categories", "codings", "qualitative_report",
-                   "v2_analyses_cache")
-CAMPOS_VIEJOS = ("responses", *CAMPOS_ANALISIS)  # salen de la raíz
+CAMPOS_ANALISIS = ("lexical", "lexical_interpretation", "categories", "codings", "qualitative_report")
+# El caché v2 se descarta: su huella ya no coincide con el `meta` nuevo y su snapshot guarda las columnas antiguas
+CAMPOS_VIEJOS = ("responses", *CAMPOS_ANALISIS, "v2_analyses_cache")  # salen de la raíz
 
 
 def convertir_proyecto(p: dict) -> dict:
@@ -96,14 +99,20 @@ def migrate_preguntas(db) -> dict:
     """Todo proyecto sin `preguntas` pasa al esquema por pregunta; `q_1` es la columna de texto de siempre.
 
     Idempotente: solo toca proyectos sin `preguntas` y el filtro del update lo vuelve a exigir (dos procesos a la
-    vez no se pisan). `columns` y `text_column` quedan como dato de origen. `init_db()` la corre al arrancar.
+    vez no se pisan). `columns` y `text_column` quedan como dato de origen. `init_db()` la corre al arrancar, así que un
+    proyecto que no se pueda convertir se registra (id y tipo de error, sin datos), se deja sin tocar y se cuenta en `fallidos`.
     """
-    n = 0
+    n = fallidos = 0
     for p in db.projects.find({"preguntas": {"$exists": False}}):
-        nuevo = convertir_proyecto(p)
-        r = db.projects.update_one(
-            {"_id": p["_id"], "preguntas": {"$exists": False}},
-            {"$set": nuevo, "$unset": {c: "" for c in CAMPOS_VIEJOS}},
-        )
+        try:
+            nuevo = convertir_proyecto(p)
+            r = db.projects.update_one(
+                {"_id": p["_id"], "preguntas": {"$exists": False}},
+                {"$set": nuevo, "$unset": {c: "" for c in CAMPOS_VIEJOS}},
+            )
+        except Exception as e:
+            log.error("migrate_preguntas: no se pudo migrar el proyecto %s (%s)", p.get("_id"), type(e).__name__)
+            fallidos += 1
+            continue
         n += r.modified_count
-    return {"proyectos": n}
+    return {"proyectos": n, "fallidos": fallidos}

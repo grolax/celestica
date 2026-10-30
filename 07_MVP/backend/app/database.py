@@ -53,3 +53,4 @@ def init_db() -> None:
     db.projects.create_index([("org_id", ASCENDING), ("created_at", DESCENDING)])
     db.audit_events.create_index([("project_id", ASCENDING)])
     migrate_orgs(db)
+    migrate_preguntas(db)  # después de migrate_orgs
