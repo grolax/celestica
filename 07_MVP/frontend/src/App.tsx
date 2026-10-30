@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/features/auth/useAuth";
 import Header from "@/shared/layout/Header";
 import Sidebar from "@/shared/layout/Sidebar";
 import LoginPage, { SignupPage } from "@/features/auth/LoginPage";
+import LandingPage from "@/features/landing/LandingPage";
 import ProjectList from "@/features/projects/ProjectList";
 import NewProject from "@/features/projects/NewProject";
 import ProjectView from "@/features/projects/ProjectView";
@@ -45,7 +46,7 @@ function ProtectedLayout() {
 function PublicOnly({ children }: { children: JSX.Element }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) return <Navigate to="/proyectos" replace />;
   return children;
 }
 
@@ -54,10 +55,11 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
           <Route path="/signup" element={<PublicOnly><SignupPage /></PublicOnly>} />
           <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<ProjectList />} />
+            <Route path="/proyectos" element={<ProjectList />} />
             <Route path="/proyectos/nuevo" element={<NewProject />} />
             <Route path="/proyectos/:id" element={<ProjectView />}>
               <Route index element={<ProjectDashboard />} />
