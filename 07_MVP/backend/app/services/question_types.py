@@ -223,5 +223,5 @@ def detectar(df: pd.DataFrame) -> dict:
 
 
 def contexto_por_defecto(tipo: str, titulo: str) -> bool:
-    """Qué preguntas van como contexto a la IA si el usuario no decide: solo segmentos de género/sexo/edad."""
-    return tipo == "segmento" and bool(re.search(r"\b(genero|sexo|edad)\b", _sin_tildes(titulo)))
+    """Qué preguntas van como contexto a la IA si el usuario no decide: solo género/sexo/edad (nunca un identificador)."""
+    return tipo in ("segmento", "numerica", "seleccion_unica") and bool(re.search(r"\b(genero|sexo|edad)\b", _sin_tildes(titulo)))
