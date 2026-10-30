@@ -50,6 +50,10 @@ MongoDB (base "softinsight")
 
 07_MVP/backend/
 ├── .env                     ← Secretos: API key de Anthropic, SECRET_KEY. NUNCA subir a git.
+├── app/main.py              ← Configuración de la app (CORS, init_db, sink de costo) y los endpoints de análisis, informe, exportación y admin (pasarán a routers en T-003b).
+├── app/deps.py              ← Lo que comparten los routers: `_get_or_404`, `_check_admin`, `ADMIN_PASSWORD`, `_slug` y el progreso en memoria de codificación/informe.
+├── app/routers/projects.py  ← Plantillas, proyectos (crear, listar, obtener, borrar, importar), respuestas y consumo de API.
+├── app/routers/integrations.py ← Credenciales y encuestas de Qualtrics; crear proyecto desde Qualtrics o Google Forms.
 ├── app/prompts.json         ← Cambios locales a los prompts (editables desde la UI). Ignorado por git; se crea al primer guardado.
 ├── app/prompts_default.json ← Prompts de fábrica: se usan cuando falta `prompts.json` o alguna clave, y para restaurar.
 ├── softinsight.db           ← Base SQLite de la v1.0 (solo como fuente de migración).
