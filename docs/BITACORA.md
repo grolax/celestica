@@ -40,9 +40,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-001 | Reparar las pruebas automáticas del sistema | ✅ Incorporada a la versión oficial |
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
-| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | 🟡 T-016a incorporada; T-016b aprobada por el supervisor, espera autorización |
+| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ✅ Incorporada a la versión oficial (T-016a y T-016b) |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
-| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
+| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | 🔨 En desarrollo |
 
 ---
 
@@ -227,7 +227,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hizo:** las 8 pestañas de cada proyecto (Resumen, Análisis léxico, Libro de códigos, Codificación, Trazabilidad, Informe, Exportar y Auditoría) empiezan ahora con su título y una línea de ayuda, con los textos que aprobó el responsable. Se quitaron las explicaciones que repetían esa línea y se dejaron las que dan más detalle.
 - **Por qué:** para que quien no sabe de análisis entienda qué hace cada paso.
 - **Cómo se verificó:** la plataforma se construye sin errores y el supervisor revisó todos los cambios. El informe en pantalla sigue indicando que es contenido generado por IA. Falta recorrerla en el navegador.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla. Con esta tarea termina la fase de diseño.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #7 en GitHub). Con esta tarea terminó la fase de diseño.
+
+---
+
+### 19. De vuelta al trabajo interno: T-002
+
+- **Qué se hizo:** terminada la fase de diseño, se retomó el backend. La primera tarea es T-002.
+- **De qué se trata:** hoy, las pruebas que verifican que **un cliente no pueda ver ni modificar los proyectos de otro** existen, pero hay que ejecutarlas a mano, y cubren solo 8 de las 25 operaciones que se pueden hacer sobre un proyecto. T-002 las incorpora a las pruebas automáticas y las extiende a las 25. Además, si en el futuro alguien agrega una operación nueva sin su prueba de seguridad, las pruebas fallarán y lo avisarán.
+- **Por qué ahora:** la siguiente gran etapa cambia cómo se separan los datos de cada cliente (de "por usuario" a "por organización"). Antes de mover algo tan delicado, hay que tener una alarma que suene si algo se rompe.
+- **Estado:** en desarrollo.
 
 ---
 
