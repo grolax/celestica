@@ -133,3 +133,69 @@ Solo el **admin** de la organización. Todas responden **403** `"Tu rol (<rol>) 
 ## Panel interno (`/api/admin/*`) · T-009
 
 - **Cambio de código de error:** con `X-Admin-Password` ausente o incorrecta, los 5 endpoints (`GET /api/admin/usage`, `GET /api/admin/health`, `GET /api/admin/prompts`, `PUT /api/admin/prompts/{key}`, `POST /api/admin/prompts/{key}/reset`) responden **403** — "Contraseña de administrador incorrecta" (antes 401). Motivo: el 401 se reserva para la sesión del usuario; el frontend lo interpreta como sesión vencida.
+
+---
+
+## RF-22 / RF-25 · Vista previa con tipos de pregunta detectados (T-010)
+
+Tres endpoints de **solo lectura**: leen los datos, detectan el tipo de cada columna con **reglas determinísticas (sin IA)** y devuelven un resumen. **No crean ni guardan nada.** Uno por cada fuente, con la misma entrada que su endpoint de creación (sin `name`, `marco_teorico`, `text_column` ni `template`).
+
+| Endpoint | Entrada |
+| --- | --- |
+| `POST /api/projects/preview` | multipart: `file` (CSV o XLSX) |
+| `POST /api/projects/preview/qualtrics` | `{"survey_id": "SV_abc123"}` (usa las credenciales Qualtrics del usuario) |
+| `POST /api/projects/preview/google-forms` | `{"sheet_url": "https://docs.google.com/spreadsheets/d/..."}` |
+
+- **Roles permitidos:** analista, admin (lector → 403 como el resto de las operaciones de creación).
+- **Respuesta 200:**
+```json
+{
+  "n_filas": 240,
+  "preguntas": [
+    {
+      "columna": "respuesta",
+      "tipo": "abierta",
+      "motivo": "Textos largos y casi todos distintos (promedio 18 palabras).",
+      "n_respuestas": 236,
+      "n_vacias": 4,
+      "valores_distintos": 231,
+      "ejemplos": ["La ponderación de las evaluaciones no está clara…", "…", "…"]
+    },
+    {
+      "columna": "P5_recomendaria",
+      "tipo": "nps",
+      "motivo": "Números enteros entre 0 y 10 y el título menciona \"recomendar\".",
+      "n_respuestas": 240,
+      "n_vacias": 0,
+      "valores_distintos": 11,
+      "ejemplos": ["9", "10", "6"],
+      "escala": {"min": 0, "max": 10}
+    },
+    {
+      "columna": "carrera",
+      "tipo": "segmento",
+      "motivo": "Pocos valores repetidos y el título sugiere un grupo (carrera).",
+      "n_respuestas": 240,
+      "n_vacias": 0,
+      "valores_distintos": 6,
+      "ejemplos": ["Psicología", "Medicina", "Enfermería"],
+      "opciones": [{"valor": "Psicología", "n": 61}, {"valor": "Medicina", "n": 55}]
+    }
+  ],
+  "advertencias": []
+}
+```
+- **`tipo`**: `abierta` · `escala` · `nps` · `si_no` · `seleccion_unica` · `seleccion_multiple` · `numerica` · `fecha` · `identificador` · `segmento` · `constante` (un solo valor en todas las filas, por ejemplo el enunciado de la pregunta) · `sin_datos` (columna vacía).
+- **`motivo`**: frase corta en español, sin jerga, que explica por qué se detectó ese tipo (para mostrar al usuario).
+- **`ejemplos`**: hasta 3 valores no vacíos, en el orden en que aparecen; textos largos recortados a 120 caracteres con "…".
+- **`escala`**: solo en `escala` y `nps`.
+- **`opciones`**: solo en `si_no`, `seleccion_unica`, `seleccion_multiple` y `segmento`; hasta 20 valores con su conteo, de mayor a menor (en `seleccion_multiple`, cada opción separada).
+- **`advertencias`** (frases para la UI):
+  - Sin columnas `abierta`: `"Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto."`
+  - `n_filas < 10`: `"La encuesta tiene muy pocas respuestas (N); los resultados serán poco representativos."`
+  - Por cada columna con más de la mitad vacía: `"La columna «X» tiene más de la mitad de sus respuestas vacías."`
+- **Errores:**
+  - 400 — "No se pudo leer el archivo: …" (archivo ilegible) · "Los datos no contienen filas" (sin filas).
+  - 400 — mensajes de integración (Qualtrics/Google) igual que en `from-qualtrics` / `from-google-forms`.
+  - 403 — "Tu rol (Lector) no permite esta acción."
+  - 413 — "El archivo supera el máximo de 20 MB." (solo `preview` con archivo).

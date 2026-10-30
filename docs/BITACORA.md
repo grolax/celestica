@@ -46,7 +46,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006, T-007 y T-008a incorporadas; T-008b aprobada por el supervisor, espera autorización |
+| T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🔨 T-010 en desarrollo |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -379,7 +380,22 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Cada persona **ve solo los botones que su rol permite**. El lector ve todas las pestañas, descarga y comenta, pero no ve los botones para crear, analizar ni borrar, y cada proyecto le muestra la marca **"Solo lectura"**. Donde se ocultó un botón importante, el lector ve un aviso breve: "Un analista de tu organización puede…".
 - **Cómo se verificó:** el programador creó tres cuentas de prueba (administrador, analista y lector) en la plataforma local, sin IA. Recorrió el ciclo completo: crear al lector, entrar con su contraseña temporal y cambiarla, comentar, ascenderlo a analista, desactivarlo y reactivarlo. El supervisor revisó todos los cambios.
 - **Con esto quedan completos RF-02 (organizaciones) y RF-03 (roles y miembros).**
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #17 en GitHub).
+
+### 31. Iteración 2: encuestas completas — decisiones y plan
+
+- **Qué se busca:** hoy cada proyecto analiza una sola columna de texto. Ahora Celestica va a reconocer cada pregunta de la encuesta y va a poder analizar **varias preguntas abiertas** en un mismo proyecto.
+- **Decisiones del responsable (30 de octubre):**
+  1. **El foco es pulir lo que ya existe.** Los proyectos que solo tienen preguntas cerradas (escalas, NPS, sí/no) se dejan para después, junto con el análisis cuantitativo. Por ahora, la plataforma solo avisa.
+  2. **Cuidar el gasto en IA sin perder calidad.** La IA trabaja una pregunta a la vez, solo cuando el usuario lo pide.
+  3. **Un informe por pregunta abierta,** hasta que exista el informe integrado.
+  4. **Los proyectos actuales siguen igual,** con su única pregunta abierta.
+- **Plan en cuatro tareas:**
+  - **T-010:** reconocer el tipo de cada pregunta y mostrar una vista previa. Se hace con reglas fijas, sin IA y sin costo.
+  - **T-011:** guardar las preguntas en el proyecto y permitir varias preguntas abiertas.
+  - **T-012:** el paso "Revisa las preguntas detectadas" al crear un proyecto, donde el usuario puede corregir cada tipo.
+  - **T-013:** elegir qué pregunta abierta analizar en cada pestaña.
+- **Estado:** T-010 en desarrollo.
 
 ---
 
