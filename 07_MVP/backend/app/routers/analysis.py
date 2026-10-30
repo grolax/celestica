@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from app import store
 from app.auth import get_current_user
-from app.deps import _codify_progress, _get_or_404, _get_vista, require_role
+from app.deps import _codify_progress, _get_or_404, _progress_lock, _get_vista, require_role
 from app.models import User
 from app.services import claude_log, lexical, thematic
 
@@ -184,7 +184,11 @@ def codify(project_id: str, pregunta: Optional[str] = None, user: User = Depends
     total = len(vista["responses"])
     qid = vista["pregunta"]  # el hilo captura la pregunta: el progreso es por (proyecto, pregunta)
     key = (project_id, qid)
-    _codify_progress[key] = {"done": 0, "total": total, "status": "running"}
+    with _progress_lock:
+        en_curso = _codify_progress.get(key, {})
+        if en_curso.get("status") == "running":
+            return {"status": "already_running", "total": en_curso.get("total", total)}
+        _codify_progress[key] = {"done": 0, "total": total, "status": "running"}
     org_id = user.org_id
 
     def run():
