@@ -29,9 +29,12 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-012 Paso "Revisa las preguntas" al crear un proyecto | frontend | RF-25, RF-22, RF-40 (parcial) | 2026-10-30 | `tarea/T-012-revisar-preguntas` (fusionada, PR #20) |
 | T-018 Campos de texto con estilo por defecto | frontend | RNF-16, RNF-14 | 2026-10-30 | `tarea/T-018-input-con-estilo` (fusionada, PR #21) |
 | T-013 Selector de pregunta abierta | frontend | RF-23, RNF-08, RNF-13 | 2026-10-30 | `tarea/T-013-selector-de-pregunta` (fusionada, PR #22) |
-| T-019 Una sola codificación a la vez por pregunta | backend | RF-23, RNF-08 | 2026-10-30 | `tarea/T-019-bloqueo-codificacion-doble` (aprobada, pendiente de subir) |
+| T-019 Una sola codificación a la vez por pregunta | backend | RF-23, RNF-08 | 2026-10-30 | `tarea/T-019-bloqueo-codificacion-doble` (fusionada, PR #23) |
 
 ## En curso
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (backend, en curso) → T-021 pantalla → T-022 cruces (backend) → T-023 cruces (pantalla) → T-024/25 proyectos sin abiertas → RF-41, RF-43, RF-17.
+- Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
+- Pendiente posterior (usuario): convertir escalas con palabras a 1–5 (el usuario ordena las etiquetas en "Revisa las preguntas").
 
 - Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (aprobada) → T-013 selector de pregunta (aprobada). **Iteración 2 completa.**
 - Decisiones iteración 2 (usuario, 2026-10-30): RF-24 (proyectos solo cerradas) pospuesto a iteración 3 con RF-30; IA pregunta por pregunta a pedido del usuario (cuidar tokens sin perder calidad); un informe por pregunta abierta hasta RF-51; proyectos existentes quedan con su única pregunta abierta; agregar preguntas después llega con RF-27.

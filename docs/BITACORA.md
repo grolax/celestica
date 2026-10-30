@@ -517,7 +517,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Problema:** las pantallas ya evitan lanzar dos veces la codificación de una pregunta, pero con dos pestañas abiertas o dos personas trabajando a la vez todavía se podía lanzar dos veces y pagar el doble.
 - **Arreglo:** si ya hay una codificación en curso para esa pregunta, el servidor responde "ya está en curso" y no llama a la IA. Otra pregunta del mismo proyecto sí puede codificarse al mismo tiempo.
 - **Resultado:** funciona. Las pruebas confirman que un segundo pedido de la misma pregunta no llama a la IA, que otra pregunta sí puede codificarse en paralelo y que tras terminar (o tras un error) se puede volver a lanzar. De paso se reforzó el mismo bloqueo del informe. 197 pruebas en verde.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial (PR #23).
+
+### 44. Iteración 3 · Plan: los números de las preguntas cerradas
+
+- **Qué viene:** la plataforma mostrará los resultados de las preguntas cerradas (escalas, NPS, sí/no, selección) y permitirá verlos por grupo (género, edad, región…). Todos los números los calcula la plataforma, sin IA.
+- **Orden:** T-020 cálculos (servidor) → T-021 pantalla → T-022 cruces (servidor) → T-023 cruces (pantalla) → T-024/25 proyectos solo con preguntas cerradas.
+- **Decisiones del responsable:**
+  - los porcentajes se calculan sobre quienes respondieron y los N/A se muestran aparte;
+  - el aviso de pocos datos aparece con menos de 10 personas por grupo;
+  - la edad se agrupa en tramos de 18–24 a 65+, que el cliente podrá cambiar;
+  - las escalas con palabras ("Muy de acuerdo…") se convertirán a 1–5 más adelante.
+- **Estado:** T-020 en curso (programador de backend).
 
 ---
 
