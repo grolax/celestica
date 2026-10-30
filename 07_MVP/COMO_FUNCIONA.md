@@ -193,6 +193,23 @@ El proyecto nace de un **DataFrame de pandas**, venga de donde venga — esa es 
 
 En los tres casos: si no se indica columna de texto se usa la heurística de **mayor largo promedio**; cada fila se convierte en una respuesta con ID estable; la plantilla elegida crea marco + categorías base; y todo queda auditado (`creacion_proyecto` con la fuente, más `importacion_qualtrics`/`importacion_google_forms` con encuesta/planilla y n° de respuestas).
 
+### Paso 0b — Vista previa con tipos de pregunta (RF-22/RF-25, T-010)
+
+Antes de crear el proyecto, `POST /api/projects/preview` (archivo), `/preview/qualtrics` y `/preview/google-forms` leen los datos con el mismo lector que la creación (`_leer_archivo`, tope de 20 MB; las integraciones reutilizan `fetch_responses`) y devuelven el tipo propuesto de cada columna. **Solo lectura y sin IA**: no guardan nada ni registran eventos. La lógica es una función pura, `detectar(df)`, en `app/services/question_types.py`. Para cada columna se aplica, en este orden, la primera regla que calce (las pruebas por texto miran una muestra fija de 1.000 valores; conteos y rangos usan todas las filas):
+
+1. Sin valores → `sin_datos`; un solo valor distinto → `constante`.
+2. El título (en sus primeras palabras o terminado en `Id`) es `id`, `rut`, `folio`, `email`, `correo`, `dni`, `uuid`, `matricula`, `ip`… → `identificador`.
+3. 90 % o más de los valores con forma de fecha (`2026-07-01`, `01/07/2026`) → `fecha`.
+4. Con 10 o más respuestas, 95 % o más de valores distintos, cortos (≤ 40 caracteres) y sin espacios, y que no sean decimales → `identificador`.
+5. Enteros entre 0 y 10 y título con `recomend` o `nps` → `nps`. Sin la palabra clave queda `escala`.
+6. Exactamente dos respuestas (sí, si, no, s, n, yes, y, true, false, verdadero, falso, 1, 0; sin mayúsculas ni tildes) → `si_no`.
+7. Números: enteros 0–10 con hasta 11 valores distintos → `escala` (con el mínimo y máximo observados); si el título es corto (hasta 3 palabras) y habla de año, edad, curso, semestre o ciclo y hay hasta 20 valores → `segmento`; el resto → `numerica`. La coma decimal (`3,5`) cuenta como número.
+8. Una de cada cinco respuestas o más con `;` (o `,`) y un conjunto de partes pequeño (hasta 20 opciones, cada una de hasta 40 caracteres, que se repiten) → `seleccion_multiple`.
+9. Texto con pocos valores distintos (hasta 20 y no más de la mitad de las filas): si el título es corto y nombra un grupo (`sede`, `carrera`, `genero`, `asignatura`…) → `segmento` (en esos títulos se admiten hasta 100 valores si son menos del 30 % de las filas); si no → `seleccion_unica`.
+10. Texto restante con promedio de 3 palabras o más, o con la mayoría de valores distintos → `abierta`; si no, `seleccion_unica`.
+
+Ajustes respecto de la regla sugerida en la orden: el "título corto" evita que una pregunta como "¿Cómo evalúa el curso?" (escala 1–5) se tome por un grupo; "pocos valores" exige además repetición (no más de la mitad de las filas), para que 15 comentarios todos distintos no se tomen por opciones; y el identificador por valores ignora los decimales (una medida continua no es un código). Advertencias: sin abiertas, menos de 10 filas y columnas con más de la mitad vacía. Rendimiento medido: 10.000 filas × 30 columnas en menos de 1 s.
+
 ### Paso 1 — Análisis léxico (Capa 1, sin IA generativa)
 
 `services/lexical.py` calcula de forma **determinística**: frecuencias (sin stopwords), bigramas, co-ocurrencias, y sentimiento por lexicón con evidencia palabra por palabra. Corre en segundos y no consume API. Al final, una llamada opcional a Claude redacta una interpretación breve; sin API key, el análisis numérico queda igual.

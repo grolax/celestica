@@ -25,5 +25,6 @@ pytest tests -q
 
 - `test_scripts_pytest.py` — corre `test_e2e.py` y `test_fase1/3/5.py` cada uno en un subproceso y exige código de salida 0 (sus parches globales no contaminan a los demás tests; tarda ~35 s por los scripts).
 - `test_aislamiento_pytest.py` — acceso cruzado (RNF-01): el usuario B recibe 404 en las 25 rutas con `{project_id}` del proyecto de A, sin cambios en el proyecto ni llamadas a la IA simulada. Además, `GET /api/projects` y las credenciales de Qualtrics de B no muestran lo de A. Un test recorre `app.routes` y falla si agregas una ruta con `{project_id}` sin añadirla a la lista `ROUTES` de ese archivo.
+- `test_tipos_pregunta_pytest.py` — detección de tipos de pregunta y vista previa (RF-22/RF-25): los 12 tipos, casos ambiguos, dataset demo, advertencias, los 3 endpoints sin efectos (ni proyectos ni eventos), Qualtrics/Google Forms con `requests` simulado y rendimiento de 10.000 × 30 en menos de 2 s.
 
 `pytest tests -q` corre todo, incluidos los scripts. `conftest.py` los excluye de la recolección directa (no se importan en el proceso de pytest) y también siguen funcionando a mano con `python tests/<script>.py`.
