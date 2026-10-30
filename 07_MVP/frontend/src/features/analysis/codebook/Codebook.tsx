@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import { useAsync } from "@/shared/hooks/useAsync";
 import { projectsApi } from "@/features/projects/api";
 import { FrameworkTemplate } from "@/features/projects/types";
@@ -43,13 +44,11 @@ export default function Codebook() {
 
   return (
     <>
+      <PageHeader level={2} title="Libro de códigos" help="Los temas para clasificar las respuestas. La IA los propone y tu equipo los revisa y valida.">
+        <span className="pill ok">{nValidated} validadas</span>
+      </PageHeader>
       {error && <div className="alert alert-error">{error}</div>}
-      <Card title="Capa 2 · Libro de códigos"
-            actions={<span className="pill ok">{nValidated} validadas</span>}>
-        <p className="muted">
-          Claude propone categorías ancladas al marco teórico; <strong>tu equipo decide</strong> cuáles
-          forman el libro de códigos. Cada decisión queda en el registro de auditoría.
-        </p>
+      <Card>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <Button onClick={propose} busy={busy}>
             {busy ? "Claude está analizando la muestra…" : "Proponer categorías con IA"}

@@ -5,6 +5,7 @@ import { useDownload } from "@/shared/hooks/useDownload";
 import { useProject } from "@/features/projects/useProjectData";
 import { exportApi } from "./api";
 import Icon from "@/shared/components/Icon";
+import PageHeader from "@/shared/components/PageHeader";
 
 export default function ExportReport() {
   const { project } = useProject();
@@ -26,6 +27,7 @@ export default function ExportReport() {
 
   return (
     <>
+      <PageHeader level={2} title="Exportar" help="Descarga el informe en PDF o Word, y los datos en Excel o CSV." />
       {error && <div className="alert alert-error">{error}</div>}
       {!ready && (
         <div className="alert alert-info">

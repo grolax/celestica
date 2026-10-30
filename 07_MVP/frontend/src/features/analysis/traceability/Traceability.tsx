@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import Table, { ConfBadge } from "@/shared/components/Table";
 import { exportApi } from "@/features/export/api";
 import { useProject } from "@/features/projects/useProjectData";
@@ -31,6 +32,7 @@ export default function Traceability() {
 
   return (
     <>
+      <PageHeader level={2} title="Trazabilidad" help="Sigue cada respuesta hasta su categoría, el motivo y quién la asignó." />
       {error && <div className="alert alert-error">{error}</div>}
 
       {stats && <CategoryBars stats={stats} />}

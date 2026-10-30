@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import { usePolling } from "@/shared/hooks/usePolling";
 import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
@@ -120,12 +121,12 @@ export default function ReportView() {
 
   return (
     <>
+      <PageHeader level={2} title="Informe" help="Genera el informe con los hallazgos y las citas textuales que los respaldan." />
       {error && <div className="alert alert-error">{error}</div>}
       {!report ? (
         <Card>
           <div className="empty-state">
             <div className="icon"><Icon name="file" size={40} /></div>
-            <h2>Informe de resultados</h2>
             <p style={{ maxWidth: 560, margin: "0 auto 8px" }}>
               Lectura interpretativa profunda generada por un investigador cualitativo IA. No es un resumen
               de frecuencias: es análisis sustantivo con hipótesis, tensiones y preguntas para profundizar,
@@ -144,8 +145,7 @@ export default function ReportView() {
       ) : (
         <>
           <Card
-            title={<div><h2 style={{ margin: 0 }}>Informe de resultados — {project.name}</h2>
-              <p className="muted small" style={{ margin: "3px 0 0" }}>Análisis cualitativo asistido por IA · Celestica</p></div>}
+            title={<p className="muted small" style={{ margin: 0 }}>Análisis cualitativo asistido por IA · Celestica</p>}
             actions={
               <>
                 <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}><Icon name="download" size={16} /> Exportar PDF/Word</Button>

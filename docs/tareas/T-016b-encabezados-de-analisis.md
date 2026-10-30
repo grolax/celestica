@@ -36,3 +36,12 @@ No aplica.
 - [ ] Sin cambios de comportamiento: ejecutar léxico, validar categorías, ver trazabilidad y exportar siguen funcionando. Indica cómo lo probaste.
 - [ ] Diff de menos de unas 400 líneas.
 - [ ] Commits con el formato `T-016b RNF-13: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff de +26/-16 en 8 archivos, solo JSX de encabezado e imports; sin cambios de lógica, handlers ni `api.ts`.
+- Las 8 pestañas usan `PageHeader level={2}` con los textos exactos; el único `h1` sigue siendo el nombre del proyecto en `ProjectView`.
+- Se quitaron títulos de tarjeta y párrafos que repetían la ayuda (Libro de códigos, Auditoría); se conservaron los que aportan detalle (léxico, leyenda de confianza en Codificación, Trazabilidad, Informe).
+- El informe en pantalla conserva la marca "Análisis cualitativo asistido por IA · Celestica" (RNF-06).
+- Detalle de estilo sin efecto: `AuditLog.tsx` con indentación irregular en el fragmento.
+- No verificado en navegador real; queda para la prueba manual del usuario.

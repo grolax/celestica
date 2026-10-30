@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { analysisApi } from "../api";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import Table from "@/shared/components/Table";
 import { useProject } from "@/features/projects/useProjectData";
 
@@ -24,8 +25,10 @@ export default function AuditLog() {
   const filtered = [...events].reverse().filter((e) => !filterActor || e.actor === filterActor);
 
   return (
+    <>
+    <PageHeader level={2} title="Auditoría" help="Registro de cada acción, de personas y de la IA. No se puede editar ni borrar." />
     <Card
-      title={`Registro de auditoría (${filtered.length} eventos)`}
+      title={`${filtered.length} eventos`}
       actions={
         <select value={filterActor} onChange={(e) => setFilterActor(e.target.value)} style={{ width: "auto" }}>
           <option value="">Todos los actores</option>
@@ -35,9 +38,6 @@ export default function AuditLog() {
         </select>
       }
     >
-      <p className="muted">
-        Toda decisión —humana o de IA— queda registrada con timestamp y detalle. Nada es caja negra.
-      </p>
       <Table headers={["Fecha/hora", "Actor", "Acción", "Detalle"]}>
         {filtered.map((e) => (
           <tr key={e.id}>
@@ -51,5 +51,6 @@ export default function AuditLog() {
         ))}
       </Table>
     </Card>
+    </>
   );
 }
