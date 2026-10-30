@@ -41,3 +41,14 @@ En un proyecto con varias preguntas abiertas, el usuario elige cuál analizar y 
 
 ## Notas
 - El supervisor tomará capturas reales: deja backend (8000) y frontend (5173) corriendo y un proyecto de prueba con 2 abiertas en la cuenta `t012@prueba.cl` (contraseña `Prueba-T012-clave`).
+
+## Revisión 1
+2026-10-30 — **Con cambios** (supervisor).
+
+Lo de T-013 está bien: la pregunta es parámetro obligatorio en las funciones de API (TypeScript impide omitirla); `?pregunta` en la URL y en las pestañas; `Outlet` con `key` por pregunta; selector solo con 2+ abiertas; textos de la orden; `npm run build` OK. `audit` y `usage` sin pregunta es correcto (el contrato no los incluye).
+
+Cambio pedido (riesgo de gasto doble de IA, señalado por el programador como preexistente pero que el selector vuelve frecuente):
+
+1. **Codificación e Informe deben retomar un proceso en curso al montarse.** Hoy, si el usuario cambia de pregunta mientras otra se codifica y vuelve, `Coding` no consulta el progreso y vuelve a ofrecer "Codificar corpus con IA"; el backend no bloquea una segunda codificación de la misma pregunta, así que se pagarían los tokens dos veces. Al montarse (y al cambiar de pregunta), `Coding` y `ReportView` deben llamar una vez a `getCodifyProgress` / `getReportProgress`; si el estado es `running`, mostrar la barra de progreso, ocultar o deshabilitar el botón de lanzar y reanudar el sondeo hasta que termine. Si es `done` o `idle`, comportarse como hoy. Verifícalo contra el backend local sin IA: puedes simular un estado `running` interceptando la respuesta de progreso en el navegador (como en tus scripts), sin lanzar IA real.
+
+El supervisor agrega por separado el bloqueo en el backend (T-019).
