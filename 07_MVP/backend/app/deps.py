@@ -28,7 +28,7 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "softinsight2026")
 def _check_admin(request: Request) -> None:
     pwd = request.headers.get("X-Admin-Password", "")
     if pwd != ADMIN_PASSWORD:
-        raise HTTPException(401, "Contraseña de administrador incorrecta")
+        raise HTTPException(403, "Contraseña de administrador incorrecta")
 
 
 # Única tabla de roles (RF-03): nivel de menor a mayor y etiqueta en español.

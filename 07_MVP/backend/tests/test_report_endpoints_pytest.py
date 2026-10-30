@@ -123,7 +123,7 @@ def test_consumo_acumulado_por_proyecto_y_panel_admin(client_and_project):
     assert u["cost_usd"] == pytest.approx(3 * (1000 * 3e-6 + 500 * 15e-6))
     assert "sintesis_de_clusters" in u["by_step"]  # la etiqueta se normaliza a familia de paso
 
-    assert c.get("/api/admin/usage").status_code == 401
+    assert c.get("/api/admin/usage").status_code == 403
     r = c.get("/api/admin/usage", headers=ADMIN)
     assert r.status_code == 200
     projects = {p["id"]: p for p in r.json()["projects"]}
