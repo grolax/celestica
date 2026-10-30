@@ -24,6 +24,7 @@ from app.deps import ADMIN_PASSWORD  # noqa: F401  (las pruebas lo importan desd
 from app.routers.admin import router as admin_router
 from app.routers.analysis import router as analysis_router
 from app.routers.integrations import router as integrations_router
+from app.routers.org import router as org_router
 from app.routers.projects import router as projects_router
 from app.routers.reports import router as reports_router
 from app.services import claude_log
@@ -85,4 +86,5 @@ app.include_router(projects_router)
 app.include_router(integrations_router)
 app.include_router(analysis_router)
 app.include_router(reports_router)
+app.include_router(org_router)
 app.include_router(admin_router)
