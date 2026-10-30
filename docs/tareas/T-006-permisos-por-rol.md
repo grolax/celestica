@@ -53,3 +53,10 @@ Lo de T-006 está bien: `require_role` en `deps.py` con tabla única de niveles 
 Cambio pedido (hallazgo del programador, confirmado por el supervisor):
 
 1. **`tests/test_aislamiento_pytest.py::test_toda_ruta_con_project_id_esta_cubierta` pasa en vacío.** Desde T-003a, `app.routes` contiene objetos `_IncludedRouter` sin `.path` (FastAPI 0.143); el conjunto `declared` queda vacío (el supervisor obtuvo 0 rutas con `{project_id}`) y el test no puede fallar. **Se autoriza modificar solo esa función:** obtener las operaciones desde `app.openapi()["paths"]` (como en `test_permisos_pytest.py`), mantener la comparación con `ROUTES` y agregar `assert len(declared) >= 25` para que no vuelva a pasar en vacío. Comprueba que falla si quitas temporalmente una entrada de `ROUTES` (sin commitearlo) y cuéntalo en el resumen. No cambies nada más de esa prueba.
+
+## Revisión 2
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 99 pasan.
+- `test_toda_ruta_con_project_id_esta_cubierta` lee `app.openapi()["paths"]`, detecta las 25 operaciones con `{project_id}` y exige `>= 25`; el commit solo toca esa función (+3/-2).
+- Prueba de control del programador: quitar `GET .../usage` de `ROUTES` hace fallar el test con esa ruta en el mensaje.
+- Nota: el umbral 25 es igual al número actual; si se elimina una ruta con `{project_id}` hay que bajarlo a mano (deliberado).
