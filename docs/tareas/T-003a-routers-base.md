@@ -37,3 +37,12 @@ Sin cambios. Verificación: el OpenAPI generado (`app.openapi()`) es idéntico a
 ## Notas
 - Revisión con `git diff --color-moved=dimmed-zebra`: el supervisor espera ver casi solo líneas movidas.
 - `_usage_sink`, `_usage_step`, el `exception_handler`, CORS y `init_db` quedan en `main.py` (configuración de la app).
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 51 pasan; ninguna prueba modificada.
+- OpenAPI: el supervisor comparó por su cuenta la lista de 43 operaciones (método, ruta, `operationId`) y el SHA-256 contra la huella tomada en `main` antes de delegar: idénticos (`00ff476d…b6eda4`).
+- `main.py` de 948 a 639 líneas; `deps.py` (46), `routers/projects.py` (186), `routers/integrations.py` (123). Los routers se incluyen sin `prefix` ni `tags`; `main` sigue exportando `ADMIN_PASSWORD`.
+- Sin importaciones circulares (`deps` y routers no importan `main`). `integrations.py` importa `_create_project_from_df` desde `routers.projects`; aceptado.
+- Se conservan los guiones bajos de los helpers; aceptado (renombrar no aporta hoy).
+- `COMO_FUNCIONA.md` y `README.md` describen la nueva estructura.

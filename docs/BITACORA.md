@@ -43,7 +43,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ✅ Incorporada a la versión oficial (T-016a y T-016b) |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
-| T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | 🔨 T-003a en desarrollo |
+| T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | 🟡 T-003a aprobada por el supervisor, espera autorización; T-003b en cola |
 
 ---
 
@@ -259,7 +259,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Por qué:** es como ordenar una bodega antes de que llegue mercadería nueva. Las organizaciones y los roles tocan casi todas las operaciones. Con el código ordenado por tema, cada cambio será más fácil de hacer y de revisar, y habrá menos riesgo de error.
 - **Qué NO cambia:** nada de lo que ve el usuario, ninguna dirección del servidor y ninguna respuesta. Para comprobarlo, el supervisor guardó una "huella digital" de la API antes del cambio. Después del cambio, la huella debe ser idéntica y las 51 pruebas deben pasar sin modificarlas.
 - **Cómo se organizó:** en dos partes, para revisar cada una con calma. T-003a cubre la base común, los proyectos y las integraciones. T-003b cubre el análisis, los informes y la administración.
-- **Estado:** T-003a en desarrollo.
+- **T-003a, resultado:** la base común, los proyectos y las integraciones ya viven en sus propios archivos. El archivo principal bajó de 948 a 639 líneas. La huella de la API quedó **idéntica** y las 51 pruebas pasan sin cambios.
+- **Estado:** T-003a aprobada por el supervisor; espera que el responsable autorice publicarla. T-003b en cola.
 
 ---
 
