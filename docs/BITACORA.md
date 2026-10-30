@@ -44,7 +44,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
-| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | 🔨 En desarrollo |
+| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 
 ---
 
@@ -275,7 +275,21 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   4. Para la etapa de roles: los nuevos miembros los crea el administrador con una contraseña temporal.
 - **Qué cambia:** los proyectos dejan de pertenecer a una persona y pasan a pertenecer a su organización. Cada proyecto recuerda además quién lo creó. Por ahora cada organización tiene un solo miembro, así que **para el usuario todo se ve igual**. El cambio prepara el terreno para los equipos y los permisos.
 - **Datos actuales:** un proceso de migración los reacomoda solo al iniciar el servidor. Está hecho para poder ejecutarse varias veces sin duplicar nada.
-- **Estado:** el responsable aprobó el contrato de API y que la migración se ejecute sola al iniciar el servidor. En desarrollo.
+- **Estado:** el responsable aprobó el contrato de API y que la migración se ejecute sola al iniciar el servidor.
+
+### 23. T-004 · Organizaciones, implementadas
+
+- **Qué se hizo:**
+  - Existe la **organización**. Cada persona que se registra crea la suya y queda como administradora.
+  - Los proyectos ahora pertenecen a la organización, y la regla de seguridad pasó de "¿este proyecto es tuyo?" a **"¿este proyecto es de tu organización?"**.
+  - Los datos existentes se migran solos al iniciar el servidor: cada usuario actual recibe su propia organización con sus proyectos.
+- **Revisión del supervisor:** hubo una ronda de correcciones, con tres puntos:
+  1. Una parte de la prueba de seguridad de T-002 había dejado de verificar que el proyecto quedara intacto. Se reparó y se agregó un control para que no vuelva a fallar en silencio.
+  2. Se agregó un resguardo: si una cuenta llegara a quedar sin organización, no ve ningún proyecto.
+  3. La migración automática se movió al núcleo de la aplicación, para que el servidor arranque igual cuando se publique en internet.
+- **Cómo se verificó:** hay **59 pruebas automáticas** y todas pasan. Las 25 operaciones sobre proyectos se prueban ahora entre organizaciones distintas. Hay pruebas nuevas del registro, de dos personas de la misma organización que comparten proyectos y de la migración: no une a usuarios con la misma empresa y, si se ejecuta dos veces, no cambia nada.
+- **Para el usuario:** todavía no cambia nada visible. Cada organización tiene un solo miembro hasta que lleguen los roles (RF-03).
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

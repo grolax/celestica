@@ -71,3 +71,11 @@ Cambios pedidos:
 3. **`init_db()` no debe importar desde `scripts/`.** `from scripts.migrate_orgs import migrate` depende de que `backend/` esté en `sys.path` y de que `scripts` funcione como paquete implícito; en un despliegue con otro directorio de trabajo, el servidor no arrancaría. Mueve la lógica a `app/migrations.py` (función `migrate_orgs(db) -> dict`). `scripts/migrate_orgs.py` queda como envoltorio de línea de comandos que la importa desde `app` (RNF-21 pide el script en `scripts/`). Ajusta tus pruebas nuevas al nuevo lugar.
 
 Aceptado sin cambios: el orden usuario → organización en signup (la ventana de falla es mínima; queda como deuda) y que el panel admin siga mostrando `user_id`.
+
+## Revisión 2
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 59 pasan.
+- Punto 1: `test_aislamiento_pytest.py` usa el `org_id` de A (cambio de 1 línea más `assert before[0] is not None`); el snapshot vuelve a comparar el documento real. Las claves `uid_a`/`uid_b` conservan su nombre aunque guardan `org_id`; aceptado.
+- Punto 2: `_tenant_filter` y `list_projects` usan `{"$in": []}` con `org_id` falsy; prueba nueva con usuario `org_id: None` frente a proyecto huérfano (lista vacía, 404, `get_project` con `None`/`""` y `delete_project` sin efecto). El programador verificó que falla sin el resguardo.
+- Punto 3: lógica en `app/migrations.py` (`migrate_orgs`), importada al inicio de `database.py`; `scripts/migrate_orgs.py` es solo envoltorio CLI. Sin ciclos.
+- Deuda aceptada: ventana mínima en signup (usuario creado antes que la organización) y panel admin que sigue mostrando `user_id`.
