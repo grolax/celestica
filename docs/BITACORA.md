@@ -47,7 +47,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🔨 T-010 en desarrollo |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 aprobada por el supervisor, espera autorización |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -396,6 +396,22 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - **T-012:** el paso "Revisa las preguntas detectadas" al crear un proyecto, donde el usuario puede corregir cada tipo.
   - **T-013:** elegir qué pregunta abierta analizar en cada pestaña.
 - **Estado:** T-010 en desarrollo.
+
+---
+
+### 32. Requerimiento nuevo: comparar preguntas abiertas entre sí
+
+- **Qué se decidió:** el responsable pidió que el informe integrado (RF-51) también **compare los temas entre preguntas abiertas** de una misma encuesta. Por ejemplo, qué temas aparecen tanto en "¿qué destacarías?" como en "¿qué mejorarías?", o quiénes mencionan un tema en una pregunta y otro tema distinto en la otra.
+- **Cómo se hará, cuidando el gasto:** los cruces se calculan a partir de las codificaciones que el equipo ya validó, **sin volver a llamar a la IA**. La IA solo redacta la lectura de conjunto sobre los números ya calculados.
+- **Dónde quedó anotado:** en el estado del proyecto (`docs/ESTADO.md`). Falta agregarlo al documento de producto.
+
+### 33. T-010 · La plataforma reconoce el tipo de cada pregunta
+
+- **Qué se hizo:** antes de crear un proyecto, Celestica lee la encuesta y propone el tipo de cada columna, con una frase que explica por qué. Los tipos son: abierta, escala, NPS, sí/no, selección única o múltiple, numérica, fecha, identificador, segmento (como carrera o comuna), constante (el mismo valor en todas las filas) o vacía. También avisa si no hay preguntas abiertas, si hay muy pocas respuestas o si una columna está casi vacía.
+- **Sin IA y sin costo:** la detección usa reglas fijas y **no guarda nada**. Guardar las preguntas en el proyecto es la tarea siguiente (T-011). Con una encuesta de 10.000 respuestas y 30 preguntas tarda menos de un segundo.
+- **Prueba con los datos de ejemplo:** en la encuesta de evaluación docente reconoció bien la respuesta como abierta; la carrera, la asignatura, el año y el género como segmentos; el enunciado repetido como constante, y el código de respuesta como identificador.
+- **Cómo se verificó:** hay **156 pruebas automáticas** y todas pasan.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

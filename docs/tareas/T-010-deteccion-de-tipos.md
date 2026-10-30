@@ -52,3 +52,12 @@ Antes de crear un proyecto, la plataforma lee la encuesta y propone el tipo de c
 - [ ] Las pruebas de cobertura de rutas (T-002, T-006) siguen afirmando que encontraron rutas y cubren las nuevas.
 - [ ] `COMO_FUNCIONA.md` documenta las reglas de detección.
 - [ ] Commits con el formato `T-010 RF-22: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 156 pasan. En `test_permisos_pytest.py` solo se agregaron las 3 rutas.
+- `services/question_types.py`: función pura, solo `re`, `unicodedata` y `pandas` (sin IA). El supervisor corrió `detectar` sobre el dataset demo: `id_respuesta` identificador, `carrera`/`asignatura`/`anio_cursado`/`genero` segmento, `pregunta` constante, `respuesta` abierta; sin advertencias.
+- Vista previa no persiste nada (conteos de `projects` y `audit_events` verificados en las pruebas); 403 antes de leer el archivo; tope de 20 MB también en `POST /api/projects` (aceptado: comparten lector).
+- Rutas nuevas sin colisión con las de `{project_id}`. Rendimiento 10.000×30 entre 0,3 y 1 s.
+- Ajustes de reglas aceptados (pistas de título solo en títulos cortos, umbrales de "pocos valores", identificador por valores, coma decimal, `ResponseId`). Atajos marcados con `shortcut:` (muestra de 1.000 valores para pruebas de texto; enteros casi todos distintos → identificador).
+- Detalle menor: el `motivo` repite la palabra del título tal cual (por ejemplo "genero" sin tilde). Deuda.
