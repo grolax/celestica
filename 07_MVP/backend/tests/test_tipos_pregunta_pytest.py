@@ -306,9 +306,10 @@ def test_rev4_motivo_con_concordancia_y_ortografia():
 def test_rev5_trozo_final_compartido_por_varias_alternativas_es_seleccion_unica():
     alt = ["Me interesa comprar para vivir, pero todavía no he buscado.",
            "Me interesa comprar como inversión, pero todavía no he buscado.",
-           "No me interesa comprar."]
-    # el final "pero todavía no he buscado." sigue a dos prefijos distintos: la regla de pares no lo une
-    p = tipo500("¿Cuál es tu situación actual?", [alt[i % 3] for i in range(N500)])
+           "No me interesa comprar.", "Me interesa comprar para vivir"]
+    # el final "pero todavía no he buscado." sigue a dos prefijos distintos (la regla de pares no lo une) y un prefijo
+    # también es una respuesta completa (el atajo de "valores completos repetidos" tampoco aplica)
+    p = tipo500("¿Cuál es tu situación actual?", [alt[i % 4] for i in range(N500)])
     assert p["tipo"] == "seleccion_unica" and {o["valor"] for o in p["opciones"]} == set(alt)
 
 
