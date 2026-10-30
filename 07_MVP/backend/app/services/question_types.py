@@ -51,10 +51,10 @@ def _reconstruir(vc: pd.Series, sep: str) -> tuple[list, Counter]:
         out, i = [], 0
         while i < len(ch):
             j, txt = i, ch[i]
-            while txt.count("(") > txt.count(")") and j + 1 < len(ch):
+            while "(" in txt and txt.count("(") > txt.count(")") and j + 1 < len(ch):
                 j += 1
                 txt += f"{sep} {ch[j]}"
-            if txt.count("(") > txt.count(")"):  # el paréntesis nunca cierra: no se une
+            if "(" in txt and txt.count("(") > txt.count(")"):  # el paréntesis nunca cierra: no se une
                 j, txt = i, ch[i]
             out.append(txt)
             i = j + 1
