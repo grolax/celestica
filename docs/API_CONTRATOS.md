@@ -241,3 +241,20 @@ Query `?pregunta=<id>` en: `GET /api/projects/{id}`, `POST .../apply-template`, 
 
 ### `GET /api/projects/{id}` (modificado)
 Además de lo de hoy (para la pregunta elegida o por defecto): `preguntas: [<pregunta>, ...]` (todas, sin las respuestas) y `pregunta: "<id de la pregunta que se está mostrando>"`.
+
+## RF-23 · Una sola codificación a la vez por pregunta (T-019)
+
+### `POST /api/projects/{id}/codify?pregunta=<id>` (modificado)
+Rol: analista o admin (sin cambios).
+
+Si ya hay una codificación en curso para el mismo `(proyecto, pregunta)`, **no se lanza otra** ni se llama a la IA. Responde `200` con el mismo formato que el informe:
+
+```json
+{ "status": "already_running", "total": 484 }
+```
+
+`total` es el del proceso que ya corre. Si no hay ninguna en curso, responde como hoy (`{"status": "started", "total": 484}`). La comprobación y el inicio son atómicos: dos llamadas simultáneas producen un solo `started`. Otra pregunta del mismo proyecto sí puede codificarse en paralelo.
+
+La UI no necesita cambios: tras cualquiera de las dos respuestas empieza a consultar `codify/progress`, que mostrará el proceso en curso.
+
+Errores: sin cambios (400 sin categorías validadas, 403, 404).
