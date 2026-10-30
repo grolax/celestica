@@ -348,7 +348,7 @@ def test_migracion_conserva_lo_visible_y_es_idempotente(env, tmp_path):
     doc = db.projects.find_one({"_id": "proj_antiguo_1"})
     assert not {"responses", "categories", "codings", "lexical", "lexical_interpretation", "qualitative_report",
                 "v2_analyses_cache"} & set(doc)
-    assert doc["analisis"]["q_1"]["v2_analyses_cache"] == {"fingerprint": "fp", "analyses": []}
+    assert "v2_analyses_cache" not in doc["analisis"]["q_1"]  # el caché v2 antiguo se descarta, no se mueve
     por_titulo = {p["titulo"]: p for p in doc["preguntas"]}
     assert doc["preguntas"][0] == {"id": "q_1", "titulo": "Comentario", "columnas": ["Comentario"], "tipo": "abierta", "contexto_ia": False}
     assert por_titulo["Correo"]["tipo"] == "identificador" and por_titulo["Correo"]["contexto_ia"] is False
@@ -362,7 +362,7 @@ def test_migracion_conserva_lo_visible_y_es_idempotente(env, tmp_path):
 
     # segunda corrida: nada cambia; un proyecto ya migrado no se toca
     antes = {d["_id"]: d for d in db.projects.find()}
-    assert migrate_preguntas(db) == {"proyectos": 0}
+    assert migrate_preguntas(db) == {"proyectos": 0, "fallidos": 0}
     assert {d["_id"]: d for d in db.projects.find()} == antes  # incluye el proyecto ya migrado de arriba
 
 
@@ -374,3 +374,48 @@ def test_importar_proyecto_pre_auth_nace_en_el_esquema_nuevo(env, tmp_path, monk
     assert env["c"].post("/api/projects/import-legacy", headers=env["h"]).json() == {"imported": 1}
     g = env["c"].get("/api/projects/proj_legacy_1", headers=env["h"]).json()
     assert g["n_responses"] == 12 and g["pregunta"] == "q_1" and len(g["preguntas"]) == 5
+
+
+def test_init_db_migra_proyectos_antiguos_al_arrancar(env):
+    db = get_db()
+    db.projects.insert_one(_proyecto_antiguo(env["org"], "proj_antiguo_arranque"))
+    database.init_db()  # lo que corre el servidor al arrancar; no se llama a migrate_preguntas a mano
+    doc = db.projects.find_one({"_id": "proj_antiguo_arranque"})
+    assert doc["preguntas"][0]["id"] == "q_1" and "responses" not in doc and len(doc["respondentes"]) == 12
+    r = env["c"].get("/api/projects/proj_antiguo_arranque", headers=env["h"])
+    assert r.status_code == 200 and r.json()["n_responses"] == 12 and r.json()["pregunta"] == "q_1"
+
+
+def test_un_proyecto_malformado_no_tumba_la_migracion(env, caplog):
+    db = get_db()
+    malo = _proyecto_antiguo(env["org"], "proj_malformado")
+    malo["responses"][0]["meta"] = "SECRETO_EN_LOG"  # meta debería ser un dict
+    sano = _proyecto_antiguo(env["org"], "proj_sano_junto_al_malo")
+    db.projects.insert_many([malo, sano])
+    try:
+        with caplog.at_level("ERROR"):
+            assert migrate_preguntas(db)["fallidos"] == 1
+        assert db.projects.find_one({"_id": "proj_malformado"}) == malo  # sin tocar
+        assert "preguntas" in db.projects.find_one({"_id": "proj_sano_junto_al_malo"})
+        assert "proj_malformado" in caplog.text and "SECRETO_EN_LOG" not in caplog.text and "Texto 0" not in caplog.text
+        database.init_db()  # el arranque tampoco se cae
+    finally:
+        db.projects.delete_one({"_id": "proj_malformado"})
+
+
+def test_edad_numerica_va_como_contexto_por_defecto(env):
+    n = 60
+    df = pd.DataFrame({
+        "id_respuesta": [f"E{i:03d}" for i in range(n)],
+        "2. ¿Cuál es tu edad?": [18 + i % 50 for i in range(n)],  # 18-67
+        "28. ¿Qué tendría que cambiar?": [f"TEXTO_{i} el profesor debería explicar mejor" for i in range(n)],
+        "Correo institucional": [f"p{i}@secreto.cl" for i in range(n)],
+    })
+    r = _crear(env, preguntas=None, df=df, text_column="28. ¿Qué tendría que cambiar?")
+    assert r.status_code == 200, r.text
+    g = env["c"].get(f"/api/projects/{r.json()['id']}", headers=env["h"]).json()
+    por_titulo = {p["titulo"]: p for p in g["preguntas"]}
+    assert por_titulo["2. ¿Cuál es tu edad?"]["tipo"] == "numerica" and por_titulo["2. ¿Cuál es tu edad?"]["contexto_ia"] is True
+    assert por_titulo["Correo institucional"]["tipo"] == "identificador" and por_titulo["Correo institucional"]["contexto_ia"] is False
+    items = env["c"].get(f"/api/projects/{r.json()['id']}/responses", headers=env["h"]).json()["items"]
+    assert items[0]["meta"] == {"2. ¿Cuál es tu edad?": "18"}
