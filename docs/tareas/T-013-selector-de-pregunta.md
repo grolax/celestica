@@ -52,3 +52,10 @@ Cambio pedido (riesgo de gasto doble de IA, señalado por el programador como pr
 1. **Codificación e Informe deben retomar un proceso en curso al montarse.** Hoy, si el usuario cambia de pregunta mientras otra se codifica y vuelve, `Coding` no consulta el progreso y vuelve a ofrecer "Codificar corpus con IA"; el backend no bloquea una segunda codificación de la misma pregunta, así que se pagarían los tokens dos veces. Al montarse (y al cambiar de pregunta), `Coding` y `ReportView` deben llamar una vez a `getCodifyProgress` / `getReportProgress`; si el estado es `running`, mostrar la barra de progreso, ocultar o deshabilitar el botón de lanzar y reanudar el sondeo hasta que termine. Si es `done` o `idle`, comportarse como hoy. Verifícalo contra el backend local sin IA: puedes simular un estado `running` interceptando la respuesta de progreso en el navegador (como en tus scripts), sin lanzar IA real.
 
 El supervisor agrega por separado el bloqueo en el backend (T-019).
+
+## Revisión 2
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff total ~17 archivos +212/-115, solo frontend.
+- `Coding` y `ReportView` consultan el progreso al montarse y al cambiar de pregunta; si está `running` muestran la barra, deshabilitan el botón de lanzar y reanudan el sondeo. Verificado por el programador con progreso simulado en el navegador (q_1 en curso, q_2 inactiva) y **cero** POST de lanzamiento.
+- Capturas del supervisor con el proyecto sintético de 2 abiertas: selector con conteos, línea de ayuda y "Pregunta: …"; libro de códigos de la pregunta 2 independiente; `?pregunta` en la URL.
+- Deuda: al retomar un informe no se conoce el modo (texto de ayuda por defecto); `catch {}` vacío al pedir el informe terminado; `Coding` recarga la página de la tabla que tenía al iniciar el sondeo. El bloqueo en el backend de una segunda codificación simultánea va en T-019.

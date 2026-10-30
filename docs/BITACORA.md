@@ -47,7 +47,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🔨 T-010, T-011a y T-012 incorporadas; T-013 en desarrollo |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010, T-011a y T-012 incorporadas; T-013 aprobada por el supervisor, espera autorización |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -501,6 +501,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hace:** en los proyectos con varias preguntas abiertas, aparece arriba de las pestañas un selector, **"Pregunta que estás analizando"**. Todas las pestañas trabajan sobre la pregunta elegida: resumen, léxico, libro de códigos, codificación, trazabilidad, informe y exportar. Si el proyecto tiene una sola pregunta abierta, no aparece nada nuevo.
 - **Por qué:** es la última pieza para analizar encuestas con varias preguntas abiertas. Cada una tiene su propio análisis, y la IA trabaja solo sobre la elegida y solo cuando se lo piden.
 - **Estado:** en desarrollo.
+
+### 42. T-013 · Resultado y un riesgo de gasto que se corrigió
+
+- **Qué quedó:** en los proyectos con varias preguntas abiertas, el selector "Pregunta que estás analizando" cambia todas las pestañas a la pregunta elegida. Cada una tiene su propio análisis, y la elección se mantiene al recargar o al cambiar de pestaña. Se verificó con capturas reales.
+- **Riesgo que se encontró:** si alguien cambiaba de pregunta mientras otra se estaba codificando con IA y luego volvía, la pantalla no mostraba que el proceso seguía en curso y ofrecía de nuevo el botón "Codificar". Apretarlo **habría pagado la codificación dos veces**.
+- **Corrección en las pantallas:** ahora Codificación e Informe detectan si hay un proceso en curso y muestran su avance en vez del botón.
+- **Corrección pendiente en el servidor (T-019):** bloquear una segunda codificación de la misma pregunta mientras la primera no termine, como ya se hace con el informe.
+- **Con T-013 se completa la iteración de "encuestas completas".**
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
