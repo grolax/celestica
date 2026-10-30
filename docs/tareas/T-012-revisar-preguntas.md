@@ -57,3 +57,9 @@ Revisado el código (`questionGroups.ts` replica el criterio de contexto del bac
 1. **Paso 3: el campo "Nombre del proyecto" aparece sin estilo** (borde y relleno nativos del navegador). Es la deuda conocida de `Input` sin `type`: pasa `type="text"` en ese campo y revisa los demás `Input` del asistente.
 2. **Fila unida: el `motivo` no corresponde a la unión.** Muestra el de la primera columna ("10 valores distintos en 24 respuestas…") junto a "500" respuestas. Para filas unidas, recalcular un motivo coherente con los números unidos, por ejemplo: "<k> valores distintos en <n> respuestas, unidas desde <m> columnas." (k = opciones distintas tras unir).
 3. **"Ver opciones": las opciones largas se cortan y ocultan su conteo** (por ejemplo, "Subsidios habitacionales (DS1, DS19, DS49) · …" sin el 264). Las opciones deben ajustarse en varias líneas (sin `text-overflow: ellipsis`) para que siempre se vea el número.
+
+## Revisión 2
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff de código ~440 líneas en 7 archivos (incluye `integrations/api.ts` por el campo `preguntas`, aceptado).
+- Capturas repetidas con la encuesta real: el campo "Nombre del proyecto" ya tiene el estilo de Celestica; la fila unida de comuna dice "109 valores distintos en 500 respuestas, unidas desde 16 columnas."; "Ver opciones" muestra cada opción completa con su conteo (Subsidios habitacionales (DS1, DS19, DS49) · 264).
+- Deuda: `Input` sin `type` por defecto deja sin estilo campos en `ManualCategoryForm`, `LoginPage` (2) y `QualtricsSection` — corregir en el componente (`type="text"` por defecto). `.main-content { min-width: 0 }` global (aceptado). Cambiar el tipo de una fila recalcula "Incluir" y "Contexto" (pisa lo marcado a mano). El botón "Volver a revisar las preguntas" del paso 3 se decide por el texto del error.
