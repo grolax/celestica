@@ -10,6 +10,7 @@ from app import store, templates
 from app.auth import get_current_user
 from app.deps import _get_or_404, require_role
 from app.models import User
+from app.services.question_types import detectar
 
 router = APIRouter()
 
@@ -116,6 +117,33 @@ def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
     return {"id": project["id"], "n_responses": len(responses), "text_column": text_column}
 
 
+MAX_ARCHIVO = 20 * 1024 * 1024
+
+
+def _leer_archivo(raw: bytes, filename: str | None) -> pd.DataFrame:
+    """Lectura común de CSV/XLSX para crear proyectos y para la vista previa."""
+    if len(raw) > MAX_ARCHIVO:
+        raise HTTPException(413, "El archivo supera el máximo de 20 MB.")
+    try:
+        if filename and filename.lower().endswith((".xlsx", ".xls")):
+            return pd.read_excel(io.BytesIO(raw))
+        return pd.read_csv(io.BytesIO(raw))
+    except Exception as e:
+        raise HTTPException(400, f"No se pudo leer el archivo: {e}")
+
+
+def preview_df(df: pd.DataFrame) -> dict:
+    """Vista previa de tipos de pregunta (T-010): solo lectura, no guarda nada."""
+    if df.empty:
+        raise HTTPException(400, "Los datos no contienen filas")
+    return detectar(df)
+
+
+@router.post("/api/projects/preview")
+async def preview_file(file: UploadFile = File(...), user: User = Depends(require_role("analista"))):
+    return preview_df(_leer_archivo(await file.read(), file.filename))
+
+
 @router.post("/api/projects")
 async def create_project(
     file: UploadFile = File(...),
@@ -125,14 +153,7 @@ async def create_project(
     template: str = Form(""),
     user: User = Depends(require_role("analista")),
 ):
-    raw = await file.read()
-    try:
-        if file.filename and file.filename.lower().endswith((".xlsx", ".xls")):
-            df = pd.read_excel(io.BytesIO(raw))
-        else:
-            df = pd.read_csv(io.BytesIO(raw))
-    except Exception as e:
-        raise HTTPException(400, f"No se pudo leer el archivo: {e}")
+    df = _leer_archivo(await file.read(), file.filename)
 
     return _create_project_from_df(df, name, marco_teorico, text_column, template, user,
                                    source_detail={"fuente": "archivo", "archivo": file.filename})
