@@ -26,7 +26,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-008b Pantalla de miembros y acciones por rol | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008b-miembros-y-acciones-por-rol` (fusionada, PR #17) |
 | T-010 Detección de tipos y vista previa | backend | RF-22, RF-25 | 2026-10-30 | `tarea/T-010-deteccion-de-tipos` (fusionada, PR #18) |
 | T-011a Preguntas en el proyecto, un análisis por pregunta, contexto IA y migración | backend | RF-23, RNF-05, RNF-08, RNF-21 | 2026-10-30 | `tarea/T-011a-preguntas-en-el-proyecto` (fusionada, PR #19) |
-| T-012 Paso "Revisa las preguntas" al crear un proyecto | frontend | RF-25, RF-22, RF-40 (parcial) | 2026-10-30 | `tarea/T-012-revisar-preguntas` (aprobada en revisión 2, pendiente de subir) |
+| T-012 Paso "Revisa las preguntas" al crear un proyecto | frontend | RF-25, RF-22, RF-40 (parcial) | 2026-10-30 | `tarea/T-012-revisar-preguntas` (fusionada, PR #20) |
 
 ## En curso
 
@@ -56,7 +56,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - `store.list_members/get_member/update_member` sin resguardo ante `org_id` vacío (a diferencia de `_tenant_filter`).
 - Cambiar la contraseña no revoca sesiones abiertas (RNF-04).
 - `Input` genera ids con `label.replace(/\W/g, "_")`: la ñ pasa a `_` (colisión posible entre etiquetas que solo difieren en ñ).
-- `Input` sin `type` explícito pierde el estilo del campo (quedan `ManualCategoryForm`, `LoginPage` ×2, `QualtricsSection`): poner `type="text"` por defecto en el componente.
+- `Input` sin `type` → en curso, T-018 (rama `tarea/T-018-input-con-estilo`).
 - El rol en la UI viene de `/auth/me` al cargar; un cambio de rol hecho por otro admin se ve tras recargar.
 - `question_types`: pistas de título pueden dar `segmento` de más ("educación financiera"); respuestas "Otro" de Google Forms salen como opciones de 1 mención (agrupar en T-012); una continuación en minúscula que es opción real se une a la anterior (se corrige en T-012); peor caso 30 multi-selección × 4.000 combinaciones ≈ 2,2 s; detección por texto sobre muestra de 1.000 valores; enteros casi todos distintos → identificador (posible falso positivo).
 - `codings.<response_id>` rompe con ids de respuesta que contienen puntos (preexistente); nombres de archivo de exportación sin la pregunta; `respondentes` en el mismo documento (RNF-11); un proyecto que falla la migración se reintenta en cada arranque.
