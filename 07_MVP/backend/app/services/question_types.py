@@ -12,12 +12,15 @@ import unicodedata
 import pandas as pd
 
 MAX_OPCIONES = 20
+MAX_PARTES = 40  # opciones distintas admitidas en una selección múltiple (aunque cada opción sea una frase)
 SI_NO = {"si", "no", "s", "n", "yes", "y", "true", "false", "verdadero", "falso", "1", "0"}
 TITULO_ID = {"id", "rut", "folio", "email", "mail", "correo", "dni", "uuid", "matricula", "ip", "ipaddress"}
 TITULO_GRUPO = {"tienda", "sede", "sucursal", "comuna", "region", "carrera", "area", "cargo", "sexo", "genero",
                 "edad", "tramo", "asignatura", "facultad", "departamento", "ciudad", "pais", "curso", "seccion",
-                "jornada", "zona"}
+                "jornada", "zona", "educacional", "educacion"}
 TITULO_ANIO = {"anio", "ano", "edad", "curso", "cursado", "semestre", "ciclo"}
+EVALUA = r"evalu|calific|satisf|opin"  # "¿Cómo evalúa la sede?" pregunta por un servicio, no por el grupo
+MULTIPLE = r"seleccion|mas de una|hasta \d"  # pista de título: "Selecciona…", "Puedes seleccionar más de una", "hasta 3"
 FECHA = r"^\d{4}-\d{1,2}-\d{1,2}|^\d{4}/\d{1,2}/\d{1,2}|^\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}"
 
 
@@ -41,10 +44,11 @@ def _valores(s: pd.Series) -> pd.Series:
     return v[v != ""]
 
 
-def _clasificar(col: str, vals: pd.Series, vc: pd.Series) -> tuple[str, str, dict]:
-    """Devuelve (tipo, motivo, extras) para una columna con al menos 2 valores distintos."""
+def _clasificar(col: str, vals: pd.Series, vc: pd.Series, n: int) -> tuple[str, str, dict]:
+    """Devuelve (tipo, motivo, extras) de una columna con valores; `n` es el total de filas."""
     n_resp, nd = len(vals), len(vc)
-    tokens = re.findall(r"[a-z0-9]+", _sin_tildes(col))
+    titulo = _sin_tildes(col)
+    tokens = re.findall(r"[a-z0-9]+", titulo)
     # shortcut: las pruebas por texto (formato, espacios, palabras) miran una muestra fija de 1.000 valores para cumplir RNF-10; conteos y rangos son exactos.
     m = vals if n_resp <= 1000 else vals.sample(1000, random_state=0)
     corto = len(tokens) <= 3  # "Edad", "anio_cursado": sí; "¿Cómo evalúa el curso?": no, es una pregunta
@@ -59,7 +63,7 @@ def _clasificar(col: str, vals: pd.Series, vc: pd.Series) -> tuple[str, str, dic
         if muestra.notna().mean() >= 0.9:
             return "fecha", "Los valores tienen formato de fecha.", {}
 
-    es_num = pd.to_numeric(m.str.replace(",", ".", regex=False), errors="coerce").notna().mean() >= 0.95
+    es_num = nd > 1 and pd.to_numeric(m.str.replace(",", ".", regex=False), errors="coerce").notna().mean() >= 0.95
     enteros = False
     if es_num:
         num = pd.to_numeric(vals.str.replace(",", ".", regex=False), errors="coerce").dropna()
@@ -92,30 +96,31 @@ def _clasificar(col: str, vals: pd.Series, vc: pd.Series) -> tuple[str, str, dic
                 {"opciones": _opciones(vc)}
         return "numerica", "Valores numéricos con muchos valores distintos.", {}
 
-    # 8. selección múltiple
+    # 8. selección múltiple: las partes son pocas y se repiten, aunque cada parte sea una frase larga
+    pista = bool(re.search(MULTIPLE, titulo))
     for sep in (";", ","):
-        if m.str.contains(sep, regex=False).mean() >= 0.2 and m.str.split(sep).explode().str.strip().nunique() <= MAX_OPCIONES:
+        if m.str.contains(sep, regex=False).mean() >= (0.05 if pista else 0.2)                 and m.str.split(sep).explode().str.strip().nunique() <= MAX_PARTES:
             partes = vals.str.split(sep).explode().str.strip()
             partes = partes[partes != ""]
             pc = partes.value_counts()
-            if len(pc) <= MAX_OPCIONES and len(partes) >= 2 * len(pc) and partes.str.len().max() <= 40:
-                return "seleccion_multiple", f'Cada respuesta puede tener varias opciones separadas por "{sep}".', \
-                    {"opciones": _opciones(pc)}
+            if len(pc) <= MAX_PARTES and len(partes) >= 2 * len(pc) and pc.head(MAX_OPCIONES).sum() >= 0.8 * len(partes):
+                return "seleccion_multiple", f'Cada respuesta puede tener varias opciones separadas por "{sep}".',                     {"opciones": _opciones(pc)}
 
-    # 9. segmento / selección única
-    grupo = corto and bool(set(tokens) & TITULO_GRUPO)
-    if nd <= 0.5 * n_resp and (nd <= MAX_OPCIONES or (grupo and nd <= min(100, 0.3 * n_resp))):
+    # 9. segmento / selección única. En texto la pista de grupo vale con cualquier largo de título (salvo que evalúe algo).
+    clave = sorted(set(tokens) & TITULO_GRUPO)
+    grupo = bool(clave) and (corto or not re.search(EVALUA, titulo))
+    palabras = m.str.count(r"\s+").mean() + 1
+    escasa = n_resp < 10 and n_resp < n / 2  # casi toda la columna está vacía: no alcanza para hablar de texto libre
+    if escasa or (nd <= 0.5 * n_resp and (nd <= MAX_OPCIONES or (grupo and nd <= min(100, 0.3 * n_resp))
+                                          or (n_resp >= 30 and nd <= 0.1 * n_resp)))             or (palabras < 3 and nd <= 0.5 * n_resp):
         if grupo:
-            return "segmento", f"Pocos valores repetidos y el título sugiere un grupo ({' '.join(tokens)}).", \
-                {"opciones": _opciones(vc)}
-        return "seleccion_unica", "Pocos valores distintos que se repiten: parecen opciones a elegir.", \
-            {"opciones": _opciones(vc)}
+            return "segmento", f"{nd} valores distintos en {n_resp} respuestas y el título sugiere un grupo ({', '.join(clave)}).",                 {"opciones": _opciones(vc)}
+        return "seleccion_unica", f"{nd} valores distintos en {n_resp} respuestas: parecen opciones a elegir.",             {"opciones": _opciones(vc)}
 
     # 10. abierta
-    palabras = m.str.count(r"\s+").mean() + 1
-    if palabras >= 3 or nd > 0.5 * n_resp:
-        return "abierta", f"Textos largos y casi todos distintos (promedio {palabras:.0f} palabras).", {}
-    return "seleccion_unica", "Respuestas cortas que se repiten: parecen opciones a elegir.", {"opciones": _opciones(vc)}
+    if palabras >= 3:
+        return "abierta", f"Textos de {palabras:.0f} palabras en promedio, con {nd} respuestas distintas de {n_resp}.", {}
+    return "abierta", f"Respuestas cortas ({palabras:.0f} palabras en promedio) y casi todas distintas ({nd} de {n_resp}).", {}
 
 
 def detectar(df: pd.DataFrame) -> dict:
@@ -124,13 +129,13 @@ def detectar(df: pd.DataFrame) -> dict:
     for i, col in enumerate(str(c) for c in df.columns):
         vals = _valores(df.iloc[:, i])  # por posición: tolera títulos repetidos
         vc = vals.value_counts()
-        # 1. sin datos / constante
+        # 1. sin datos / constante (constante: todas las filas, o casi, tienen el mismo valor)
         if len(vc) == 0:
             tipo, motivo, extra = "sin_datos", "La columna está vacía.", {}
-        elif len(vc) == 1:
+        elif len(vc) == 1 and len(vals) >= 0.9 * n:
             tipo, motivo, extra = "constante", "Tiene el mismo valor en todas las filas (por ejemplo, el enunciado de la pregunta).", {}
         else:
-            tipo, motivo, extra = _clasificar(col, vals, vc)
+            tipo, motivo, extra = _clasificar(col, vals, vc, n)
         preguntas.append({
             "columna": col, "tipo": tipo, "motivo": motivo,
             "n_respuestas": len(vals), "n_vacias": n - len(vals), "valores_distintos": len(vc),

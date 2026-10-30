@@ -145,6 +145,94 @@ def test_excel_floats_enteros_y_titulos_repetidos():
     assert ps[0]["ejemplos"] == ["1", "2", "3"] and ps[0]["n_vacias"] == 10
 
 
+# ---------- revisión 2: patrones de una encuesta real de Google Forms (datos sintéticos, 500 filas) ----------
+
+N500 = 500
+OPCIONES_LARGAS = ["Comprar una vivienda propia", "Viajar por distintos países", "Emprender un negocio propio",
+                   "Estudiar un postgrado en el extranjero", "Ahorrar para la jubilación", "Cambiarme de ciudad",
+                   "Dedicar más tiempo a mi familia", "Aprender un nuevo oficio"]
+
+
+def tipo500(columna, valores):
+    """Una columna de 500 filas; los valores que faltan hasta 500 quedan vacíos (como en una pregunta opcional)."""
+    return detectar(pd.DataFrame({columna: list(valores) + [None] * (N500 - len(valores))}))["preguntas"][0]
+
+
+def test_rev2_seleccion_multiple_con_opciones_largas():
+    rng = np.random.default_rng(7)
+    combos = [", ".join(rng.choice(OPCIONES_LARGAS, rng.integers(1, 4), replace=False)) for _ in range(N500)]
+    assert len(set(combos)) > 30  # muchas combinaciones distintas, pero pocas partes
+    for titulo in ("Puedes seleccionar más de una opción", "Selecciona hasta 3 metas", "Metas para los próximos años"):
+        p = tipo500(titulo, combos)
+        assert p["tipo"] == "seleccion_multiple", titulo
+        assert {o["valor"] for o in p["opciones"]} <= set(OPCIONES_LARGAS)
+    # con ";" como separador también
+    assert tipo500("metas", [c.replace(", ", ";") for c in combos])["tipo"] == "seleccion_multiple"
+    # la pista de título deja pasar una columna donde casi nadie marca más de una opción
+    pocas = [c if i % 10 == 0 else c.split(", ")[0] for i, c in enumerate(combos)]
+    assert tipo500("Selecciona tus metas", pocas)["tipo"] == "seleccion_multiple"
+    assert tipo500("Metas", pocas)["tipo"] == "seleccion_unica"
+
+
+def test_rev2_texto_libre_con_comas_sigue_abierta():
+    libres = [f"Me gustó la clase número {i}, aunque el horario {i % 97} fue complicado, y el material {i * 3} llegó tarde" for i in range(N500)]
+    assert tipo500("¿Qué comentarios tienes?", libres)["tipo"] == "abierta"
+    assert tipo500("Selecciona tu comentario", libres)["tipo"] == "abierta"  # la pista sola no alcanza
+
+
+def test_rev2_seleccion_unica_con_muchas_filas_y_opciones_largas():
+    opciones = [f"Opción número {i} que describe una situación de vivienda distinta" for i in range(21)]
+    valores = [opciones[i % 21] for i in range(N500)]
+    p = tipo500("¿Cuál describe mejor tu situación de vivienda actual?", valores)
+    assert p["tipo"] == "seleccion_unica" and p["valores_distintos"] == 21
+    # con pocas respuestas (menos de 30) esa regla no aplica: 21 de 25 distintos no son opciones
+    assert tipo500("situacion", valores[:25])["tipo"] == "abierta"
+
+
+@pytest.mark.parametrize("titulo,valores", [
+    ("1. ¿Cuál es tu edad?", ["18 a 24 años", "25 a 34 años", "35 a 44 años", "45 a 54 años", "55 años o más"]),
+    ("2. ¿Con qué género te identificas?", ["Femenino", "Masculino", "Otro", "Prefiero no decirlo"]),
+    ("3. ¿En qué región de Chile vives actualmente?", [f"Región {i}" for i in range(16)]),
+    ("¿En qué comuna vives actualmente?", [f"Comuna {i}" for i in range(45)]),
+    ("4. ¿Cuál es tu nivel educacional alcanzado?", ["Básica", "Media", "Técnica", "Universitaria", "Postgrado"]),
+    ("Educación", ["Básica", "Media", "Técnica"]),
+])
+def test_rev2_pista_de_grupo_con_titulos_largos(titulo, valores):
+    assert tipo500(titulo, [valores[i % len(valores)] for i in range(N500)])["tipo"] == "segmento"
+
+
+def test_rev2_titulo_largo_numerico_o_evaluativo_no_es_grupo():
+    assert tipo("¿Cómo evalúa el curso?", [1 + i % 5 for i in range(N)])["tipo"] == "escala"
+    assert tipo("¿Cómo evalúa la sede?", ["Bueno", "Malo", "Regular", "Bueno"] * 10)["tipo"] == "seleccion_unica"
+
+
+def test_rev2_columnas_con_muy_pocas_respuestas():
+    # constante solo si (casi) todas las filas tienen el valor
+    assert tipo500("pregunta", ["Sí, acepto"] * N500)["tipo"] == "constante"
+    assert tipo500("pregunta", ["Sí, acepto"] * 460)["tipo"] == "constante"  # 92 % de las filas
+    for k in (1, 2, 6):
+        p = tipo500("Otro (especifica)", ["Ninguna de las anteriores"] * k)
+        assert p["tipo"] == "seleccion_unica" and p["n_respuestas"] == k and p["n_vacias"] == N500 - k
+        assert "mismo valor en todas" not in p["motivo"]
+    assert tipo500("nota", [4, 4])["tipo"] != "constante"
+    # 5 a 7 respuestas de 2 palabras: no son texto libre
+    for k in (5, 6, 7):
+        p = tipo500("Otro", [f"Mi {w}" for w in ("vecino", "hermano", "amigo", "primo", "tío", "socio", "jefe")[:k]])
+        assert p["tipo"] == "seleccion_unica" and "palabras" not in p["motivo"]
+    p = tipo500("Otra opción", ["Mi vecino", "Mi vecino", "Mi primo", "Mi vecino", "Mi primo"])
+    assert p["tipo"] == "seleccion_unica"
+    # con pista de grupo: segmento
+    assert tipo500("¿En qué comuna vives?", ["Ñuñoa", "Maipú", "Ñuñoa", "Puente Alto", "Ñuñoa"])["tipo"] == "segmento"
+
+
+def test_rev2_abierta_exige_tres_palabras_y_el_motivo_es_coherente():
+    p = tipo500("comentario", [f"Me gustó mucho la clase número {i} de hoy" for i in range(200)])
+    assert p["tipo"] == "abierta" and "9 palabras" in p["motivo"] and "200 respuestas distintas de 200" in p["motivo"]
+    # todas distintas pero de 2 palabras, en una columna llena: sigue siendo abierta y el motivo no dice "largos"
+    p = detectar(pd.DataFrame({"c": [f"respuesta {i}" for i in range(30)]}))["preguntas"][0]
+    assert p["tipo"] == "abierta" and "2 palabras" in p["motivo"] and "largos" not in p["motivo"]
+
+
 # ---------- dataset demo ----------
 
 def test_dataset_demo():
