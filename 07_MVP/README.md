@@ -122,7 +122,15 @@ data/
   dataset_demo_evaluacion_docente.csv
 ```
 
-Colecciones en MongoDB: `users` (email único), `projects` (documento completo del proyecto, indexado por `user_id`), `audit_events` (copia plana consultable, indexada por `project_id`). Las operaciones puntuales (validar categoría, comentar, re-codificar, guardar informe) usan actualizaciones parciales `$set`/`$push`: no reescriben las respuestas del proyecto.
+Colecciones en MongoDB: `users` (email único), `organizations` (dueñas de los proyectos), `projects` (documento completo del proyecto, indexado por `org_id`), `audit_events` (copia plana consultable, indexada por `project_id`). Las operaciones puntuales (validar categoría, comentar, re-codificar, guardar informe) usan actualizaciones parciales `$set`/`$push`: no reescriben las respuestas del proyecto.
+
+### Migración a organizaciones (RF-02)
+
+Al arrancar el backend, `init_db()` convierte solo los datos anteriores: cada usuario existente pasa a ser `admin` de su propia organización con sus proyectos. Es idempotente. También se puede correr a mano (desde `backend/`, con MongoDB corriendo):
+
+```bash
+python scripts/migrate_orgs.py   # imprime los conteos: usuarios, proyectos, proyectos_huerfanos, eventos
+```
 
 ## Variables de entorno (backend/.env)
 

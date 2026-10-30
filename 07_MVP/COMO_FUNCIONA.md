@@ -73,13 +73,16 @@ MongoDB (base "softinsight")
 | email | único (índice único en Mongo), en minúsculas |
 | password_hash | la contraseña **nunca se guarda en texto plano** (ver sección 4) |
 | nombre, empresa | datos de perfil |
+| org_id, rol | organización a la que pertenece (una sola) y su rol (`admin` por ahora; los permisos por rol llegan con RF-03) |
 | integrations | credenciales de integraciones **cifradas** (ej: `integrations.qualtrics.token_enc`) |
 
-**`projects`** — un documento por proyecto, con `_id` = id del proyecto y `user_id` como clave del multi-tenant (indexado). El documento es el proyecto completo:
+**`organizations`** — `{_id: "org_<10 hex>", nombre, created_at}`. Al registrarse se crea una organización nueva (nombre = `empresa`, o "Organización de <nombre|email>") y el usuario queda como `admin`. Los proyectos pertenecen a la organización, no al usuario.
+
+**`projects`** — un documento por proyecto, con `_id` = id del proyecto y `org_id` como clave del multi-tenant (indexado). `user_id` se conserva con el significado "creado por" y **no** se usa para filtrar acceso. El documento es el proyecto completo:
 
 ```json
 {
-  "_id": "proj_...", "id": "proj_...", "user_id": "usr_...",
+  "_id": "proj_...", "id": "proj_...", "org_id": "org_...", "user_id": "usr_...",
   "name": "Evaluación Docente 2026-1",
   "marco_teorico": "Modelo de competencias docentes...",
   "text_column": "respuesta",
@@ -94,7 +97,9 @@ MongoDB (base "softinsight")
 }
 ```
 
-**`audit_events`** — copia plana del audit log (consultable por `project_id`, indexado), además del registro canónico que vive dentro del proyecto.
+**`audit_events`** — copia plana del audit log (consultable por `project_id`, indexado; cada evento lleva también `org_id`), además del registro canónico que vive dentro del proyecto.
+
+**Migración a organizaciones (RF-02).** `scripts/migrate_orgs.py` (`migrate(db) -> dict`) convierte datos anteriores: cada usuario sin `org_id` recibe su propia organización y `rol="admin"` (usuarios con la misma `empresa` **no** se unen); cada proyecto sin `org_id` hereda el de su `user_id`; cada `audit_event` sin `org_id` hereda el de su proyecto. Un proyecto cuyo usuario ya no existe queda con `org_id: null` (inaccesible) y se cuenta como huérfano. Es idempotente: solo toca documentos con `org_id` ausente, y `init_db()` la corre en cada arranque (barata si no hay nada pendiente).
 
 ### 3.2 Decisión clave: documento + actualizaciones parciales
 
@@ -115,14 +120,14 @@ Beneficio concreto: agregar un comentario ya no reescribe las 320 respuestas, y 
 
 ### 3.3 Aislamiento entre cuentas (multi-tenant)
 
-Cada consulta a Mongo filtra por dueño. El filtro central es:
+Cada consulta a Mongo filtra por la organización dueña. El filtro central es:
 
 ```python
-def _tenant_filter(project_id, user_id):
-    return {"_id": project_id, "user_id": user_id}
+def _tenant_filter(project_id, org_id):
+    return {"_id": project_id, "org_id": org_id}
 ```
 
-Si el usuario B intenta abrir un proyecto del usuario A (aunque adivine la URL), recibe "Proyecto no encontrado" — el sistema ni confirma que exista. Verificado con pruebas automáticas de acceso cruzado sobre lectura, escritura, exportación, borrado y progreso (`backend/tests/`).
+Los routers pasan `user.org_id`; todos los miembros de una organización ven y editan los mismos proyectos. Si un usuario de otra organización intenta abrir un proyecto (aunque adivine la URL), recibe "Proyecto no encontrado" — el sistema ni confirma que exista. Verificado con pruebas automáticas de acceso cruzado sobre lectura, escritura, exportación, borrado y progreso (`backend/tests/`).
 
 ---
 
