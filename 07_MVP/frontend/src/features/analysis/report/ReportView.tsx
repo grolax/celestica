@@ -33,6 +33,38 @@ export default function ReportView() {
     }
   }, [project.id, project.pregunta, project.has_report]);
 
+  async function poll() {
+    try {
+      const prog = await analysisApi.getReportProgress(project.id, project.pregunta);
+      setProgress(prog);
+      if (prog.status === "done") {
+        stopPolling();
+        const r = await analysisApi.getReport(project.id, project.pregunta);
+        setReport(r.report);
+        setBusy(false);
+        setProgress(null);
+        refresh();
+      } else if (prog.status === "error") {
+        stopPolling();
+        setBusy(false);
+        setProgress(null);
+        setError(prog.error ?? "Error desconocido al generar el informe");
+      }
+    } catch {}
+  }
+
+  // Retoma un informe en curso (otra pestaña o otra pregunta) para no pagar la IA dos veces.
+  useEffect(() => {
+    let off = false;
+    analysisApi.getReportProgress(project.id, project.pregunta).then((prog) => {
+      if (off || prog.status !== "running") return;
+      setBusy(true);
+      setProgress(prog);
+      startPolling(poll);
+    }).catch(() => {});
+    return () => { off = true; stopPolling(); setBusy(false); setProgress(null); };
+  }, [project.id, project.pregunta]);
+
   async function generate(forceFull = false) {
     setBusy(true);
     setError("");
@@ -40,25 +72,7 @@ export default function ReportView() {
     setConfirmFull(false);
     try {
       await analysisApi.generateReport(project.id, project.pregunta, mode, forceFull);
-      startPolling(async () => {
-        try {
-          const prog = await analysisApi.getReportProgress(project.id, project.pregunta);
-          setProgress(prog);
-          if (prog.status === "done") {
-            stopPolling();
-            const r = await analysisApi.getReport(project.id, project.pregunta);
-            setReport(r.report);
-            setBusy(false);
-            setProgress(null);
-            refresh();
-          } else if (prog.status === "error") {
-            stopPolling();
-            setBusy(false);
-            setProgress(null);
-            setError(prog.error ?? "Error desconocido al generar el informe");
-          }
-        } catch {}
-      });
+      startPolling(poll);
     } catch (e) {
       setError((e as Error).message);
       setBusy(false);

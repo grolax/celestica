@@ -35,28 +35,42 @@ export default function Coding() {
   }, [project.id, project.pregunta, offset]);
   useEffect(load, [load]);
 
+  async function poll() {
+    try {
+      const prog = await analysisApi.getCodifyProgress(project.id, project.pregunta);
+      setProgress(prog);
+      if (prog.status === "done") {
+        stopPolling();
+        setBusy(false);
+        load();
+        refresh();
+      } else if (prog.status === "error") {
+        stopPolling();
+        setBusy(false);
+        setError(prog.error ?? "Error desconocido en la codificación");
+      }
+    } catch {}
+  }
+
+  // Retoma una codificación en curso (otra pestaña o otra pregunta) para no pagar la IA dos veces.
+  useEffect(() => {
+    let off = false;
+    analysisApi.getCodifyProgress(project.id, project.pregunta).then((prog) => {
+      if (off || prog.status !== "running") return;
+      setBusy(true);
+      setProgress(prog);
+      startPolling(poll);
+    }).catch(() => {});
+    return () => { off = true; stopPolling(); setBusy(false); setProgress(null); };
+  }, [project.id, project.pregunta]);
+
   async function runCodify() {
     setBusy(true);
     setError("");
     setProgress(null);
     try {
       await analysisApi.codify(project.id, project.pregunta);
-      startPolling(async () => {
-        try {
-          const prog = await analysisApi.getCodifyProgress(project.id, project.pregunta);
-          setProgress(prog);
-          if (prog.status === "done") {
-            stopPolling();
-            setBusy(false);
-            load();
-            refresh();
-          } else if (prog.status === "error") {
-            stopPolling();
-            setBusy(false);
-            setError(prog.error ?? "Error desconocido en la codificación");
-          }
-        } catch {}
-      });
+      startPolling(poll);
     } catch (e) {
       setError((e as Error).message);
       setBusy(false);
