@@ -31,3 +31,11 @@ Sin cambios. OpenAPI idéntico al de `main` (mismo SHA-256 de `json.dumps(app.op
 - [ ] Sin importaciones circulares.
 - [ ] `COMO_FUNCIONA.md` actualizado y la deuda "main.py concentra todos los endpoints" resuelta.
 - [ ] Commits con el formato `T-003b RNF-17: ...`, idealmente uno por router.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 51 pasan; ninguna prueba modificada.
+- OpenAPI idéntico a la huella tomada en `main` antes de T-003a (43 operaciones, SHA-256 `00ff476d…b6eda4`), verificado por el supervisor.
+- `main.py` de 639 a 88 líneas: solo configuración, sink de costo, CORS e `include_router`. Nuevos `routers/analysis.py` (297), `reports.py` (217), `admin.py` (80).
+- `_codify_progress`/`_report_progress` se importan desde `deps` y solo se mutan por clave (nunca se reasignan): mismo objeto compartido. IA y exportación siguen como `thematic.<fn>`/`export_svc.<fn>`.
+- Sin importaciones circulares; `COMO_FUNCIONA.md` actualizado. Deuda de `main.py` resuelta en `docs/ESTADO.md`.
