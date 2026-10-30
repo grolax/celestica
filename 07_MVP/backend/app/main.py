@@ -700,7 +700,7 @@ def export_pdf(project_id: str, include_details: bool = True,
                user: User = Depends(get_current_user)):
     project = _get_or_404(project_id, user)
     pdf = export_svc.generate_pdf_report(project, include_details=include_details)
-    return _download(pdf, f"informe_softinsight_{_slug(project['name'])}.pdf", "application/pdf")
+    return _download(pdf, f"informe_celestica_{_slug(project['name'])}.pdf", "application/pdf")
 
 
 @app.get("/api/projects/{project_id}/export/docx")
@@ -709,7 +709,7 @@ def export_docx(project_id: str, include_details: bool = True,
     project = _get_or_404(project_id, user)
     docx_bytes = export_svc.generate_docx_report(project, include_details=include_details)
     return _download(
-        docx_bytes, f"informe_softinsight_{_slug(project['name'])}.docx",
+        docx_bytes, f"informe_celestica_{_slug(project['name'])}.docx",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
 

@@ -14,9 +14,9 @@ from typing import Optional
 
 import pandas as pd
 
-# ---------- Paleta corporativa ----------
-PRIMARY = "#0099CC"
-CREAM = "#FFFAF0"
+# ---------- Paleta Celestica (T-014) ----------
+NAVY = "#0b2545"
+PRIMARY = "#0077b6"
 GRAY_ROW = "#F5F5F5"
 
 
@@ -125,7 +125,7 @@ def _metadata(project: dict) -> list[tuple[str, str]]:
 
 
 _METHODOLOGY = (
-    "El análisis se realizó con SoftInsight en dos capas. Capa 1 (léxica): frecuencias, "
+    "El análisis se realizó con Celestica en dos capas. Capa 1 (léxica): frecuencias, "
     "bigramas, co-ocurrencias y sentimiento por lexicón, calculados de forma determinística "
     "sin IA generativa. Capa 2 (temática): un modelo de lenguaje (Claude, Anthropic) propuso "
     "categorías ancladas al marco teórico del proyecto; el equipo analista validó, editó o "
@@ -174,12 +174,13 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
     )
 
     primary = colors.HexColor(PRIMARY)
+    navy = colors.HexColor(NAVY)
     styles = getSampleStyleSheet()
-    h1 = ParagraphStyle("h1x", parent=styles["Heading1"], textColor=primary, spaceAfter=10)
-    h2 = ParagraphStyle("h2x", parent=styles["Heading2"], textColor=colors.HexColor("#00688B"), spaceBefore=14)
+    h1 = ParagraphStyle("h1x", parent=styles["Heading1"], textColor=navy, spaceAfter=10)
+    h2 = ParagraphStyle("h2x", parent=styles["Heading2"], textColor=navy, spaceBefore=14)
     body = ParagraphStyle("bodyx", parent=styles["BodyText"], fontSize=9.5, leading=13)
     small = ParagraphStyle("smallx", parent=body, fontSize=8, leading=10.5)
-    cover_title = ParagraphStyle("coverx", parent=styles["Title"], fontSize=26, textColor=primary,
+    cover_title = ParagraphStyle("coverx", parent=styles["Title"], fontSize=26, textColor=navy,
                                  alignment=TA_CENTER, spaceAfter=6)
     cover_sub = ParagraphStyle("coversubx", parent=styles["Normal"], fontSize=12, alignment=TA_CENTER,
                                textColor=colors.HexColor("#555555"))
@@ -188,7 +189,7 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
         canvas.saveState()
         canvas.setFont("Helvetica", 7.5)
         canvas.setFillColor(colors.HexColor("#888888"))
-        canvas.drawString(2 * cm, 1.1 * cm, "Análisis realizado con SoftInsight · Auditable y trazable")
+        canvas.drawString(2 * cm, 1.1 * cm, "Análisis realizado con Celestica · Auditable y trazable")
         canvas.drawRightString(letter[0] - 2 * cm, 1.1 * cm, f"Página {doc.page}")
         canvas.restoreState()
 
@@ -215,12 +216,12 @@ def generate_pdf_report(project: dict, include_details: bool = True) -> bytes:
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=letter, topMargin=2 * cm, bottomMargin=2 * cm,
                             leftMargin=2 * cm, rightMargin=2 * cm,
-                            title=f"Informe SoftInsight — {project['name']}")
+                            title=f"Informe Celestica — {project['name']}")
     story = []
 
     # ---- Portada ----
     story.append(Spacer(1, 5 * cm))
-    story.append(Paragraph("SoftInsight", cover_title))
+    story.append(Paragraph("Celestica", cover_title))
     story.append(Paragraph("Informe de Análisis Cualitativo", cover_sub))
     story.append(Spacer(1, 1.4 * cm))
     story.append(Paragraph(project["name"], ParagraphStyle(
@@ -338,13 +339,13 @@ def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.shared import Pt, RGBColor
 
-    primary_rgb = RGBColor(0x00, 0x99, 0xCC)
+    navy_rgb = RGBColor(0x0B, 0x25, 0x45)
     doc = docx.Document()
 
     def heading(text: str, level: int = 1):
         h = doc.add_heading(text, level=level)
         for run in h.runs:
-            run.font.color.rgb = primary_rgb
+            run.font.color.rgb = navy_rgb
         return h
 
     def add_table(headers: list[str], rows: list[list[str]]):
@@ -368,9 +369,9 @@ def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
     # ---- Portada ----
     title = doc.add_paragraph()
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = title.add_run("SoftInsight")
+    run = title.add_run("Celestica")
     run.font.size = Pt(34)
-    run.font.color.rgb = primary_rgb
+    run.font.color.rgb = navy_rgb
     run.bold = True
     sub = doc.add_paragraph("Informe de Análisis Cualitativo")
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -459,7 +460,7 @@ def generate_docx_report(project: dict, include_details: bool = True) -> bytes:
     heading("6. Nota metodológica")
     doc.add_paragraph(_METHODOLOGY)
     footer = doc.sections[0].footer.paragraphs[0]
-    footer.text = "Análisis realizado con SoftInsight · Auditable y trazable"
+    footer.text = "Análisis realizado con Celestica · Auditable y trazable"
 
     buf = io.BytesIO()
     doc.save(buf)
