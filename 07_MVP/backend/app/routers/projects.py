@@ -13,6 +13,7 @@ from app import store, templates
 from app.auth import get_current_user
 from app.deps import _get_or_404, _get_vista, _vista_or_404, require_role
 from app.models import User
+from app.services import quantitative
 from app.services.question_types import TIPOS, contexto_por_defecto, detectar
 
 router = APIRouter()
@@ -228,6 +229,12 @@ def get_project(project_id: str, pregunta: Optional[str] = None, user: User = De
         "preguntas": store.preguntas_publicas(project),
         "pregunta": vista["pregunta"],
     }
+
+
+@router.get("/api/projects/{project_id}/closed-results")
+def closed_results(project_id: str, user: User = Depends(get_current_user)):
+    project = _get_or_404(project_id, user)
+    return quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []))
 
 
 @router.delete("/api/projects/{project_id}")
