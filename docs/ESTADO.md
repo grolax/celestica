@@ -13,10 +13,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-015 Página de presentación y rutas | frontend | RNF-13, RNF-14, RNF-15, RNF-16 | 2026-10-30 | `tarea/T-015-pagina-presentacion` (fusionada, PR #4) |
 | T-017 Nombre y colores Celestica en PDF/DOCX | backend | RNF-16 | 2026-10-30 | `tarea/T-017-exportaciones-celestica` (fusionada, PR #5) |
 | T-016a Encabezados, menú agrupado y estado vacío | frontend | RNF-13, RNF-14, RNF-16 | 2026-10-30 | `tarea/T-016a-encabezados-y-navegacion` (fusionada, PR #6) |
+| T-016b Encabezados en pestañas del proyecto | frontend | RNF-13, RNF-16 | 2026-10-30 | `tarea/T-016b-encabezados-de-analisis` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- T-016b encabezados de análisis (frontend), rama `tarea/T-016b-encabezados-de-analisis`.
+- Fase UX completa con T-016b. Siguiente (pedido del usuario): T-002 aislamiento en pytest.
 - Después, de vuelta al backend (pedido del usuario): T-002 aislamiento en pytest → separar `main.py` en routers → RF-02 organizaciones → RF-03 roles.
 
 ## Bloqueado / requiere decisión del usuario
@@ -31,5 +32,6 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
 - La presentación muestra "Iniciar sesión" un instante mientras carga la sesión (`LandingPage` no espera `loading` de `useAuth`); menor.
 - Tablas del DOCX con estilo de Word "Light Grid Accent 1" (azul del tema de Word, no la paleta Celestica); menor.
+- `select` sin `label` en Auditoría (filtro de actor) y Libro de códigos (plantillas) (RNF-14).
 - Stopwords del análisis léxico fijas y orientadas a educación superior chilena (RF-14).
 - La bitácora para el equipo vive en `docs/BITACORA.md`, dentro del repositorio (pedido del usuario, 2026-10-30).

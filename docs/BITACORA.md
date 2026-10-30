@@ -40,7 +40,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-001 | Reparar las pruebas automáticas del sistema | ✅ Incorporada a la versión oficial |
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
-| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | 🔨 T-016a incorporada; T-016b en desarrollo |
+| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | 🟡 T-016a incorporada; T-016b aprobada por el supervisor, espera autorización |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
 
@@ -219,6 +219,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Por qué:** para que cada pantalla diga para qué sirve y el área de trabajo se entienda sin ayuda externa.
 - **Cómo se verificó:** la plataforma se construye sin errores y el supervisor revisó todos los cambios. Falta recorrerla en el navegador.
 - **Estado:** incorporada a la versión oficial por el responsable (PR #6 en GitHub).
+
+---
+
+### 18. T-016b · Encabezados en las pantallas del análisis
+
+- **Qué se hizo:** las 8 pestañas de cada proyecto (Resumen, Análisis léxico, Libro de códigos, Codificación, Trazabilidad, Informe, Exportar y Auditoría) empiezan ahora con su título y una línea de ayuda, con los textos que aprobó el responsable. Se quitaron las explicaciones que repetían esa línea y se dejaron las que dan más detalle.
+- **Por qué:** para que quien no sabe de análisis entienda qué hace cada paso.
+- **Cómo se verificó:** la plataforma se construye sin errores y el supervisor revisó todos los cambios. El informe en pantalla sigue indicando que es contenido generado por IA. Falta recorrerla en el navegador.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla. Con esta tarea termina la fase de diseño.
 
 ---
 
