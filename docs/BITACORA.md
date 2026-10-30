@@ -516,7 +516,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 
 - **Problema:** las pantallas ya evitan lanzar dos veces la codificación de una pregunta, pero con dos pestañas abiertas o dos personas trabajando a la vez todavía se podía lanzar dos veces y pagar el doble.
 - **Arreglo:** si ya hay una codificación en curso para esa pregunta, el servidor responde "ya está en curso" y no llama a la IA. Otra pregunta del mismo proyecto sí puede codificarse al mismo tiempo.
-- **Estado:** en curso (programador de backend).
+- **Resultado:** funciona. Las pruebas confirman que un segundo pedido de la misma pregunta no llama a la IA, que otra pregunta sí puede codificarse en paralelo y que tras terminar (o tras un error) se puede volver a lanzar. De paso se reforzó el mismo bloqueo del informe. 197 pruebas en verde.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

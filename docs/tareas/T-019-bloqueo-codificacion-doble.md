@@ -29,3 +29,10 @@ Depende de: T-013 (fusionada)
 ## Notas
 - Modelo a imitar: `reports.py:118-121`.
 - Limpia `_codify_progress` en la prueba (es un dict global) para no contaminar otras.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `python -m pytest tests -q`: 197 passed. Diff de código +21/-6 en 3 archivos más una prueba nueva (65 líneas), solo backend.
+- `codify` comprueba "en curso" y marca `running` dentro de `_progress_lock`; responde `{"status": "already_running", "total": <en curso>}` como dice el contrato. `report` usa el mismo lock (estaba en el alcance opcional), sin cambio de comportamiento.
+- Las pruebas cubren: segundo POST de la misma pregunta sin llamar a la IA (`calls == 2` con q_1 + q_2), otra pregunta en paralelo, relanzar tras `done` y tras `error`.
+- Deuda: el progreso y el lock viven en memoria de un solo proceso; con varios workers de uvicorn o tras un reinicio no se comparten (ya ocurría antes; ver RNF de despliegue).

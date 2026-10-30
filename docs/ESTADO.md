@@ -29,11 +29,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-012 Paso "Revisa las preguntas" al crear un proyecto | frontend | RF-25, RF-22, RF-40 (parcial) | 2026-10-30 | `tarea/T-012-revisar-preguntas` (fusionada, PR #20) |
 | T-018 Campos de texto con estilo por defecto | frontend | RNF-16, RNF-14 | 2026-10-30 | `tarea/T-018-input-con-estilo` (fusionada, PR #21) |
 | T-013 Selector de pregunta abierta | frontend | RF-23, RNF-08, RNF-13 | 2026-10-30 | `tarea/T-013-selector-de-pregunta` (fusionada, PR #22) |
+| T-019 Una sola codificación a la vez por pregunta | backend | RF-23, RNF-08 | 2026-10-30 | `tarea/T-019-bloqueo-codificacion-doble` (aprobada, pendiente de subir) |
 
 ## En curso
 
 - Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (aprobada) → T-013 selector de pregunta (aprobada). **Iteración 2 completa.**
-- T-019 (backend) bloquear una segunda codificación simultánea de la misma pregunta: orden escrita, delegada al programador backend. Rama `tarea/T-019-bloqueo-codificacion-doble`.
 - Decisiones iteración 2 (usuario, 2026-10-30): RF-24 (proyectos solo cerradas) pospuesto a iteración 3 con RF-30; IA pregunta por pregunta a pedido del usuario (cuidar tokens sin perder calidad); un informe por pregunta abierta hasta RF-51; proyectos existentes quedan con su única pregunta abierta; agregar preguntas después llega con RF-27.
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
@@ -51,6 +51,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- El progreso de codificación/informe y su lock viven en memoria de un solo proceso: no sirven con varios workers ni sobreviven a un reinicio (T-019).
 
 - Docs de prompts desactualizados: `COMO_FUNCIONA.md` §6 dice "4 prompts" (son 10); `schemas_v2.py:16` y el docstring de `thematic.py` nombran solo `prompts.json`.
 - `store.inc_project_usage` filtra solo por `id` (escritura del sistema), y `_codify_progress`/`_report_progress` en memoria se indexan solo por `project_id` (protegidos por `_get_or_404`).
