@@ -37,3 +37,10 @@ Sin cambios de rutas ni de cuerpos. Solo cambia el nombre de archivo en `Content
 
 ## Notas
 - La marca por organización (logo y color propios, RF-11) es otra tarea; aquí solo la marca base Celestica.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 19 pasan (18 + `test_export_marca_pytest.py`).
+- Portada, título, pie y nota metodológica dicen Celestica en PDF y DOCX; `NAVY #0b2545` en títulos y portada, `PRIMARY #0077b6` en tablas y gráfico; sin `#0099CC`/`#00688B`; `CREAM` eliminado.
+- `main.py`: solo los 2 nombres de archivo; título FastAPI, logs, base de datos y sal de `credentials.py` intactos. Endpoints siguen con `_get_or_404`.
+- Pendiente menor: las tablas del DOCX usan el estilo de Word "Light Grid Accent 1" (azul del tema de Word), no `PRIMARY`. Aceptado; anotado como deuda.

@@ -41,7 +41,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
 | T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ⏳ En cola |
-| T-017 | Nombre y colores Celestica en los informes PDF y Word | 🔨 En desarrollo |
+| T-017 | Nombre y colores Celestica en los informes PDF y Word | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
 
 ---
@@ -196,6 +196,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Nombre interno:** por ahora, el nombre técnico interno (servidor, base de datos, registros) sigue siendo SoftInsight, para evitar confusiones. Nadie fuera del equipo técnico lo ve.
 - **T-016 · Área de trabajo:** el responsable aprobó las líneas de ayuda de las 12 pantallas. La tarea se dividió en dos partes para revisarla mejor: T-016a (encabezados, menú lateral y lista vacía) y T-016b (pantallas de análisis).
 - **Después del diseño:** se retoma el trabajo interno (backend): pruebas de seguridad entre clientes, orden del código del servidor, organizaciones y roles.
+
+---
+
+### 16. T-017 · Informes PDF y Word con el nombre Celestica
+
+- **Qué se hizo:** los informes descargables ahora dicen **Celestica** en la portada, el título, el pie de página ("Análisis realizado con Celestica · Auditable y trazable") y la nota de metodología. Usan los mismos azules de la plataforma: azul marino para los títulos y azul para las tablas y los gráficos. Los archivos se descargan con el nombre `informe_celestica_...`.
+- **Por qué:** para que lo que el cliente recibe tenga la misma identidad que la plataforma.
+- **Cómo se verificó:** se agregó una prueba automática que genera un PDF y un Word y comprueba que digan Celestica y no SoftInsight. Las 19 pruebas pasan.
+- **Pendiente menor:** en el Word, las tablas toman el azul propio de Word, que es parecido pero no igual al de Celestica.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
