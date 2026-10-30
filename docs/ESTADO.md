@@ -23,12 +23,21 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-007 Gestión de miembros y cambio de contraseña | backend | RF-03, RF-04 (sin correo), RNF-02 | 2026-10-30 | `tarea/T-007-gestion-de-miembros` (fusionada, PR #14) |
 | T-008a Cambio de contraseña y estados de cuenta | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008a-cuenta-y-contrasena` (fusionada, PR #15) |
 | T-009 Panel interno responde 403 | backend | RNF-13, RNF-02 | 2026-10-30 | `tarea/T-009-admin-403` (fusionada, PR #16) |
-| T-008b Pantalla de miembros y acciones por rol | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008b-miembros-y-acciones-por-rol` (aprobada, pendiente de subir) |
+| T-008b Pantalla de miembros y acciones por rol | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008b-miembros-y-acciones-por-rol` (fusionada, PR #17) |
+| T-010 Detección de tipos y vista previa | backend | RF-22, RF-25 | 2026-10-30 | `tarea/T-010-deteccion-de-tipos` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- RF-02 y RF-03 completos con T-008b. Siguiente según sección 8.3: iteración 2 (RF-22/23/24 tipos de pregunta, varias abiertas, proyectos sin abiertas) — por planificar con el usuario.
+- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (aprobada) → T-011 modelo de preguntas y varias abiertas + migración (backend) → T-012 paso "Revisa las preguntas" (frontend) → T-013 selector de pregunta abierta (frontend).
+- Decisiones iteración 2 (usuario, 2026-10-30): RF-24 (proyectos solo cerradas) pospuesto a iteración 3 con RF-30; IA pregunta por pregunta a pedido del usuario (cuidar tokens sin perder calidad); un informe por pregunta abierta hasta RF-51; proyectos existentes quedan con su única pregunta abierta; agregar preguntas después llega con RF-27.
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
+
+## Requerimientos agregados por el usuario
+
+- **RF-51 (ampliación, 2026-10-30):** comparar temas **entre preguntas abiertas** de una misma encuesta (qué temas se repiten entre preguntas; quién menciona un tema en una y otro en otra). Conteos y cruces en Python sobre codificaciones validadas, **sin llamadas nuevas a la IA**; la IA solo redacta la lectura de conjunto sobre números ya calculados. Pendiente que el usuario lo agregue a `CONTEXTO_SOFTINSIGHT.md` §4.6 (el supervisor no escribe fuera de `docs/`).
+
+- **Columnas ramificadas de Google Forms (decisión del usuario 2026-10-30):** una misma pregunta repartida en varias columnas ("¿En qué comuna vives actualmente?", "… 2", … "… 16", una por región) se ofrece unir en una sola en la revisión de preguntas (T-011/T-012).
+- **Respuestas vacías = "N/A" (decisión del usuario 2026-10-30):** donde una persona no respondió (o la columna ramificada no le correspondía), la plataforma muestra **"N/A"**, nunca un valor que parezca elegido. "N/A" se cuenta aparte y no se trata como una opción más de la pregunta.
 
 ## Bloqueado / requiere decisión del usuario
 
@@ -45,6 +54,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - `Input` genera ids con `label.replace(/\W/g, "_")`: la ñ pasa a `_` (colisión posible entre etiquetas que solo difieren en ñ).
 - `Input` sin `type` explícito pierde el estilo del campo (CSS por selector de tipo).
 - El rol en la UI viene de `/auth/me` al cargar; un cambio de rol hecho por otro admin se ve tras recargar.
+- `question_types`: pistas de título pueden dar `segmento` de más ("educación financiera"); respuestas "Otro" de Google Forms salen como opciones de 1 mención (agrupar en T-012); una continuación en minúscula que es opción real se une a la anterior (se corrige en T-012); peor caso 30 multi-selección × 4.000 combinaciones ≈ 2,2 s; detección por texto sobre muestra de 1.000 valores; enteros casi todos distintos → identificador (posible falso positivo).
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
 - La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).

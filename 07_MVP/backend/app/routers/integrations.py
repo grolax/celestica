@@ -8,7 +8,7 @@ from app import store
 from app.database import get_db
 from app.deps import _get_or_404, require_role
 from app.models import User
-from app.routers.projects import _create_project_from_df
+from app.routers.projects import _create_project_from_df, preview_df
 from app.services.integrations import credentials, google_forms, qualtrics
 from app.services.integrations.base import IntegrationError
 
@@ -39,6 +39,14 @@ class GoogleFormsImportBody(BaseModel):
     marco_teorico: str = ""
     text_column: str = ""
     template: str = ""
+
+
+class QualtricsPreviewBody(BaseModel):
+    survey_id: str
+
+
+class GoogleFormsPreviewBody(BaseModel):
+    sheet_url: str
 
 
 def _qualtrics_config(user: User) -> dict:
@@ -120,3 +128,24 @@ def create_project_from_google_forms(body: GoogleFormsImportBody, user: User = D
         "planilla": body.sheet_url, "n_respuestas": result["n_responses"], "usuario": user.email,
     })
     return result
+
+
+# ---------- Vista previa de tipos de pregunta (T-010): lee, detecta, no guarda nada ----------
+
+@router.post("/api/projects/preview/qualtrics")
+def preview_qualtrics(body: QualtricsPreviewBody, user: User = Depends(require_role("analista"))):
+    cfg = _qualtrics_config(user)
+    try:
+        df = qualtrics.fetch_responses({**cfg, "survey_id": body.survey_id})
+    except IntegrationError as e:
+        raise HTTPException(400, str(e))
+    return preview_df(df)
+
+
+@router.post("/api/projects/preview/google-forms")
+def preview_google_forms(body: GoogleFormsPreviewBody, user: User = Depends(require_role("analista"))):
+    try:
+        df = google_forms.fetch_responses({"sheet_url": body.sheet_url})
+    except IntegrationError as e:
+        raise HTTPException(400, str(e))
+    return preview_df(df)

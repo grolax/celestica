@@ -46,7 +46,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006, T-007 y T-008a incorporadas; T-008b aprobada por el supervisor, espera autorización |
+| T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 aprobada por el supervisor, espera autorización |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -379,6 +380,62 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Cada persona **ve solo los botones que su rol permite**. El lector ve todas las pestañas, descarga y comenta, pero no ve los botones para crear, analizar ni borrar, y cada proyecto le muestra la marca **"Solo lectura"**. Donde se ocultó un botón importante, el lector ve un aviso breve: "Un analista de tu organización puede…".
 - **Cómo se verificó:** el programador creó tres cuentas de prueba (administrador, analista y lector) en la plataforma local, sin IA. Recorrió el ciclo completo: crear al lector, entrar con su contraseña temporal y cambiarla, comentar, ascenderlo a analista, desactivarlo y reactivarlo. El supervisor revisó todos los cambios.
 - **Con esto quedan completos RF-02 (organizaciones) y RF-03 (roles y miembros).**
+- **Estado:** incorporada a la versión oficial por el responsable (PR #17 en GitHub).
+
+### 31. Iteración 2: encuestas completas — decisiones y plan
+
+- **Qué se busca:** hoy cada proyecto analiza una sola columna de texto. Ahora Celestica va a reconocer cada pregunta de la encuesta y va a poder analizar **varias preguntas abiertas** en un mismo proyecto.
+- **Decisiones del responsable (30 de octubre):**
+  1. **El foco es pulir lo que ya existe.** Los proyectos que solo tienen preguntas cerradas (escalas, NPS, sí/no) se dejan para después, junto con el análisis cuantitativo. Por ahora, la plataforma solo avisa.
+  2. **Cuidar el gasto en IA sin perder calidad.** La IA trabaja una pregunta a la vez, solo cuando el usuario lo pide.
+  3. **Un informe por pregunta abierta,** hasta que exista el informe integrado.
+  4. **Los proyectos actuales siguen igual,** con su única pregunta abierta.
+- **Plan en cuatro tareas:**
+  - **T-010:** reconocer el tipo de cada pregunta y mostrar una vista previa. Se hace con reglas fijas, sin IA y sin costo.
+  - **T-011:** guardar las preguntas en el proyecto y permitir varias preguntas abiertas.
+  - **T-012:** el paso "Revisa las preguntas detectadas" al crear un proyecto, donde el usuario puede corregir cada tipo.
+  - **T-013:** elegir qué pregunta abierta analizar en cada pestaña.
+- **Estado:** T-010 en desarrollo.
+
+---
+
+### 32. Requerimiento nuevo: comparar preguntas abiertas entre sí
+
+- **Qué se decidió:** el responsable pidió que el informe integrado (RF-51) también **compare los temas entre preguntas abiertas** de una misma encuesta. Por ejemplo, qué temas aparecen tanto en "¿qué destacarías?" como en "¿qué mejorarías?", o quiénes mencionan un tema en una pregunta y otro tema distinto en la otra.
+- **Cómo se hará, cuidando el gasto:** los cruces se calculan a partir de las codificaciones que el equipo ya validó, **sin volver a llamar a la IA**. La IA solo redacta la lectura de conjunto sobre los números ya calculados.
+- **Dónde quedó anotado:** en el estado del proyecto (`docs/ESTADO.md`). Falta agregarlo al documento de producto.
+
+### 33. T-010 · La plataforma reconoce el tipo de cada pregunta
+
+- **Qué se hizo:** antes de crear un proyecto, Celestica lee la encuesta y propone el tipo de cada columna, con una frase que explica por qué. Los tipos son: abierta, escala, NPS, sí/no, selección única o múltiple, numérica, fecha, identificador, segmento (como carrera o comuna), constante (el mismo valor en todas las filas) o vacía. También avisa si no hay preguntas abiertas, si hay muy pocas respuestas o si una columna está casi vacía.
+- **Sin IA y sin costo:** la detección usa reglas fijas y **no guarda nada**. Guardar las preguntas en el proyecto es la tarea siguiente (T-011). Con una encuesta de 10.000 respuestas y 30 preguntas tarda menos de un segundo.
+- **Prueba con los datos de ejemplo:** en la encuesta de evaluación docente reconoció bien la respuesta como abierta; la carrera, la asignatura, el año y el género como segmentos; el enunciado repetido como constante, y el código de respuesta como identificador.
+- **Cómo se verificó:** hay **156 pruebas automáticas** y todas pasan.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+
+---
+
+### 34. T-010 · Prueba con una encuesta real y correcciones
+
+- **Qué se hizo:** a pedido del responsable, se probó la detección con una encuesta real sobre vivienda (500 respuestas, 47 preguntas, hecha en Google Forms). Se leyó solo en el computador del responsable: **no se subió al repositorio**, porque contiene datos de personas.
+- **Qué se encontró:** la primera versión tomaba como "abiertas" **9 preguntas que en realidad eran de selección múltiple**, con opciones largas como "Comprar una vivienda propia, Viajar…". Esto habría hecho que la IA trabajara de más y **gastara sin necesidad**. Además, edad, género, región y comuna no quedaban como segmentos para cruzar resultados.
+- **Resultado tras la corrección:** ahora solo quedan como abiertas las **2 preguntas que de verdad lo son**. Las de selección múltiple y los segmentos se reconocen bien. Quedan dos detalles menores, que el usuario podrá corregir en la pantalla de revisión, sin costo. Hay **168 pruebas automáticas** y todas pasan.
+- **Decisiones del responsable:**
+  - Las 16 columnas de comuna que Google Forms separó por región se ofrecerán unir en una sola columna "Comuna".
+  - Cuando una persona **no respondió** una pregunta, la plataforma mostrará **"N/A"**. Así no parece que eligió alguna opción. "N/A" se cuenta aparte y no como una respuesta más.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+
+---
+
+### 35. T-010 · Segunda prueba con la encuesta real: opciones con comas
+
+- **Qué se encontró:** al revisar de nuevo la encuesta de vivienda, apareció otro error. Google Forms separa con comas las opciones marcadas, y algunas opciones **tienen comas dentro**, como "Subsidios habitacionales (DS1, DS19, DS49)" o "Invertir en depósitos a plazo, fondos mutuos, acciones…". La plataforma las cortaba en trozos falsos. Más adelante, eso habría dado **conteos y porcentajes equivocados**.
+- **Qué se hizo:** en dos rondas de corrección, la plataforma aprendió a rearmar esas opciones:
+  - no corta dentro de un paréntesis;
+  - une los trozos que siempre aparecen juntos;
+  - une al anterior todo trozo que empieza con minúscula, como "pero todavía no he buscado".
+- **Resultado:** en la encuesta real, todas las opciones quedan completas y con sus conteos correctos. La pregunta "¿Cuál de estas alternativas describe mejor…?" quedó bien reconocida como selección única. Hay **176 pruebas automáticas** y todas pasan.
+- **Para la pantalla de revisión (T-012):** las respuestas escritas a mano en la opción "Otro" de Google Forms se agruparán bajo "Otro".
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
