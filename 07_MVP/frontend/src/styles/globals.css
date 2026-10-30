@@ -578,3 +578,24 @@ table.si tbody tr:hover { background: var(--primary-soft); }
   .landing-two, .landing-cards { grid-template-columns: 1fr; gap: 28px; }
   .landing-cards { gap: 14px; }
 }
+
+/* ---------- Nuevo proyecto: asistente de 3 pasos y revisión de preguntas ---------- */
+
+.steps { display: flex; gap: 8px 20px; flex-wrap: wrap; list-style: none; margin: 0 0 16px; padding: 0; color: var(--text-muted); font-size: 13.5px; }
+.steps li { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; border-bottom: 3px solid transparent; }
+.steps li[aria-current="step"] { color: var(--text); font-weight: 700; border-bottom-color: var(--primary); }
+.steps-n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 12px; }
+.steps li[aria-current="step"] .steps-n { background: var(--primary); border-color: var(--primary); color: #fff; }
+.steps li.done { color: var(--success); }
+.alert-warning { background: var(--warning-soft); border-color: #f0cf9c; color: #7a3a06; }
+.qr-aviso { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.qr-title { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.qr-help { margin: 4px 0 0; max-width: 230px; }
+.qr-ejemplos { margin: 4px 0 0; padding-left: 18px; max-width: 300px; }
+.qr-ejemplos li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qr-link { background: none; border: 0; padding: 0; color: var(--primary-dark); text-decoration: underline; cursor: pointer; font: inherit; }
+.qr-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+table.si input[type="checkbox"] { width: 18px; height: 18px; }
+table.si select { min-width: 140px; }
+table.si td input[type="text"] { min-width: 200px; }
+.main-content { min-width: 0; } /* sin esto, una tabla ancha estira la página en móvil en vez de desplazarse dentro de su tarjeta */
