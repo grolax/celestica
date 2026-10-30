@@ -56,8 +56,9 @@ def _empty_project(name: str, marco_teorico: str, columns: list[str],
 
 
 def _tenant_filter(project_id: str, org_id: str) -> dict:
-    """Filtro base de TODO acceso a un proyecto: id + organización dueña."""
-    return {"_id": project_id, "org_id": org_id}
+    """Filtro base de TODO acceso a un proyecto: id + organización dueña.
+    Un org_id vacío o nulo no encuentra nada (no debe coincidir con los huérfanos, que tienen org_id null)."""
+    return {"_id": project_id, "org_id": org_id if org_id else {"$in": []}}
 
 
 def create_project(org_id: str, created_by: str, name: str, marco_teorico: str, columns: list[str],
@@ -98,7 +99,7 @@ def list_projects(org_id: str) -> list[dict]:
     """Resumen de proyectos de la organización, calculado en el servidor de Mongo
     (no viaja el documento completo con sus cientos de respuestas)."""
     pipeline = [
-        {"$match": {"org_id": org_id}},
+        {"$match": {"org_id": org_id if org_id else {"$in": []}}},  # org_id falsy: no lista nada
         {"$project": {
             "_id": 0,
             "id": 1, "name": 1, "created_at": 1,

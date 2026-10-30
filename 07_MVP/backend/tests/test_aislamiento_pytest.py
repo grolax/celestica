@@ -87,7 +87,7 @@ def env():
     users = {}
     for who in ("a", "b"):
         r = c.post("/auth/signup", json={"email": f"aisla-{who}@x.cl", "password": "clave12345"})
-        users[who] = ({"Authorization": f"Bearer {r.json()['token']}"}, r.json()["user"]["id"])
+        users[who] = ({"Authorization": f"Bearer {r.json()['token']}"}, r.json()["user"]["organizacion"]["id"])
     ha = users["a"][0]
 
     csv = "id_respuesta,respuesta\n" + "\n".join(f"E{i:03d},El curso fue bueno ({i})" for i in range(1, 6))
@@ -116,6 +116,7 @@ def _snapshot(e):
 @pytest.mark.parametrize("method,path,kw", ROUTES, ids=[f"{m} {p}" for m, p, _ in ROUTES])
 def test_otro_usuario_recibe_404_y_nada_cambia(env, method, path, kw):
     before = _snapshot(env)
+    assert before[0] is not None  # sin esto la comparación de abajo podría ser None == None
     r = env["c"].request(method, path.format(**env["ids"]), headers=env["hb"], **kw)
     # El texto distingue "proyecto ajeno" de otros 404 (categoría, informe o léxico inexistentes).
     assert r.status_code == 404 and r.json()["detail"] == "Proyecto no encontrado", r.text[:200]

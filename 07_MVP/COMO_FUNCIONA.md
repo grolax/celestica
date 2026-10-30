@@ -99,7 +99,7 @@ MongoDB (base "softinsight")
 
 **`audit_events`** — copia plana del audit log (consultable por `project_id`, indexado; cada evento lleva también `org_id`), además del registro canónico que vive dentro del proyecto.
 
-**Migración a organizaciones (RF-02).** `scripts/migrate_orgs.py` (`migrate(db) -> dict`) convierte datos anteriores: cada usuario sin `org_id` recibe su propia organización y `rol="admin"` (usuarios con la misma `empresa` **no** se unen); cada proyecto sin `org_id` hereda el de su `user_id`; cada `audit_event` sin `org_id` hereda el de su proyecto. Un proyecto cuyo usuario ya no existe queda con `org_id: null` (inaccesible) y se cuenta como huérfano. Es idempotente: solo toca documentos con `org_id` ausente, y `init_db()` la corre en cada arranque (barata si no hay nada pendiente).
+**Migración a organizaciones (RF-02).** `app/migrations.py` (`migrate_orgs(db) -> dict`; `scripts/migrate_orgs.py` es solo el envoltorio de línea de comandos) convierte datos anteriores: cada usuario sin `org_id` recibe su propia organización y `rol="admin"` (usuarios con la misma `empresa` **no** se unen); cada proyecto sin `org_id` hereda el de su `user_id`; cada `audit_event` sin `org_id` hereda el de su proyecto. Un proyecto cuyo usuario ya no existe queda con `org_id: null` (inaccesible) y se cuenta como huérfano. Es idempotente: solo toca documentos con `org_id` ausente, y `init_db()` la corre en cada arranque (barata si no hay nada pendiente).
 
 ### 3.2 Decisión clave: documento + actualizaciones parciales
 

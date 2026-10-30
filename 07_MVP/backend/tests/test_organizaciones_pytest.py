@@ -23,7 +23,7 @@ from app import store  # noqa: E402
 from app.auth import create_token, hash_password  # noqa: E402
 from app.database import get_db  # noqa: E402
 from app.main import app  # noqa: E402
-from scripts.migrate_orgs import migrate  # noqa: E402
+from app.migrations import migrate_orgs as migrate  # noqa: E402
 
 c = TestClient(app, raise_server_exceptions=False)
 CSV = "id_respuesta,respuesta\nE001,Muy bueno\nE002,Regular\n"
@@ -134,3 +134,18 @@ def test_usuario_migrado_inicia_sesion_y_ve_sus_proyectos_de_antes():
     r = c.post("/auth/login", json={"email": "viejo@x.cl", "password": "clave12345"})
     assert r.status_code == 200 and r.json()["user"]["organizacion"]["nombre"] == "Antigua"
     assert [x["id"] for x in c.get("/api/projects", headers=_hdr(r.json()["token"])).json()] == [p["id"]]
+
+
+def test_usuario_con_org_id_nulo_no_ve_ni_abre_el_proyecto_huerfano():
+    db = get_db()
+    db.projects.insert_one({"_id": "proj_huerfano_null", "id": "proj_huerfano_null", "org_id": None, "name": "H",
+                            "responses": [], "categories": []})
+    db.users.insert_one({"_id": "usr_sin_org", "email": "sin-org@x.cl", "password_hash": hash_password("clave12345"),
+                         "org_id": None, "rol": "admin", "created_at": "", "integrations": {}})
+    h = _hdr(create_token("usr_sin_org"))
+    assert c.get("/api/projects", headers=h).json() == []
+    assert c.get("/api/projects/proj_huerfano_null", headers=h).status_code == 404
+    assert store.get_project("proj_huerfano_null", None) is None
+    assert store.get_project("proj_huerfano_null", "") is None
+    assert not store.delete_project("proj_huerfano_null", None)
+    assert db.projects.count_documents({"_id": "proj_huerfano_null"}) == 1
