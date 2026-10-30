@@ -28,11 +28,11 @@ export default function Coding() {
   const validated = project.categories.filter((c) => c.status === "validada");
 
   const load = useCallback(() => {
-    analysisApi.getResponses(project.id, offset, PAGE_SIZE).then((r) => {
+    analysisApi.getResponses(project.id, project.pregunta, offset, PAGE_SIZE).then((r) => {
       setItems(r.items);
       setTotal(r.total);
     }).catch((e) => setError(e.message));
-  }, [project.id, offset]);
+  }, [project.id, project.pregunta, offset]);
   useEffect(load, [load]);
 
   async function runCodify() {
@@ -40,10 +40,10 @@ export default function Coding() {
     setError("");
     setProgress(null);
     try {
-      await analysisApi.codify(project.id);
+      await analysisApi.codify(project.id, project.pregunta);
       startPolling(async () => {
         try {
-          const prog = await analysisApi.getCodifyProgress(project.id);
+          const prog = await analysisApi.getCodifyProgress(project.id, project.pregunta);
           setProgress(prog);
           if (prog.status === "done") {
             stopPolling();
@@ -65,7 +65,7 @@ export default function Coding() {
 
   async function recode(rid: string, categoryId: string) {
     try {
-      await analysisApi.recode(project.id, rid, categoryId ? [categoryId] : []);
+      await analysisApi.recode(project.id, project.pregunta, rid, categoryId ? [categoryId] : []);
       load();
       refresh();
     } catch (e) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/useAuth";
 import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
@@ -15,6 +15,7 @@ import Icon from "@/shared/components/Icon";
 export default function ReportView() {
   const { project, refresh } = useProject();
   const navigate = useNavigate();
+  const { search } = useLocation();
   const canEdit = puede(useAuth().user, "analista");
   const [report, setReport] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -28,9 +29,9 @@ export default function ReportView() {
 
   useEffect(() => {
     if (project.has_report) {
-      analysisApi.getReport(project.id).then((r) => setReport(r.report)).catch(() => {});
+      analysisApi.getReport(project.id, project.pregunta).then((r) => setReport(r.report)).catch(() => {});
     }
-  }, [project.id, project.has_report]);
+  }, [project.id, project.pregunta, project.has_report]);
 
   async function generate(forceFull = false) {
     setBusy(true);
@@ -38,14 +39,14 @@ export default function ReportView() {
     setProgress(null);
     setConfirmFull(false);
     try {
-      await analysisApi.generateReport(project.id, mode, forceFull);
+      await analysisApi.generateReport(project.id, project.pregunta, mode, forceFull);
       startPolling(async () => {
         try {
-          const prog = await analysisApi.getReportProgress(project.id);
+          const prog = await analysisApi.getReportProgress(project.id, project.pregunta);
           setProgress(prog);
           if (prog.status === "done") {
             stopPolling();
-            const r = await analysisApi.getReport(project.id);
+            const r = await analysisApi.getReport(project.id, project.pregunta);
             setReport(r.report);
             setBusy(false);
             setProgress(null);
@@ -157,7 +158,7 @@ export default function ReportView() {
             title={<p className="muted small" style={{ margin: 0 }}>Análisis cualitativo asistido por IA · Celestica</p>}
             actions={
               <>
-                <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}><Icon name="download" size={16} /> Exportar PDF/Word</Button>
+                <Button variant="secondary" size="sm" onClick={() => navigate(`../exportar${search}`)}><Icon name="download" size={16} /> Exportar PDF/Word</Button>
                 {canEdit && (
                   <Button variant="ghost" size="sm" onClick={() => generate(false)} busy={busy}>
                     {busy ? "Regenerando…" : "Regenerar"}

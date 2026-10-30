@@ -1,4 +1,5 @@
 import { jsonBody, req } from "@/shared/api/client";
+import { qp } from "@/features/analysis/api";
 import { Category } from "@/features/analysis/types";
 import { FrameworkTemplate, Project, ProjectSummary, VistaPrevia } from "./types";
 
@@ -15,15 +16,17 @@ export const projectsApi = {
     req<VistaPrevia>("/projects/preview/qualtrics", { method: "POST", ...jsonBody({ survey_id }) }),
   previewGoogleForms: (sheet_url: string) =>
     req<VistaPrevia>("/projects/preview/google-forms", { method: "POST", ...jsonBody({ sheet_url }) }),
-  getProject: (id: string) => req<Project>(`/projects/${id}`),
+  // Sin `pregunta`, el backend devuelve la primera pregunta abierta.
+  getProject: (id: string, pregunta?: string) =>
+    req<Project>(`/projects/${id}${pregunta ? `?${qp(pregunta)}` : ""}`),
   deleteProject: (id: string) => req<{ deleted: string }>(`/projects/${id}`, { method: "DELETE" }),
   importLegacy: () => req<{ imported: number }>("/projects/import-legacy", { method: "POST" }),
 
   // Plantillas de marcos teóricos
   listTemplates: () => req<FrameworkTemplate[]>("/framework-templates"),
-  applyTemplate: (id: string, template: string) =>
+  applyTemplate: (id: string, pregunta: string, template: string) =>
     req<{ marco_teorico: string; categories: Category[] }>(
-      `/projects/${id}/apply-template?template=${encodeURIComponent(template)}`, { method: "POST" }),
+      `/projects/${id}/apply-template?template=${encodeURIComponent(template)}&${qp(pregunta)}`, { method: "POST" }),
 };
 
 export { jsonBody };

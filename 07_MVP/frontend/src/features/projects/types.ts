@@ -24,6 +24,9 @@ export interface Project {
   n_coded: number;
   has_report: boolean;
   n_audit_events: number;
+  preguntas: Pregunta[];
+  /** Id de la pregunta que se está mostrando. */
+  pregunta: string;
 }
 
 export interface FrameworkTemplate {
@@ -63,4 +66,11 @@ export interface PreguntaProyecto {
   columnas: string[];
   tipo: TipoPregunta;
   contexto_ia: boolean;
+}
+
+/** Pregunta guardada en el proyecto (RF-23, T-011a). */
+export interface Pregunta extends PreguntaProyecto {
+  id: string;
+  n_respuestas: number;
+  n_na: number;
 }

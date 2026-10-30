@@ -1,10 +1,11 @@
 import { downloadFile } from "@/shared/api/client";
+import { qp } from "@/features/analysis/api";
 
 export const exportApi = {
-  downloadPdf: (id: string, includeDetails = true) =>
-    downloadFile(`/projects/${id}/export/pdf?include_details=${includeDetails}`),
-  downloadDocx: (id: string, includeDetails = true) =>
-    downloadFile(`/projects/${id}/export/docx?include_details=${includeDetails}`),
-  downloadCsv: (id: string) => downloadFile(`/projects/${id}/export/csv`),
-  downloadXlsx: (id: string) => downloadFile(`/projects/${id}/export/xlsx`),
+  downloadPdf: (id: string, pregunta: string, includeDetails = true) =>
+    downloadFile(`/projects/${id}/export/pdf?include_details=${includeDetails}&${qp(pregunta)}`),
+  downloadDocx: (id: string, pregunta: string, includeDetails = true) =>
+    downloadFile(`/projects/${id}/export/docx?include_details=${includeDetails}&${qp(pregunta)}`),
+  downloadCsv: (id: string, pregunta: string) => downloadFile(`/projects/${id}/export/csv?${qp(pregunta)}`),
+  downloadXlsx: (id: string, pregunta: string) => downloadFile(`/projects/${id}/export/xlsx?${qp(pregunta)}`),
 };

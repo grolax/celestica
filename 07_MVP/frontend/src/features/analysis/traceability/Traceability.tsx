@@ -26,9 +26,9 @@ export default function Traceability() {
   } = useTraceabilityFilters(rows);
 
   useEffect(() => {
-    analysisApi.traceability(project.id).then(setRows).catch((e) => setError(e.message));
-    analysisApi.summary(project.id).then(setStats).catch(() => {});
-  }, [project.id]);
+    analysisApi.traceability(project.id, project.pregunta).then(setRows).catch((e) => setError(e.message));
+    analysisApi.summary(project.id, project.pregunta).then(setStats).catch(() => {});
+  }, [project.id, project.pregunta]);
 
   return (
     <>
@@ -43,8 +43,8 @@ export default function Traceability() {
         title={`Tabla de trazabilidad (${filtered.length}${filtered.length !== rows.length ? ` de ${rows.length}` : ""} filas)`}
         actions={
           <>
-            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadCsv(project.id).catch((e) => setError(e.message))}><Icon name="download" size={16} /> CSV</Button>
-            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadXlsx(project.id).catch((e) => setError(e.message))}><Icon name="download" size={16} /> Excel</Button>
+            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadCsv(project.id, project.pregunta).catch((e) => setError(e.message))}><Icon name="download" size={16} /> CSV</Button>
+            <Button variant="secondary" size="sm" onClick={() => exportApi.downloadXlsx(project.id, project.pregunta).catch((e) => setError(e.message))}><Icon name="download" size={16} /> Excel</Button>
           </>
         }
       >

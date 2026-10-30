@@ -4,50 +4,59 @@ import {
   ClaudeUsage, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
 } from "./types";
 
+/** Parámetro `?pregunta=` que el contrato RF-23 exige en toda operación de análisis. */
+export const qp = (pregunta: string) => `pregunta=${encodeURIComponent(pregunta)}`;
+
 export const analysisApi = {
   // Respuestas
-  getResponses: (id: string, offset = 0, limit = 50) =>
-    req<{ total: number; items: ResponseItem[] }>(`/projects/${id}/responses?offset=${offset}&limit=${limit}`),
+  getResponses: (id: string, pregunta: string, offset = 0, limit = 50) =>
+    req<{ total: number; items: ResponseItem[] }>(`/projects/${id}/responses?offset=${offset}&limit=${limit}&${qp(pregunta)}`),
 
   // Capa 1: léxico
-  runLexical: (id: string) => req<LexicalResult>(`/projects/${id}/lexical`, { method: "POST" }),
-  getLexical: (id: string) => req<LexicalResult>(`/projects/${id}/lexical`),
+  runLexical: (id: string, pregunta: string) => req<LexicalResult>(`/projects/${id}/lexical?${qp(pregunta)}`, { method: "POST" }),
+  getLexical: (id: string, pregunta: string) => req<LexicalResult>(`/projects/${id}/lexical?${qp(pregunta)}`),
 
   // Capa 2: libro de códigos
-  proposeCategories: (id: string) => req<Category[]>(`/projects/${id}/categories/propose`, { method: "POST" }),
-  updateCategory: (id: string, catId: string, body: Partial<Category>) =>
-    req<Category>(`/projects/${id}/categories/${catId}`, { method: "PATCH", ...jsonBody(body) }),
+  proposeCategories: (id: string, pregunta: string) =>
+    req<Category[]>(`/projects/${id}/categories/propose?${qp(pregunta)}`, { method: "POST" }),
+  updateCategory: (id: string, pregunta: string, catId: string, body: Partial<Category>) =>
+    req<Category>(`/projects/${id}/categories/${catId}?${qp(pregunta)}`, { method: "PATCH", ...jsonBody(body) }),
   createCategory: (
     id: string,
+    pregunta: string,
     body: { nombre: string; definicion: string; criterios_inclusion?: string; criterios_exclusion?: string; ejemplo?: string }
-  ) => req<Category>(`/projects/${id}/categories`, { method: "POST", ...jsonBody(body) }),
+  ) => req<Category>(`/projects/${id}/categories?${qp(pregunta)}`, { method: "POST", ...jsonBody(body) }),
 
   // Comentarios (colaboración)
-  addComment: (id: string, catId: string, text: string) =>
-    req<CategoryComment>(`/projects/${id}/categories/${catId}/comments`, { method: "POST", ...jsonBody({ text }) }),
-  deleteComment: (id: string, catId: string, commentId: string) =>
-    req<{ deleted: string }>(`/projects/${id}/categories/${catId}/comments/${commentId}`, { method: "DELETE" }),
+  addComment: (id: string, pregunta: string, catId: string, text: string) =>
+    req<CategoryComment>(`/projects/${id}/categories/${catId}/comments?${qp(pregunta)}`, { method: "POST", ...jsonBody({ text }) }),
+  deleteComment: (id: string, pregunta: string, catId: string, commentId: string) =>
+    req<{ deleted: string }>(`/projects/${id}/categories/${catId}/comments/${commentId}?${qp(pregunta)}`, { method: "DELETE" }),
 
   // Codificación
-  codify: (id: string) => req<{ status: string; total: number }>(`/projects/${id}/codify`, { method: "POST" }),
-  getCodifyProgress: (id: string) => req<CodifyProgress>(`/projects/${id}/codify/progress`),
-  recode: (id: string, responseId: string, categoryIds: string[]) =>
-    req<Coding[]>(`/projects/${id}/responses/${responseId}/codings`, {
+  codify: (id: string, pregunta: string) =>
+    req<{ status: string; total: number }>(`/projects/${id}/codify?${qp(pregunta)}`, { method: "POST" }),
+  getCodifyProgress: (id: string, pregunta: string) =>
+    req<CodifyProgress>(`/projects/${id}/codify/progress?${qp(pregunta)}`),
+  recode: (id: string, pregunta: string, responseId: string, categoryIds: string[]) =>
+    req<Coding[]>(`/projects/${id}/responses/${responseId}/codings?${qp(pregunta)}`, {
       method: "PUT", ...jsonBody({ category_ids: categoryIds }),
     }),
 
   // Resultados
-  summary: (id: string) => req<ProjectStats>(`/projects/${id}/summary`),
+  summary: (id: string, pregunta: string) => req<ProjectStats>(`/projects/${id}/summary?${qp(pregunta)}`),
   audit: (id: string) => req<AuditEvent[]>(`/projects/${id}/audit`),
-  traceability: (id: string) => req<Record<string, unknown>[]>(`/projects/${id}/export/traceability`),
+  traceability: (id: string, pregunta: string) =>
+    req<Record<string, unknown>[]>(`/projects/${id}/export/traceability?${qp(pregunta)}`),
 
   // Informe cualitativo
   /** forceFull: ignora el caché del análisis por respondente (Prompt 1) y
    *  vuelve a analizar todo el corpus — cuesta ~1 llamada a Claude por respondente. */
-  generateReport: (id: string, mode: "v1" | "v2" = "v2", forceFull = false) =>
+  generateReport: (id: string, pregunta: string, mode: "v1" | "v2" = "v2", forceFull = false) =>
     req<{ status: string; mode: string }>(
-      `/projects/${id}/report?mode=${mode}${forceFull ? "&force_full=true" : ""}`, { method: "POST" }),
+      `/projects/${id}/report?mode=${mode}${forceFull ? "&force_full=true" : ""}&${qp(pregunta)}`, { method: "POST" }),
   getUsage: (id: string) => req<{ project_id: string; usage: ClaudeUsage }>(`/projects/${id}/usage`),
-  getReportProgress: (id: string) => req<ReportProgress>(`/projects/${id}/report/progress`),
-  getReport: (id: string) => req<{ report: string }>(`/projects/${id}/report`),
+  getReportProgress: (id: string, pregunta: string) =>
+    req<ReportProgress>(`/projects/${id}/report/progress?${qp(pregunta)}`),
+  getReport: (id: string, pregunta: string) => req<{ report: string }>(`/projects/${id}/report?${qp(pregunta)}`),
 };
