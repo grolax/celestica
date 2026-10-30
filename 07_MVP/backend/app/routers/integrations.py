@@ -1,6 +1,8 @@
 """Integraciones Qualtrics y Google Forms (movido tal cual desde main.py)."""
 from __future__ import annotations
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
@@ -31,6 +33,7 @@ class QualtricsImportBody(BaseModel):
     marco_teorico: str = ""
     text_column: str = ""
     template: str = ""
+    preguntas: Optional[list[dict]] = None  # las confirmadas en la vista previa (opcional)
 
 
 class GoogleFormsImportBody(BaseModel):
@@ -39,6 +42,7 @@ class GoogleFormsImportBody(BaseModel):
     marco_teorico: str = ""
     text_column: str = ""
     template: str = ""
+    preguntas: Optional[list[dict]] = None  # las confirmadas en la vista previa (opcional)
 
 
 class QualtricsPreviewBody(BaseModel):
@@ -104,6 +108,7 @@ def create_project_from_qualtrics(body: QualtricsImportBody, user: User = Depend
         df, body.name, body.marco_teorico, body.text_column, body.template, user,
         source_detail={"fuente": "qualtrics", "encuesta_id": body.survey_id,
                        "encuesta": body.survey_name or body.survey_id},
+        preguntas=body.preguntas,
     )
     project = store.get_project(result["id"], user.org_id)
     store.log_event(project, "sistema", "importacion_qualtrics", {
@@ -122,6 +127,7 @@ def create_project_from_google_forms(body: GoogleFormsImportBody, user: User = D
     result = _create_project_from_df(
         df, body.name, body.marco_teorico, body.text_column, body.template, user,
         source_detail={"fuente": "google_forms", "planilla": body.sheet_url},
+        preguntas=body.preguntas,
     )
     project = store.get_project(result["id"], user.org_id)
     store.log_event(project, "sistema", "importacion_google_forms", {

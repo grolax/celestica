@@ -9,7 +9,7 @@ from fastapi.responses import Response
 
 from app import store
 from app.auth import get_current_user
-from app.deps import _REPORT_EXPECTED_CHARS, _get_or_404, _report_progress, _slug, require_role
+from app.deps import _REPORT_EXPECTED_CHARS, _get_vista, _report_progress, _slug, require_role
 from app.models import User
 from app.services import claude_log, thematic
 from app.services import export as export_svc
@@ -18,10 +18,10 @@ router = APIRouter()
 
 
 @router.get("/api/projects/{project_id}/export/traceability")
-def export_traceability(project_id: str, user: User = Depends(get_current_user)):
+def export_traceability(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
     """Tabla plana de trazabilidad: respuesta → categoría → criterio → fuente."""
-    project = _get_or_404(project_id, user)
-    rows = export_svc.traceability_rows(project)
+    vista = _get_vista(project_id, user, pregunta)
+    rows = export_svc.traceability_rows(vista)
     # Compatibilidad con el frontend previo
     for r in rows:
         r["calculo_confianza"] = {
@@ -43,37 +43,37 @@ def _download(content: bytes, filename: str, media_type: str) -> Response:
 
 
 @router.get("/api/projects/{project_id}/export/pdf")
-def export_pdf(project_id: str, include_details: bool = True,
+def export_pdf(project_id: str, include_details: bool = True, pregunta: Optional[str] = None,
                user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    pdf = export_svc.generate_pdf_report(project, include_details=include_details)
-    return _download(pdf, f"informe_celestica_{_slug(project['name'])}.pdf", "application/pdf")
+    vista = _get_vista(project_id, user, pregunta)
+    pdf = export_svc.generate_pdf_report(vista, include_details=include_details)
+    return _download(pdf, f"informe_celestica_{_slug(vista['name'])}.pdf", "application/pdf")
 
 
 @router.get("/api/projects/{project_id}/export/docx")
-def export_docx(project_id: str, include_details: bool = True,
+def export_docx(project_id: str, include_details: bool = True, pregunta: Optional[str] = None,
                 user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    docx_bytes = export_svc.generate_docx_report(project, include_details=include_details)
+    vista = _get_vista(project_id, user, pregunta)
+    docx_bytes = export_svc.generate_docx_report(vista, include_details=include_details)
     return _download(
-        docx_bytes, f"informe_celestica_{_slug(project['name'])}.docx",
+        docx_bytes, f"informe_celestica_{_slug(vista['name'])}.docx",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
 
 
 @router.get("/api/projects/{project_id}/export/csv")
-def export_csv(project_id: str, user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    return _download(export_svc.generate_csv_export(project),
-                     f"trazabilidad_{_slug(project['name'])}.csv", "text/csv; charset=utf-8")
+def export_csv(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
+    vista = _get_vista(project_id, user, pregunta)
+    return _download(export_svc.generate_csv_export(vista),
+                     f"trazabilidad_{_slug(vista['name'])}.csv", "text/csv; charset=utf-8")
 
 
 @router.get("/api/projects/{project_id}/export/xlsx")
-def export_xlsx(project_id: str, user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
+def export_xlsx(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
+    vista = _get_vista(project_id, user, pregunta)
     return _download(
-        export_svc.generate_xlsx_export(project),
-        f"trazabilidad_{_slug(project['name'])}.xlsx",
+        export_svc.generate_xlsx_export(vista),
+        f"trazabilidad_{_slug(vista['name'])}.xlsx",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
@@ -92,7 +92,7 @@ def _report_section(text: str) -> Optional[str]:
 
 
 @router.post("/api/projects/{project_id}/report")
-def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
+def generate_report(project_id: str, mode: str = "v2", force_full: bool = False, pregunta: Optional[str] = None,
                     user: User = Depends(require_role("analista"))):
     """Genera el informe en un hilo.
 
@@ -106,36 +106,39 @@ def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
     """
     if mode not in ("v1", "v2"):
         raise HTTPException(400, f"Modo '{mode}' no válido. Usa 'v1' o 'v2'.")
-    project = _get_or_404(project_id, user)
-    validated = [c for c in project["categories"] if c["status"] == "validada"]
+    vista = _get_vista(project_id, user, pregunta)
+    validated = [c for c in vista["categories"] if c["status"] == "validada"]
     if not validated:
         raise HTTPException(400, "No hay categorías validadas. Completa la codificación antes de generar el informe.")
-    if not project["codings"]:
+    if not vista["codings"]:
         raise HTTPException(400, "No hay respuestas codificadas. Ejecuta la codificación antes de generar el informe.")
 
-    if _report_progress.get(project_id, {}).get("status") == "running":
+    qid = vista["pregunta"]  # el hilo captura la pregunta: el progreso es por (proyecto, pregunta)
+    key = (project_id, qid)
+    if _report_progress.get(key, {}).get("status") == "running":
         return {"status": "already_running"}
 
-    _report_progress[project_id] = {"status": "running", "done": 0, "total": _REPORT_EXPECTED_CHARS, "section": None}
+    _report_progress[key] = {"status": "running", "done": 0, "total": _REPORT_EXPECTED_CHARS, "section": None}
     org_id = user.org_id
 
     def run():
         claude_log.current_project_id.set(project_id)  # hilo nuevo: sin contexto heredado
         try:
             proj = store.get_project(project_id, org_id)
-            if not proj:
-                _report_progress[project_id] = {"status": "error", "error": "Proyecto no encontrado"}
+            v = store.vista_pregunta(proj, qid) if proj else None
+            if not v:
+                _report_progress[key] = {"status": "error", "error": "Proyecto no encontrado"}
                 return
 
             if mode == "v2":
-                store.log_event(proj, "claude", "informe_v2_inicio", {
-                    "n_respondentes": len(proj["responses"]),
+                store.log_event(v, "claude", "informe_v2_inicio", {
+                    "n_respondentes": len(v["responses"]), "pregunta": qid,
                     "regeneracion_completa": force_full,
-                    "usa_cache_prompt1": (not force_full) and bool(proj.get("v2_analyses_cache")),
+                    "usa_cache_prompt1": (not force_full) and bool(v.get("v2_analyses_cache")),
                 })
 
                 def progress_cb_v2(stage: str, done: int, total: int):
-                    _report_progress[project_id] = {
+                    _report_progress[key] = {
                         "status": "running", "done": done, "total": total,
                         "section": stage,
                     }
@@ -148,28 +151,28 @@ def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
                 def save_v2_analyses_cb(fingerprint: str, analyses: list) -> None:
                     store.set_project_field(
                         project_id, org_id, "v2_analyses_cache",
-                        {"fingerprint": fingerprint, "analyses": analyses},
+                        {"fingerprint": fingerprint, "analyses": analyses}, qid,
                     )
 
                 report = thematic.generate_qualitative_report_v2(
-                    survey_id=proj["id"],
-                    marco_teorico=proj["marco_teorico"],
+                    survey_id=v["id"],
+                    marco_teorico=v["marco_teorico"],
                     categories=validated,
-                    codings=proj["codings"],
-                    responses=proj["responses"],
-                    columns=proj["columns"],
-                    text_column=proj["text_column"],
-                    lexical_data=proj.get("lexical"),
+                    codings=v["codings"],
+                    responses=v["responses"],
+                    columns=v["contexto"],  # solo las columnas de contexto, nunca las de identificación
+                    text_column=v["text_column"],
+                    lexical_data=v.get("lexical"),
                     progress_cb=progress_cb_v2,
-                    cached_analyses=proj.get("v2_analyses_cache"),
+                    cached_analyses=v.get("v2_analyses_cache"),
                     save_analyses_cb=save_v2_analyses_cb,
                     force_full=force_full,
                 )
-                total_steps = len(proj["responses"]) + 2
+                total_steps = len(v["responses"]) + 2
                 done_progress = {"status": "done", "done": total_steps, "total": total_steps}
             else:
                 def progress_cb(text: str):
-                    _report_progress[project_id] = {
+                    _report_progress[key] = {
                         "status": "running",
                         "done": min(len(text), int(_REPORT_EXPECTED_CHARS * 0.95)),
                         "total": _REPORT_EXPECTED_CHARS,
@@ -177,41 +180,40 @@ def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
                     }
 
                 report = thematic.generate_qualitative_report(
-                    marco_teorico=proj["marco_teorico"],
+                    marco_teorico=v["marco_teorico"],
                     categories=validated,
-                    codings=proj["codings"],
-                    responses=proj["responses"],
-                    lexical_data=proj.get("lexical"),
+                    codings=v["codings"],
+                    responses=v["responses"],
+                    lexical_data=v.get("lexical"),
                     progress_cb=progress_cb,
                 )
                 done_progress = {
                     "status": "done", "done": _REPORT_EXPECTED_CHARS, "total": _REPORT_EXPECTED_CHARS,
                 }
 
-            proj["qualitative_report"] = report
-            store.set_project_field(project_id, org_id, "qualitative_report", report)  # $set puntual
-            store.log_event(proj, "claude", "generacion_informe_cualitativo", {
-                "n_categorias": len(validated), "n_codificadas": len(proj["codings"]),
-                "modo": mode,
+            store.set_project_field(project_id, org_id, "qualitative_report", report, qid)  # $set puntual
+            store.log_event(v, "claude", "generacion_informe_cualitativo", {
+                "n_categorias": len(validated), "n_codificadas": len(v["codings"]),
+                "modo": mode, "pregunta": qid,
             })
-            _report_progress[project_id] = done_progress
+            _report_progress[key] = done_progress
         except Exception as e:
             claude_log.log_warning(f"informe {mode} del proyecto {project_id} falló: {type(e).__name__}: {e}")
-            _report_progress[project_id] = {"status": "error", "error": str(e)}
+            _report_progress[key] = {"status": "error", "error": str(e)}
 
     threading.Thread(target=run, daemon=True).start()
     return {"status": "started", "mode": mode, "force_full": force_full}
 
 
 @router.get("/api/projects/{project_id}/report/progress")
-def report_progress(project_id: str, user: User = Depends(get_current_user)):
-    _get_or_404(project_id, user)
-    return _report_progress.get(project_id, {"status": "idle"})
+def report_progress(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
+    vista = _get_vista(project_id, user, pregunta)
+    return _report_progress.get((project_id, vista["pregunta"]), {"status": "idle"})
 
 
 @router.get("/api/projects/{project_id}/report")
-def get_report(project_id: str, user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    if not project.get("qualitative_report"):
+def get_report(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
+    vista = _get_vista(project_id, user, pregunta)
+    if not vista.get("qualitative_report"):
         raise HTTPException(404, "Informe no generado aún")
-    return {"report": project["qualitative_report"]}
+    return {"report": vista["qualitative_report"]}

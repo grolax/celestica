@@ -108,6 +108,7 @@ def vista_pregunta(project: dict, pregunta_id: Optional[str] = None) -> Optional
         **{k: project.get(k) for k in ("id", "name", "marco_teorico", "created_at", "columns", "org_id", "user_id")},
         "audit_log": project.setdefault("audit_log", []),  # misma lista: log_event escribe en el proyecto
         "text_column": q["titulo"], "pregunta": q["id"], "responses": responses,
+        "contexto": [c["titulo"] for c in contexto],
         **{**analisis_vacio(), **project.get("analisis", {}).get(q["id"], {})},
     }
 
