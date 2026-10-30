@@ -14,10 +14,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-017 Nombre y colores Celestica en PDF/DOCX | backend | RNF-16 | 2026-10-30 | `tarea/T-017-exportaciones-celestica` (fusionada, PR #5) |
 | T-016a Encabezados, menú agrupado y estado vacío | frontend | RNF-13, RNF-14, RNF-16 | 2026-10-30 | `tarea/T-016a-encabezados-y-navegacion` (fusionada, PR #6) |
 | T-016b Encabezados en pestañas del proyecto | frontend | RNF-13, RNF-16 | 2026-10-30 | `tarea/T-016b-encabezados-de-analisis` (fusionada, PR #7) |
+| T-002 Aislamiento multi-tenant en pytest | backend | RNF-01, RNF-18 | 2026-10-30 | `tarea/T-002-aislamiento-pytest` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- T-002 aislamiento multi-tenant en pytest (backend), rama `tarea/T-002-aislamiento-pytest`.
 - Después: separar `main.py` en routers → RF-02 organizaciones → RF-03 roles.
 
 ## Bloqueado / requiere decisión del usuario
@@ -27,7 +27,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 ## Deuda técnica detectada
 
 - Docs de prompts desactualizados: `COMO_FUNCIONA.md` §6 dice "4 prompts" (son 10); `schemas_v2.py:16` y el docstring de `thematic.py` nombran solo `prompts.json`.
-- Los scripts de aislamiento (`test_e2e`, `test_fase1/3/5`) no los ejecuta pytest; el acceso cruzado cubre ~8 de 25 rutas → en curso, T-002.
+- Para RF-02: `store.inc_project_usage` filtra solo por `id`, y `_codify_progress`/`_report_progress` en memoria se indexan solo por `project_id` (hoy protegidos por `_get_or_404`).
+- La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
 - `backend/app/main.py` concentra todos los endpoints (~950 líneas); separar en routers (RNF-17).
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
 - La presentación muestra "Iniciar sesión" un instante mientras carga la sesión (`LandingPage` no espera `loading` de `useAuth`); menor.

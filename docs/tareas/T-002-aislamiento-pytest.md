@@ -36,3 +36,13 @@ No cambia. Si se corrige una fuga, el comportamiento esperado es 404 (igual que 
 - Los scripts dependen de `cwd`: usa `cwd` explícito en el subproceso para que funcione igual desde la raíz del repo o desde `07_MVP/backend`.
 - `test_fase3.py` duerme ~2 s para simular streaming; es aceptable.
 - Para codify y report, parchea `thematic` en el test (fixture con `monkeypatch`) para que una fuga no gaste API y quede registrada en el doble.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 51 pasan (19 + 4 scripts en subproceso + 28 de aislamiento), ~35 s.
+- `test_scripts_pytest.py`: cada script en subproceso con `cwd` explícito y `ANTHROPIC_API_KEY=sk-test`; `collect_ignore` se mantiene.
+- `test_aislamiento_pytest.py`: las 25 rutas con `{project_id}` (26 casos, `report` en v1 y v2) con cuerpos válidos y IDs reales; exige 404 con detalle "Proyecto no encontrado", documento de A idéntico, conteo de auditoría igual y cero llamadas al doble de IA (`thematic.client` lanza error). Los dobles parchean las mismas funciones que usa `main.py` (`thematic.<fn>`).
+- `test_toda_ruta_con_project_id_esta_cubierta` falla si aparece una ruta nueva sin prueba. Listado de proyectos y credenciales de Qualtrics de B no exponen lo de A.
+- Prueba de control del programador: quitar el filtro de dueño en `store.get_project` o `store.delete_project` hace fallar 25 de 28 casos.
+- Sin fugas encontradas; `app/` no se tocó.
+- A considerar en RF-02: `store.inc_project_usage` filtra solo por `id` (escritura del sistema, sin endpoint) y `_codify_progress`/`_report_progress` en memoria indexados por `project_id` (protegidos por `_get_or_404`).

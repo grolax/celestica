@@ -42,7 +42,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
 | T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ✅ Incorporada a la versión oficial (T-016a y T-016b) |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
-| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | 🔨 En desarrollo |
+| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
 
 ---
 
@@ -237,6 +237,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **De qué se trata:** hoy, las pruebas que verifican que **un cliente no pueda ver ni modificar los proyectos de otro** existen, pero hay que ejecutarlas a mano, y cubren solo 8 de las 25 operaciones que se pueden hacer sobre un proyecto. T-002 las incorpora a las pruebas automáticas y las extiende a las 25. Además, si en el futuro alguien agrega una operación nueva sin su prueba de seguridad, las pruebas fallarán y lo avisarán.
 - **Por qué ahora:** la siguiente gran etapa cambia cómo se separan los datos de cada cliente (de "por usuario" a "por organización"). Antes de mover algo tan delicado, hay que tener una alarma que suene si algo se rompe.
 - **Estado:** en desarrollo.
+
+---
+
+### 20. T-002 · Pruebas de seguridad entre clientes, ahora automáticas
+
+- **Qué se hizo:**
+  - Las pruebas que antes había que ejecutar a mano ahora corren solas, junto con todas las demás.
+  - Se agregó una prueba que intenta, como un usuario ajeno, cada una de las **25 operaciones** posibles sobre un proyecto: verlo, borrarlo, editar categorías, comentar, codificar, exportar, generar el informe, etc. En todas, el sistema debe responder "no encontrado". Además, la prueba revisa que el proyecto original no haya cambiado y que la IA no se haya activado.
+  - Si alguien agrega en el futuro una operación nueva sin su prueba de seguridad, las pruebas fallan y lo avisan.
+- **Resultado:** **no se encontró ninguna fuga**: las 25 operaciones ya estaban protegidas. Ahora hay **51 pruebas automáticas** (antes 19) y todas pasan. Como control, se desactivó a propósito la protección de forma temporal y las pruebas lo detectaron de inmediato.
+- **Por qué importa:** la siguiente etapa cambia la forma de separar los datos, de "por usuario" a "por organización". Esta alarma garantiza que ese cambio no abra una puerta sin que nadie lo note.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
