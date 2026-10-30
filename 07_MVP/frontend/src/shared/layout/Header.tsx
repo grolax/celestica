@@ -30,7 +30,9 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         <div className="avatar" title={user?.email}>{initials}</div>
         <div className="small" style={{ lineHeight: 1.3 }}>
           <strong>{user?.nombre || user?.email}</strong>
-          {user?.empresa && <div className="muted">{user.empresa}</div>}
+          {(user?.organizacion?.nombre || user?.empresa) && (
+            <div className="muted">{user?.organizacion?.nombre || user?.empresa}</div>
+          )}
         </div>
         <Button variant="ghost" size="sm" onClick={logout}>Salir</Button>
       </div>
