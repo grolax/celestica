@@ -3,7 +3,9 @@ Autenticación JWT multi-tenant.
 
 - Passwords: PBKDF2-HMAC-SHA256 (stdlib, 200k iteraciones, salt por usuario).
 - Tokens: JWT HS256 firmados con SECRET_KEY (.env), expiración 7 días.
-- `get_current_user` es la dependency que protege todos los endpoints de proyecto.
+- `get_current_user` es la dependency que protege todos los endpoints de proyecto: exige sesión,
+  cuenta activa y contraseña temporal ya cambiada. `get_current_user_pendiente` omite solo ese
+  último bloqueo y la usan únicamente `GET /auth/me` y `POST /auth/change-password`.
 - Usuarios en la colección `users` de MongoDB (email con índice único); cada uno pertenece a una organización (`org_id`, `rol`).
 """
 from __future__ import annotations
@@ -21,6 +23,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, field_validator
 from pymongo.errors import DuplicateKeyError
 
+from app import store
 from app.database import get_db
 from app.models import User, user_from_doc, user_to_doc
 
@@ -28,6 +31,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-cambiar-en-produccion")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_DAYS = 7
 _PBKDF2_ITERATIONS = 200_000
+
+MSG_DESACTIVADA = "Tu cuenta fue desactivada. Contacta al administrador de tu organización."
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 _bearer = HTTPBearer(auto_error=False)
@@ -60,7 +65,8 @@ def create_token(user_id: str) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer)) -> User:
+def get_current_user_pendiente(credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer)) -> User:
+    """Sesión válida y cuenta activa; permite contraseña temporal pendiente."""
     if credentials is None:
         raise HTTPException(401, "No autenticado. Inicia sesión.")
     try:
@@ -72,10 +78,24 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
     user = user_from_doc(get_db().users.find_one({"_id": payload.get("sub", "")}))
     if not user:
         raise HTTPException(401, "Usuario no encontrado.")
+    if not user.activo:
+        raise HTTPException(401, MSG_DESACTIVADA)
+    return user
+
+
+def get_current_user(user: User = Depends(get_current_user_pendiente)) -> User:
+    if user.debe_cambiar_password:
+        raise HTTPException(403, "Debes cambiar tu contraseña temporal antes de continuar.")
     return user
 
 
 # ---------- Schemas ----------
+
+def _largo_minimo(v: str) -> str:
+    if len(v) < 8:
+        raise ValueError("La contraseña debe tener al menos 8 caracteres")
+    return v
+
 
 class SignupBody(BaseModel):
     email: EmailStr
@@ -86,9 +106,7 @@ class SignupBody(BaseModel):
     @field_validator("password")
     @classmethod
     def password_length(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("La contraseña debe tener al menos 8 caracteres")
-        return v
+        return _largo_minimo(v)
 
 
 class LoginBody(BaseModel):
@@ -96,10 +114,21 @@ class LoginBody(BaseModel):
     password: str
 
 
+class ChangePasswordBody(BaseModel):
+    password_actual: str
+    password_nueva: str
+
+    @field_validator("password_nueva")
+    @classmethod
+    def password_length(cls, v: str) -> str:
+        return _largo_minimo(v)
+
+
 def _user_out(user: User) -> dict:
     org = get_db().organizations.find_one({"_id": user.org_id}) or {}
     return {"id": user.id, "email": user.email, "nombre": user.nombre, "empresa": user.empresa,
-            "rol": user.rol, "organizacion": {"id": user.org_id, "nombre": org.get("nombre", "")}}
+            "rol": user.rol, "organizacion": {"id": user.org_id, "nombre": org.get("nombre", "")},
+            "debe_cambiar_password": user.debe_cambiar_password}
 
 
 # ---------- Endpoints ----------
@@ -140,9 +169,24 @@ def login(body: LoginBody):
     user = user_from_doc(get_db().users.find_one({"email": body.email.lower()}))
     if not user or not verify_password(body.password, user.password_hash):
         raise HTTPException(401, "Email o contraseña incorrectos.")
+    if not user.activo:  # solo tras acertar la contraseña: no revela qué emails existen
+        raise HTTPException(401, MSG_DESACTIVADA)
     return {"token": create_token(user.id), "user": _user_out(user)}
 
 
 @router.get("/me")
-def me(user: User = Depends(get_current_user)):
+def me(user: User = Depends(get_current_user_pendiente)):
     return _user_out(user)
+
+
+@router.post("/change-password")
+def change_password(body: ChangePasswordBody, user: User = Depends(get_current_user_pendiente)):
+    if not verify_password(body.password_actual, user.password_hash):
+        raise HTTPException(400, "La contraseña actual no es correcta.")
+    if body.password_nueva == body.password_actual:
+        raise HTTPException(400, "La contraseña nueva debe ser distinta de la actual.")
+    get_db().users.update_one({"_id": user.id}, {"$set": {
+        "password_hash": hash_password(body.password_nueva), "debe_cambiar_password": False}})
+    user.debe_cambiar_password = False
+    store.log_org_event(user.org_id, user.id, "cambio_password", {"email": user.email, "rol": user.rol})
+    return {"user": _user_out(user)}

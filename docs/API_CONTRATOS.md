@@ -112,6 +112,8 @@ Solo el **admin** de la organización. Todas responden **403** `"Tu rol (<rol>) 
 - **Entrada:** uno o ambos campos: `{"rol": "analista"}`, `{"activo": false}` (desactivar = "quitar"), `{"activo": true}` (reactivar).
 - **Respuesta 200:** `<member>` actualizado.
 - **Errores:** 404 — "Miembro no encontrado" · 409 — "La organización debe tener al menos un administrador activo." (al quitar el rol admin o desactivar al último admin activo) · 400 — "No puedes desactivar tu propia cuenta." · 422 — rol inválido o cuerpo vacío.
+- **Precedencia:** el 409 se evalúa antes que el 400. Si el admin es el único admin activo y se desactiva a sí mismo, recibe 409; con otro admin activo, recibe 400. Un admin puede cambiarse su propio rol si queda otro admin activo.
+- **Sesiones:** cambiar la contraseña no cierra las sesiones abiertas (el token anterior vale hasta que expira). La revocación llega con RNF-04.
 
 ### `POST /auth/change-password`
 - **Roles permitidos:** cualquier usuario autenticado (también con `debe_cambiar_password: true`)

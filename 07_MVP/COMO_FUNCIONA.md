@@ -74,6 +74,7 @@ MongoDB (base "softinsight")
 | password_hash | la contraseña **nunca se guarda en texto plano** (ver sección 4) |
 | nombre, empresa | datos de perfil |
 | org_id, rol | organización a la que pertenece (una sola) y su rol (`admin`, `analista` o `lector`; ver sección 4.1) |
+| activo, debe_cambiar_password | estado de la cuenta (ver sección 4.2); si faltan, se leen como `true` / `false`, así que las cuentas anteriores a T-007 no necesitaron migración |
 | integrations | credenciales de integraciones **cifradas** (ej: `integrations.qualtrics.token_enc`) |
 
 **`organizations`** — `{_id: "org_<10 hex>", nombre, created_at}`. Al registrarse se crea una organización nueva (nombre = `empresa`, o "Organización de <nombre|email>") y el usuario queda como `admin`. Los proyectos pertenecen a la organización, no al usuario.
@@ -163,6 +164,16 @@ El rol se verifica **en el backend**; la UI solo lo refleja. `app/deps.py` tiene
 | Credenciales y encuestas de Qualtrics | no | sí | sí |
 
 Los comentarios guardan `author_id` (id del usuario); los antiguos no lo tienen y un lector no puede borrarlos. `/api/admin/*` sigue protegido solo por `X-Admin-Password`. La prueba `tests/test_permisos_pytest.py` declara el rol mínimo de cada operación `/api/` en la tabla `PERMISOS` y falla si aparece una ruta sin declarar.
+
+### 4.2 Miembros y estados de cuenta (RF-03, T-007)
+
+El admin gestiona su organización en `app/routers/org.py` (`require_role("admin")`, persistencia en `store.py`): `GET /api/org/members`, `POST /api/org/members` y `PATCH /api/org/members/{user_id}`. Un miembro de otra organización responde 404 "Miembro no encontrado".
+
+- **Alta.** El servidor genera una contraseña temporal con `secrets` (12 caracteres sin `0 O o 1 l I`, formato `xxxx-xxxx-xxxx`), guarda **solo su hash** (PBKDF2, igual que cualquier contraseña) y la devuelve **una sola vez** en la respuesta 201. El usuario nace con `debe_cambiar_password: true`.
+- **Quitar = desactivar** (`activo: false`): se conservan sus proyectos (`user_id`), comentarios y auditoría. Reactivar es `activo: true`.
+- **Reglas del PATCH.** La organización nunca queda sin admin **activo** (409; se evalúa primero, por eso con un solo admin quitarse el rol o desactivarse da 409); nadie se desactiva a sí mismo (400, aplica cuando hay otro admin); cuerpo vacío o rol inválido, 422. La comprobación del último admin no es atómica (ver `shortcut:` en el código).
+- **Dos bloqueos en la misma puerta.** `get_current_user_pendiente` (en `auth.py`) valida el token, carga al usuario desde la base **en cada petición** y responde 401 "Tu cuenta fue desactivada..." si `activo` es falso (el token vigente de un desactivado deja de servir al instante). `get_current_user` depende de ella y además responde 403 "Debes cambiar tu contraseña temporal antes de continuar." si hay temporal pendiente. Todas las rutas protegidas (incluido `require_role`) usan `get_current_user`; solo `GET /auth/me` y `POST /auth/change-password` usan la variante `_pendiente`. `login` también rechaza a un desactivado, pero solo después de verificar la contraseña. Una prueba recorre OpenAPI y exige el 403 en toda ruta `/api/` (salvo `/api/admin/*`) con una cuenta pendiente.
+- **Cambio de contraseña** (`POST /auth/change-password`, cualquier usuario autenticado): exige la actual (400), nueva de al menos 8 caracteres (422) y distinta de la actual (400); apaga `debe_cambiar_password`. El token anterior sigue valiendo hasta su expiración (no hay revocación, ver Logout).
 
 ### Logout
 
@@ -272,6 +283,8 @@ Principios:
 Cada acción relevante pasa por `store.log_event()`, que registra **timestamp** (UTC), **actor** (`analista` / `claude` / `sistema`), **acción** y **detalle** completo. El evento se escribe en dos lugares: dentro del documento del proyecto (registro canónico, vía `$push`) y en la colección `audit_events` (copia consultable).
 
 Acciones auditadas: creación de proyecto (con fuente), **importaciones** (encuesta/planilla + n° de respuestas), análisis léxico, aplicación de plantilla, cada categoría propuesta por la IA, cada validación/edición/descarte humano, categorías manuales, comentarios, la codificación del corpus, cada re-codificación (antes/después) y la generación del informe.
+
+**Auditoría de organización (T-007).** Las acciones que no pertenecen a un proyecto se insertan con `store.log_org_event()` en `audit_events` con `project_id: null`, `org_id`, `user_id` de quien actúa, `actor: "analista"` y `detail` con el email y rol afectados, **nunca contraseñas**: `miembro_creado`, `miembro_rol_cambiado`, `miembro_desactivado`, `miembro_reactivado` y `cambio_password`. Un PATCH que no cambia nada no genera evento.
 
 No hay endpoint para borrar ni editar eventos: el log solo crece.
 

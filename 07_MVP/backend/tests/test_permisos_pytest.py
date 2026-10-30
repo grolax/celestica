@@ -76,6 +76,9 @@ OPS = [
     ("PUT", "/api/integrations/qualtrics/credentials", "analista", lambda: {"json": {"api_token": "t", "datacenter": "d"}}),
     ("DELETE", "/api/integrations/qualtrics/credentials", "analista", dict),
     ("GET", "/api/integrations/qualtrics/surveys", "analista", dict),
+    ("GET", "/api/org/members", "admin", dict),
+    ("POST", "/api/org/members", "admin", lambda: {"json": {"email": "x@x.cl", "rol": "lector"}}),
+    ("PATCH", "/api/org/members/{user_id}", "admin", lambda: {"json": {"rol": "lector"}}),
 ]
 PERMISOS = {(m, p): rol for m, p, rol, _ in OPS}
 ANALISTA = [o for o in OPS if o[2] == "analista"]
