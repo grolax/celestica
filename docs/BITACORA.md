@@ -40,8 +40,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-001 | Reparar las pruebas automáticas del sistema | ✅ Incorporada a la versión oficial |
 | T-014 | Nueva identidad visual: nombre Celestica, colores azul y blanco, iconos minimalistas | ✅ Incorporada a la versión oficial |
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
-| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ⏳ En cola |
-| T-017 | Nombre y colores Celestica en los informes PDF y Word | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
+| T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | 🔨 T-016a en desarrollo |
+| T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ⏸️ Pospuesta, después del diseño |
 
 ---
@@ -205,7 +205,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Por qué:** para que lo que el cliente recibe tenga la misma identidad que la plataforma.
 - **Cómo se verificó:** se agregó una prueba automática que genera un PDF y un Word y comprueba que digan Celestica y no SoftInsight. Las 19 pruebas pasan.
 - **Pendiente menor:** en el Word, las tablas toman el azul propio de Word, que es parecido pero no igual al de Celestica.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #5 en GitHub).
 
 ---
 
