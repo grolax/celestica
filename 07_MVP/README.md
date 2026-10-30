@@ -93,7 +93,9 @@ Cada plantilla trae marco teórico redactado + 4–5 categorías con criterios d
 
 ```
 backend/
-  app/main.py               # API REST (auth-protegida; proyectos, análisis, integraciones, exportación)
+  app/main.py               # App FastAPI + endpoints de análisis, informe, exportación y admin
+  app/deps.py               # helpers compartidos por los routers (_get_or_404, _check_admin...)
+  app/routers/              # projects.py (plantillas, proyectos) e integrations.py (Qualtrics, Google Forms)
   app/auth.py               # JWT: signup/login/me + dependency get_current_user
   app/database.py           # MongoDB vía pymongo (MONGODB_URI; índices en init_db)
   app/models.py             # User (dataclass) + mapeo de documentos

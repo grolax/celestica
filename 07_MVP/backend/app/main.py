@@ -10,26 +10,27 @@ Multi-tenant: cada endpoint de proyecto exige JWT y filtra por user_id.
 """
 from __future__ import annotations
 
-import io
-import os
 import threading
 import unicodedata
 from typing import Optional
 
-import pandas as pd
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
-from app import store, prompt_store, templates
+from app import store, prompt_store
 from app.auth import get_current_user, router as auth_router
-from app.database import get_db, init_db
+from app.database import init_db
+from app.deps import (  # noqa: F401  (ADMIN_PASSWORD: las pruebas lo importan desde aquí)
+    ADMIN_PASSWORD, _REPORT_EXPECTED_CHARS, _check_admin, _codify_progress,
+    _get_or_404, _report_progress, _slug,
+)
 from app.models import User
+from app.routers.integrations import router as integrations_router
+from app.routers.projects import router as projects_router
 from app.services import claude_log, lexical, thematic
 from app.services import export as export_svc
-from app.services.integrations import credentials, google_forms, qualtrics
-from app.services.integrations.base import IntegrationError
 
 app = FastAPI(title="SoftInsight", version="1.1.0")
 try:
@@ -84,309 +85,8 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-
-# Estado de progreso de codificación y de informe por proyecto (en memoria)
-_codify_progress: dict = {}
-_report_progress: dict = {}
-
-# Largo típico de un informe (~4000 tokens ≈ 12k caracteres): para estimar %.
-# El progreso son caracteres realmente recibidos del stream; el % se satura en 95
-# hasta que el stream termina de verdad.
-_REPORT_EXPECTED_CHARS = 12000
-
-# Contraseña del panel de administración interno (prompts metodológicos)
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "softinsight2026")
-
-
-def _check_admin(request: Request) -> None:
-    pwd = request.headers.get("X-Admin-Password", "")
-    if pwd != ADMIN_PASSWORD:
-        raise HTTPException(401, "Contraseña de administrador incorrecta")
-
-
-def _get_or_404(project_id: str, user: User) -> dict:
-    project = store.get_project(project_id, user.id)
-    if not project:
-        raise HTTPException(404, "Proyecto no encontrado")
-    # Las llamadas a Claude que haga este request quedan atribuidas al
-    # proyecto en el log de costo. Los hilos de fondo (codificación, informe)
-    # no heredan el contexto y lo fijan ellos mismos en su `run()`.
-    claude_log.current_project_id.set(project_id)
-    return project
-
-
-def _slug(text: str) -> str:
-    norm = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
-    return "".join(c if c.isalnum() else "_" for c in norm).strip("_")[:60] or "proyecto"
-
-
-# ---------- Plantillas de marcos teóricos ----------
-
-@app.get("/api/framework-templates")
-def framework_templates(user: User = Depends(get_current_user)):
-    return templates.list_templates()
-
-
-@app.post("/api/projects/{project_id}/apply-template")
-def apply_template(project_id: str, template: str, user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    tpl = templates.get_template(template)
-    if not tpl:
-        raise HTTPException(404, f"Plantilla '{template}' no existe")
-    if not project["marco_teorico"]:
-        project["marco_teorico"] = tpl["marco_teorico"]
-        store.set_project_field(project_id, user.id, "marco_teorico", tpl["marco_teorico"])
-    for c in tpl["categorias_default"]:
-        cat = {
-            "id": store.new_id("cat"),
-            "nombre": c["nombre"],
-            "definicion": c.get("definicion", ""),
-            "criterios_inclusion": c.get("criterios_inclusion", ""),
-            "criterios_exclusion": c.get("criterios_exclusion", ""),
-            "ejemplo": c.get("ejemplo", ""),
-            "origen": "plantilla",
-            "status": "propuesta",  # el analista igual valida: la validación es parte del método
-            "comments": [],
-        }
-        project["categories"].append(cat)
-        store.push_category(project_id, user.id, cat)
-    store.log_event(project, "analista", "aplicacion_plantilla", {
-        "plantilla": template, "usuario": user.email,
-        "n_categorias": len(tpl["categorias_default"]),
-    })
-    return {"marco_teorico": project["marco_teorico"], "categories": project["categories"]}
-
-
-# ---------- Proyectos ----------
-
-@app.get("/api/projects")
-def list_projects(user: User = Depends(get_current_user)):
-    return store.list_projects(user.id)
-
-
-def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
-                            text_column: str, template: str, user: User,
-                            source_detail: dict) -> dict:
-    """Camino común de creación: un DataFrame es un DataFrame, venga de un
-    archivo subido, de Qualtrics o de una planilla de Google (DEC de v1.0
-    que hace triviales las integraciones)."""
-    if df.empty:
-        raise HTTPException(400, "Los datos no contienen filas")
-
-    columns = [str(c) for c in df.columns]
-    df.columns = columns
-    # Heurística: si no se indica columna de texto, usar la de mayor largo promedio
-    if not text_column:
-        text_column = max(columns, key=lambda c: df[c].astype(str).str.len().mean())
-    if text_column not in columns:
-        raise HTTPException(400, f"Columna '{text_column}' no existe. Disponibles: {columns}")
-
-    responses = []
-    for i, row in df.iterrows():
-        text = str(row[text_column]).strip()
-        if not text or text.lower() == "nan":
-            continue
-        meta = {c: ("" if pd.isna(row[c]) else str(row[c])) for c in columns if c != text_column}
-        rid = meta.pop("id_respuesta", None) or f"R{i+1:04d}"
-        responses.append({"id": rid, "text": text, "meta": meta})
-
-    if not responses:
-        raise HTTPException(400, f"La columna '{text_column}' no contiene textos analizables")
-
-    # Plantilla opcional: prefija el marco teórico
-    tpl = templates.get_template(template) if template else None
-    if tpl and not marco_teorico:
-        marco_teorico = tpl["marco_teorico"]
-
-    project = store.create_project(user.id, name, marco_teorico, columns, text_column, responses)
-    store.log_event(project, "analista", "creacion_proyecto", {
-        **source_detail, "n_respuestas": len(responses),
-        "columna_texto": text_column, "marco_teorico": marco_teorico,
-        "usuario": user.email, "plantilla": template or None,
-    })
-    if tpl:
-        for c in tpl["categorias_default"]:
-            project["categories"].append({
-                "id": store.new_id("cat"), "nombre": c["nombre"],
-                "definicion": c.get("definicion", ""),
-                "criterios_inclusion": c.get("criterios_inclusion", ""),
-                "criterios_exclusion": c.get("criterios_exclusion", ""),
-                "ejemplo": c.get("ejemplo", ""),
-                "origen": "plantilla", "status": "propuesta", "comments": [],
-            })
-        store.log_event(project, "analista", "aplicacion_plantilla", {
-            "plantilla": template, "usuario": user.email,
-            "n_categorias": len(tpl["categorias_default"]),
-        })
-    store.save_project(project)
-    return {"id": project["id"], "n_responses": len(responses), "text_column": text_column}
-
-
-@app.post("/api/projects")
-async def create_project(
-    file: UploadFile = File(...),
-    name: str = Form(...),
-    marco_teorico: str = Form(""),
-    text_column: str = Form(""),
-    template: str = Form(""),
-    user: User = Depends(get_current_user),
-):
-    raw = await file.read()
-    try:
-        if file.filename and file.filename.lower().endswith((".xlsx", ".xls")):
-            df = pd.read_excel(io.BytesIO(raw))
-        else:
-            df = pd.read_csv(io.BytesIO(raw))
-    except Exception as e:
-        raise HTTPException(400, f"No se pudo leer el archivo: {e}")
-
-    return _create_project_from_df(df, name, marco_teorico, text_column, template, user,
-                                   source_detail={"fuente": "archivo", "archivo": file.filename})
-
-
-@app.get("/api/projects/{project_id}")
-def get_project(project_id: str, user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    return {
-        **{k: project[k] for k in ["id", "name", "marco_teorico", "created_at", "columns", "text_column", "categories"]},
-        "n_responses": len(project["responses"]),
-        "has_lexical": project["lexical"] is not None,
-        "n_coded": len(project["codings"]),
-        "has_report": bool(project.get("qualitative_report")),
-        "n_audit_events": len(project.get("audit_log", [])),
-    }
-
-
-@app.delete("/api/projects/{project_id}")
-def delete_project(project_id: str, user: User = Depends(get_current_user)):
-    if not store.delete_project(project_id, user.id):
-        raise HTTPException(404, "Proyecto no encontrado")
-    return {"deleted": project_id}
-
-
-@app.post("/api/projects/import-legacy")
-def import_legacy(user: User = Depends(get_current_user)):
-    """Importa a esta cuenta los proyectos del antiguo store JSON (pre-auth)."""
-    n = store.import_legacy_projects(user.id)
-    return {"imported": n}
-
-
-@app.get("/api/projects/{project_id}/responses")
-def get_responses(project_id: str, offset: int = 0, limit: int = 50,
-                  user: User = Depends(get_current_user)):
-    project = _get_or_404(project_id, user)
-    items = []
-    for r in project["responses"][offset:offset + limit]:
-        sentiment = (project["lexical"] or {}).get("sentiment_by_response", {}).get(r["id"])
-        items.append({**r, "sentiment": sentiment, "codings": project["codings"].get(r["id"], [])})
-    return {"total": len(project["responses"]), "offset": offset, "items": items}
-
-
-# ---------- Integraciones: Qualtrics y Google Forms ----------
-# Arquitectura: app/services/integrations/* — cada fuente entrega un DataFrame
-# y desemboca en _create_project_from_df (el mismo camino que subir un archivo).
-
-class QualtricsCredentials(BaseModel):
-    api_token: str
-    datacenter: str
-
-
-class QualtricsImportBody(BaseModel):
-    name: str
-    survey_id: str
-    survey_name: str = ""
-    marco_teorico: str = ""
-    text_column: str = ""
-    template: str = ""
-
-
-class GoogleFormsImportBody(BaseModel):
-    name: str
-    sheet_url: str
-    marco_teorico: str = ""
-    text_column: str = ""
-    template: str = ""
-
-
-def _qualtrics_config(user: User) -> dict:
-    cfg = (user.integrations or {}).get("qualtrics")
-    if not cfg or not cfg.get("token_enc"):
-        raise HTTPException(400, "No hay credenciales de Qualtrics configuradas. Ingrésalas primero.")
-    try:
-        token = credentials.decrypt(cfg["token_enc"])
-    except IntegrationError as e:
-        raise HTTPException(400, str(e))
-    return {"api_token": token, "datacenter": cfg.get("datacenter", "")}
-
-
-@app.get("/api/integrations/qualtrics/credentials")
-def qualtrics_credentials_status(user: User = Depends(get_current_user)):
-    """La UI solo sabe si hay credenciales y el datacenter; el token jamás sale del backend."""
-    cfg = (user.integrations or {}).get("qualtrics") or {}
-    return {"configured": bool(cfg.get("token_enc")), "datacenter": cfg.get("datacenter", "")}
-
-
-@app.put("/api/integrations/qualtrics/credentials")
-def qualtrics_save_credentials(body: QualtricsCredentials, user: User = Depends(get_current_user)):
-    if not body.api_token.strip() or not body.datacenter.strip():
-        raise HTTPException(400, "API Token y Datacenter ID son obligatorios.")
-    get_db().users.update_one({"_id": user.id}, {"$set": {"integrations.qualtrics": {
-        "token_enc": credentials.encrypt(body.api_token.strip()),
-        "datacenter": body.datacenter.strip(),
-    }}})
-    return {"configured": True, "datacenter": body.datacenter.strip()}
-
-
-@app.delete("/api/integrations/qualtrics/credentials")
-def qualtrics_delete_credentials(user: User = Depends(get_current_user)):
-    get_db().users.update_one({"_id": user.id}, {"$unset": {"integrations.qualtrics": ""}})
-    return {"configured": False}
-
-
-@app.get("/api/integrations/qualtrics/surveys")
-def qualtrics_surveys(user: User = Depends(get_current_user)):
-    cfg = _qualtrics_config(user)
-    try:
-        return qualtrics.list_surveys(cfg["api_token"], cfg["datacenter"])
-    except IntegrationError as e:
-        raise HTTPException(400, str(e))
-
-
-@app.post("/api/projects/from-qualtrics")
-def create_project_from_qualtrics(body: QualtricsImportBody, user: User = Depends(get_current_user)):
-    cfg = _qualtrics_config(user)
-    try:
-        df = qualtrics.fetch_responses({**cfg, "survey_id": body.survey_id})
-    except IntegrationError as e:
-        raise HTTPException(400, str(e))
-    result = _create_project_from_df(
-        df, body.name, body.marco_teorico, body.text_column, body.template, user,
-        source_detail={"fuente": "qualtrics", "encuesta_id": body.survey_id,
-                       "encuesta": body.survey_name or body.survey_id},
-    )
-    project = store.get_project(result["id"], user.id)
-    store.log_event(project, "sistema", "importacion_qualtrics", {
-        "encuesta_id": body.survey_id, "encuesta": body.survey_name or body.survey_id,
-        "n_respuestas": result["n_responses"], "usuario": user.email,
-    })
-    return result
-
-
-@app.post("/api/projects/from-google-forms")
-def create_project_from_google_forms(body: GoogleFormsImportBody, user: User = Depends(get_current_user)):
-    try:
-        df = google_forms.fetch_responses({"sheet_url": body.sheet_url})
-    except IntegrationError as e:
-        raise HTTPException(400, str(e))
-    result = _create_project_from_df(
-        df, body.name, body.marco_teorico, body.text_column, body.template, user,
-        source_detail={"fuente": "google_forms", "planilla": body.sheet_url},
-    )
-    project = store.get_project(result["id"], user.id)
-    store.log_event(project, "sistema", "importacion_google_forms", {
-        "planilla": body.sheet_url, "n_respuestas": result["n_responses"], "usuario": user.email,
-    })
-    return result
+app.include_router(projects_router)
+app.include_router(integrations_router)
 
 
 # ---------- Capa 1: análisis léxico ----------
@@ -868,15 +568,6 @@ def get_report(project_id: str, user: User = Depends(get_current_user)):
     if not project.get("qualitative_report"):
         raise HTTPException(404, "Informe no generado aún")
     return {"report": project["qualitative_report"]}
-
-
-# ---------- Consumo de API Claude (observabilidad de costo) ----------
-
-@app.get("/api/projects/{project_id}/usage")
-def project_usage(project_id: str, user: User = Depends(get_current_user)):
-    """Tokens y costo estimado acumulados por el proyecto, por paso."""
-    project = _get_or_404(project_id, user)
-    return {"project_id": project_id, "usage": project.get("claude_usage") or {}}
 
 
 @app.get("/api/admin/usage")

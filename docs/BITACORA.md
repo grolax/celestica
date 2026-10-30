@@ -42,7 +42,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-015 | Página pública de presentación con acceso "Iniciar sesión" | ✅ Incorporada a la versión oficial |
 | T-016 | Orden visual del área de trabajo (en dos partes: T-016a y T-016b) | ✅ Incorporada a la versión oficial (T-016a y T-016b) |
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
-| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | 🟡 Aprobada por el supervisor, espera autorización para publicarse |
+| T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
+| T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | 🟡 T-003a aprobada por el supervisor, espera autorización; T-003b en cola |
 
 ---
 
@@ -248,7 +249,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Si alguien agrega en el futuro una operación nueva sin su prueba de seguridad, las pruebas fallan y lo avisan.
 - **Resultado:** **no se encontró ninguna fuga**: las 25 operaciones ya estaban protegidas. Ahora hay **51 pruebas automáticas** (antes 19) y todas pasan. Como control, se desactivó a propósito la protección de forma temporal y las pruebas lo detectaron de inmediato.
 - **Por qué importa:** la siguiente etapa cambia la forma de separar los datos, de "por usuario" a "por organización". Esta alarma garantiza que ese cambio no abra una puerta sin que nadie lo note.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #8 en GitHub).
+
+---
+
+### 21. T-003 · Ordenar el código del servidor
+
+- **Qué se hace:** casi todo el código del servidor vive hoy en un único archivo de unas 950 líneas. Se reparte en archivos por tema: proyectos, integraciones, análisis, informes y exportaciones, y administración.
+- **Por qué:** es como ordenar una bodega antes de que llegue mercadería nueva. Las organizaciones y los roles tocan casi todas las operaciones. Con el código ordenado por tema, cada cambio será más fácil de hacer y de revisar, y habrá menos riesgo de error.
+- **Qué NO cambia:** nada de lo que ve el usuario, ninguna dirección del servidor y ninguna respuesta. Para comprobarlo, el supervisor guardó una "huella digital" de la API antes del cambio. Después del cambio, la huella debe ser idéntica y las 51 pruebas deben pasar sin modificarlas.
+- **Cómo se organizó:** en dos partes, para revisar cada una con calma. T-003a cubre la base común, los proyectos y las integraciones. T-003b cubre el análisis, los informes y la administración.
+- **T-003a, resultado:** la base común, los proyectos y las integraciones ya viven en sus propios archivos. El archivo principal bajó de 948 a 639 líneas. La huella de la API quedó **idéntica** y las 51 pruebas pasan sin cambios.
+- **Estado:** T-003a aprobada por el supervisor; espera que el responsable autorice publicarla. T-003b en cola.
 
 ---
 
