@@ -44,3 +44,12 @@ Cada operación verifica en el servidor que el rol del usuario la permite, segú
 ## Notas
 - Usuarios de prueba con otros roles: insertarlos con `users.insert_one` reutilizando `hash_password` (los endpoints de miembros llegan en T-007).
 - No inventar roles nuevos; un `rol` desconocido en la base debe tratarse como el nivel más bajo (lector), nunca como admin.
+
+## Revisión 1
+2026-10-30 — **Con cambios** (supervisor).
+
+Lo de T-006 está bien: `require_role` en `deps.py` con tabla única de niveles y etiquetas, rol desconocido = lector; la dependencia corre antes de `_get_or_404` y de la validación del cuerpo; la matriz coincide con el contrato; `author_id` y la regla del lector en `delete_comment` son correctas; 99 pruebas pasan sin modificar las 59 existentes; `test_toda_ruta_api_tiene_permiso_declarado` usa OpenAPI y exige `len(declared) > 30`.
+
+Cambio pedido (hallazgo del programador, confirmado por el supervisor):
+
+1. **`tests/test_aislamiento_pytest.py::test_toda_ruta_con_project_id_esta_cubierta` pasa en vacío.** Desde T-003a, `app.routes` contiene objetos `_IncludedRouter` sin `.path` (FastAPI 0.143); el conjunto `declared` queda vacío (el supervisor obtuvo 0 rutas con `{project_id}`) y el test no puede fallar. **Se autoriza modificar solo esa función:** obtener las operaciones desde `app.openapi()["paths"]` (como en `test_permisos_pytest.py`), mantener la comparación con `ROUTES` y agregar `assert len(declared) >= 25` para que no vuelva a pasar en vacío. Comprueba que falla si quitas temporalmente una entrada de `ROUTES` (sin commitearlo) y cuéntalo en el resumen. No cambies nada más de esa prueba.
