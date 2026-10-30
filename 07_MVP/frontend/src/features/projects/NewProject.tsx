@@ -4,6 +4,7 @@ import { projectsApi } from "./api";
 import { FrameworkTemplate } from "./types";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import Input, { TextArea } from "@/shared/components/Input";
 import { integrationsApi } from "@/features/integrations/api";
 import QualtricsSection from "@/features/integrations/QualtricsSection";
@@ -98,7 +99,7 @@ export default function NewProject() {
 
   return (
     <form onSubmit={submit} style={{ maxWidth: 760 }}>
-      <h1 style={{ marginBottom: 18 }}>Nuevo proyecto de análisis</h1>
+      <PageHeader title="Nuevo proyecto de análisis" help="Sube tu archivo o conecta Qualtrics o Google Forms, y elige la pregunta abierta que quieres analizar." />
       {error && <div className="alert alert-error">{error}</div>}
 
       <Card title="1 · Datos del proyecto">

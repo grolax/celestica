@@ -4,6 +4,7 @@ import { ClaudeUsageTotals } from "@/features/analysis/types";
 import { projectsApi } from "@/features/projects/api";
 import { useAuth } from "@/features/auth/useAuth";
 import Button from "@/shared/components/Button";
+import PageHeader from "@/shared/components/PageHeader";
 import Card from "@/shared/components/Card";
 import Table from "@/shared/components/Table";
 import Input, { TextArea } from "@/shared/components/Input";
@@ -27,7 +28,7 @@ export default function Settings() {
 
   return (
     <>
-      <h1 style={{ marginBottom: 18 }}>Configuración</h1>
+      <PageHeader title="Configuración" help="Ajusta los textos que guían a la IA y revisa el consumo." />
       {error && <div className="alert alert-error">{error}</div>}
 
       <Card title="Mi cuenta">

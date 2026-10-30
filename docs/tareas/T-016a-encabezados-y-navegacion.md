@@ -39,3 +39,12 @@ No aplica.
 - [ ] Sin cambios de comportamiento: crear proyecto y abrir uno siguen funcionando. Indica cómo lo probaste.
 - [ ] Diff de menos de unas 400 líneas.
 - [ ] Commits con el formato `T-016a RNF-13: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff de 57 líneas en 8 archivos, solo frontend; no toca `features/analysis/**`, `api.ts` ni `client.ts`.
+- `PageHeader` (h1/h2 según `level`) aplicado en las 4 pantallas con los textos exactos; su `<header>` queda dentro de `<main>`, así que no crea un segundo landmark `banner`.
+- Sidebar: secciones "Trabajo" y "Ayuda y configuración"; activo con peso 700 y barra lateral además del color. Pestaña activa con peso 700 y subrayado de 4 px; `aria-current` lo pone `NavLink`.
+- Estado vacío con texto y botón "Crear proyecto" a `/proyectos/nuevo`.
+- Desviación aceptada: el botón azul "+ Nuevo proyecto" del sidebar pasa a ser un ítem del grupo "Trabajo" (sigue el botón en el encabezado de Mis proyectos); se agrega el icono `plus`.
+- No verificado en navegador real: recorrido con Tab y apariencia; queda para la prueba manual del usuario.

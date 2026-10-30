@@ -11,11 +11,12 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-001 `prompt_store` sin `prompts.json` | backend | RNF-18, RNF-21 | 2026-10-14 | `tarea/T-001-prompts-fallback` (fusionada, PR #2) |
 | T-014 Identidad visual Celestica | frontend | RNF-16, RNF-14, RNF-13 | 2026-10-15 | `tarea/T-014-identidad-celestica` (fusionada, PR #3) |
 | T-015 Página de presentación y rutas | frontend | RNF-13, RNF-14, RNF-15, RNF-16 | 2026-10-30 | `tarea/T-015-pagina-presentacion` (fusionada, PR #4) |
-| T-017 Nombre y colores Celestica en PDF/DOCX | backend | RNF-16 | 2026-10-30 | `tarea/T-017-exportaciones-celestica` (aprobada, pendiente de subir) |
+| T-017 Nombre y colores Celestica en PDF/DOCX | backend | RNF-16 | 2026-10-30 | `tarea/T-017-exportaciones-celestica` (fusionada, PR #5) |
+| T-016a Encabezados, menú agrupado y estado vacío | frontend | RNF-13, RNF-14, RNF-16 | 2026-10-30 | `tarea/T-016a-encabezados-y-navegacion` (aprobada, pendiente de subir) |
 
 ## En curso
 
-- En cola (Fase UX): T-016a encabezados y menú, T-016b encabezados de análisis (textos aprobados 2026-10-30).
+- En cola (Fase UX): T-016b encabezados de análisis (textos aprobados 2026-10-30).
 - Después, de vuelta al backend (pedido del usuario): T-002 aislamiento en pytest → separar `main.py` en routers → RF-02 organizaciones → RF-03 roles.
 
 ## Bloqueado / requiere decisión del usuario
