@@ -9,7 +9,7 @@ from fastapi.responses import Response
 
 from app import store
 from app.auth import get_current_user
-from app.deps import _REPORT_EXPECTED_CHARS, _get_or_404, _report_progress, _slug
+from app.deps import _REPORT_EXPECTED_CHARS, _get_or_404, _report_progress, _slug, require_role
 from app.models import User
 from app.services import claude_log, thematic
 from app.services import export as export_svc
@@ -93,7 +93,7 @@ def _report_section(text: str) -> Optional[str]:
 
 @router.post("/api/projects/{project_id}/report")
 def generate_report(project_id: str, mode: str = "v2", force_full: bool = False,
-                    user: User = Depends(get_current_user)):
+                    user: User = Depends(require_role("analista"))):
     """Genera el informe en un hilo.
 
     mode="v2" (default): flujo multi-prompt — análisis contextual por
