@@ -128,8 +128,9 @@ def test_otro_usuario_recibe_404_y_nada_cambia(env, method, path, kw):
 
 
 def test_toda_ruta_con_project_id_esta_cubierta():
-    declared = {(m, r.path) for r in app.routes if "{project_id}" in getattr(r, "path", "")
-                for m in r.methods - {"HEAD", "OPTIONS"}}
+    # Se lee de OpenAPI: en esta versión de FastAPI app.routes agrupa los routers y no expone cada ruta.
+    declared = {(m.upper(), p) for p, ops in app.openapi()["paths"].items() if "{project_id}" in p for m in ops}
+    assert len(declared) >= 25  # evita que la prueba pase vacía
     covered = {(m, p) for m, p, _ in ROUTES}
     assert declared - covered == set(), f"rutas con {{project_id}} sin prueba de acceso cruzado: {sorted(declared - covered)}"
 
