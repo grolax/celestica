@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from app import store
 from app.auth import get_current_user
-from app.deps import _codify_progress, _get_or_404
+from app.deps import _codify_progress, _get_or_404, require_role
 from app.models import User
 from app.services import claude_log, lexical, thematic
 
@@ -19,7 +19,7 @@ router = APIRouter()
 # ---------- Capa 1: análisis léxico ----------
 
 @router.post("/api/projects/{project_id}/lexical")
-def run_lexical(project_id: str, user: User = Depends(get_current_user)):
+def run_lexical(project_id: str, user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     result = lexical.analyze(project["responses"])
 
@@ -50,7 +50,7 @@ def get_lexical(project_id: str, user: User = Depends(get_current_user)):
 # ---------- Capa 2: análisis temático ----------
 
 @router.post("/api/projects/{project_id}/categories/propose")
-def propose_categories(project_id: str, user: User = Depends(get_current_user)):
+def propose_categories(project_id: str, user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     sample = [r["text"] for r in project["responses"][:60]]
     try:
@@ -86,7 +86,7 @@ class CategoryUpdate(BaseModel):
 
 @router.patch("/api/projects/{project_id}/categories/{category_id}")
 def update_category(project_id: str, category_id: str, update: CategoryUpdate,
-                    user: User = Depends(get_current_user)):
+                    user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     cat = next((c for c in project["categories"] if c["id"] == category_id), None)
     if not cat:
@@ -111,7 +111,7 @@ class CategoryCreate(BaseModel):
 
 @router.post("/api/projects/{project_id}/categories")
 def create_category(project_id: str, body: CategoryCreate,
-                    user: User = Depends(get_current_user)):
+                    user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     cat = {
         "id": store.new_id("cat"),
@@ -144,6 +144,7 @@ def add_comment(project_id: str, category_id: str, body: CommentCreate,
         "id": store.new_id("com"),
         "text": body.text.strip(),
         "author": user.nombre or user.email,
+        "author_id": user.id,
         "timestamp": store.now_iso(),
     }
     cat.setdefault("comments", []).append(comment)
@@ -161,6 +162,10 @@ def delete_comment(project_id: str, category_id: str, comment_id: str,
     cat = next((c for c in project["categories"] if c["id"] == category_id), None)
     if not cat:
         raise HTTPException(404, "Categoría no encontrada")
+    # El lector solo borra los suyos; los comentarios antiguos sin author_id no cuentan como suyos.
+    com = next((c for c in cat.get("comments", []) if c["id"] == comment_id), None)
+    if com and user.rol not in ("analista", "admin") and com.get("author_id") != user.id:
+        raise HTTPException(403, "Solo puedes borrar tus propios comentarios.")
     if not store.pull_comment(project_id, user.org_id, category_id, comment_id):  # $pull puntual
         raise HTTPException(404, "Comentario no encontrado")
     store.log_event(project, "analista", "eliminacion_comentario", {
@@ -172,7 +177,7 @@ def delete_comment(project_id: str, category_id: str, comment_id: str,
 # ---------- Codificación con seguimiento de progreso ----------
 
 @router.post("/api/projects/{project_id}/codify")
-def codify(project_id: str, user: User = Depends(get_current_user)):
+def codify(project_id: str, user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     validated = [c for c in project["categories"] if c["status"] == "validada"]
     if not validated:
@@ -244,7 +249,7 @@ class RecodeBody(BaseModel):
 
 @router.put("/api/projects/{project_id}/responses/{response_id}/codings")
 def recode(project_id: str, response_id: str, body: RecodeBody,
-           user: User = Depends(get_current_user)):
+           user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     before = project["codings"].get(response_id, [])
     project["codings"][response_id] = [

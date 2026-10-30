@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from app import store, templates
 from app.auth import get_current_user
-from app.deps import _get_or_404
+from app.deps import _get_or_404, require_role
 from app.models import User
 
 router = APIRouter()
@@ -22,7 +22,7 @@ def framework_templates(user: User = Depends(get_current_user)):
 
 
 @router.post("/api/projects/{project_id}/apply-template")
-def apply_template(project_id: str, template: str, user: User = Depends(get_current_user)):
+def apply_template(project_id: str, template: str, user: User = Depends(require_role("analista"))):
     project = _get_or_404(project_id, user)
     tpl = templates.get_template(template)
     if not tpl:
@@ -123,7 +123,7 @@ async def create_project(
     marco_teorico: str = Form(""),
     text_column: str = Form(""),
     template: str = Form(""),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role("analista")),
 ):
     raw = await file.read()
     try:
@@ -152,14 +152,14 @@ def get_project(project_id: str, user: User = Depends(get_current_user)):
 
 
 @router.delete("/api/projects/{project_id}")
-def delete_project(project_id: str, user: User = Depends(get_current_user)):
+def delete_project(project_id: str, user: User = Depends(require_role("analista"))):
     if not store.delete_project(project_id, user.org_id):
         raise HTTPException(404, "Proyecto no encontrado")
     return {"deleted": project_id}
 
 
 @router.post("/api/projects/import-legacy")
-def import_legacy(user: User = Depends(get_current_user)):
+def import_legacy(user: User = Depends(require_role("analista"))):
     """Importa a esta cuenta los proyectos del antiguo store JSON (pre-auth)."""
     n = store.import_legacy_projects(user.org_id, user.id)
     return {"imported": n}

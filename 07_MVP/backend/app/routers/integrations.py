@@ -5,9 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app import store
-from app.auth import get_current_user
 from app.database import get_db
-from app.deps import _get_or_404
+from app.deps import _get_or_404, require_role
 from app.models import User
 from app.routers.projects import _create_project_from_df
 from app.services.integrations import credentials, google_forms, qualtrics
@@ -54,14 +53,14 @@ def _qualtrics_config(user: User) -> dict:
 
 
 @router.get("/api/integrations/qualtrics/credentials")
-def qualtrics_credentials_status(user: User = Depends(get_current_user)):
+def qualtrics_credentials_status(user: User = Depends(require_role("analista"))):
     """La UI solo sabe si hay credenciales y el datacenter; el token jamás sale del backend."""
     cfg = (user.integrations or {}).get("qualtrics") or {}
     return {"configured": bool(cfg.get("token_enc")), "datacenter": cfg.get("datacenter", "")}
 
 
 @router.put("/api/integrations/qualtrics/credentials")
-def qualtrics_save_credentials(body: QualtricsCredentials, user: User = Depends(get_current_user)):
+def qualtrics_save_credentials(body: QualtricsCredentials, user: User = Depends(require_role("analista"))):
     if not body.api_token.strip() or not body.datacenter.strip():
         raise HTTPException(400, "API Token y Datacenter ID son obligatorios.")
     get_db().users.update_one({"_id": user.id}, {"$set": {"integrations.qualtrics": {
@@ -72,13 +71,13 @@ def qualtrics_save_credentials(body: QualtricsCredentials, user: User = Depends(
 
 
 @router.delete("/api/integrations/qualtrics/credentials")
-def qualtrics_delete_credentials(user: User = Depends(get_current_user)):
+def qualtrics_delete_credentials(user: User = Depends(require_role("analista"))):
     get_db().users.update_one({"_id": user.id}, {"$unset": {"integrations.qualtrics": ""}})
     return {"configured": False}
 
 
 @router.get("/api/integrations/qualtrics/surveys")
-def qualtrics_surveys(user: User = Depends(get_current_user)):
+def qualtrics_surveys(user: User = Depends(require_role("analista"))):
     cfg = _qualtrics_config(user)
     try:
         return qualtrics.list_surveys(cfg["api_token"], cfg["datacenter"])
@@ -87,7 +86,7 @@ def qualtrics_surveys(user: User = Depends(get_current_user)):
 
 
 @router.post("/api/projects/from-qualtrics")
-def create_project_from_qualtrics(body: QualtricsImportBody, user: User = Depends(get_current_user)):
+def create_project_from_qualtrics(body: QualtricsImportBody, user: User = Depends(require_role("analista"))):
     cfg = _qualtrics_config(user)
     try:
         df = qualtrics.fetch_responses({**cfg, "survey_id": body.survey_id})
@@ -107,7 +106,7 @@ def create_project_from_qualtrics(body: QualtricsImportBody, user: User = Depend
 
 
 @router.post("/api/projects/from-google-forms")
-def create_project_from_google_forms(body: GoogleFormsImportBody, user: User = Depends(get_current_user)):
+def create_project_from_google_forms(body: GoogleFormsImportBody, user: User = Depends(require_role("analista"))):
     try:
         df = google_forms.fetch_responses({"sheet_url": body.sheet_url})
     except IntegrationError as e:

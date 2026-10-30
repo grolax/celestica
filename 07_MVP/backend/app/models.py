@@ -9,7 +9,7 @@ atributos (user.id, user.email, ...).
 Colecciones en Mongo:
 - `organizations`: {_id: "org_<10 hex>", nombre, created_at}
 - `users`:        {_id, email, password_hash, nombre, empresa, created_at, integrations, org_id, rol}
-                  (una sola organización por usuario; `rol` es "admin" hasta RF-03)
+                  (una sola organización por usuario; `rol`: admin | analista | lector, ver app/deps.py)
 - `projects`:     {_id, org_id, user_id, name, created_at, ...documento completo del proyecto}
                   `org_id` es el dueño y la clave de aislamiento; `user_id` significa
                   "creado por" y NO se usa para filtrar acceso.

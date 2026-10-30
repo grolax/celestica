@@ -18,11 +18,13 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
 | T-003b Routers (2/2): análisis, informes, admin | backend | RNF-17 | 2026-10-30 | `tarea/T-003b-routers-analisis` (fusionada, PR #10) |
 | T-004 Organizaciones (aislamiento por `org_id` + migración) | backend | RF-02, RNF-01, RNF-21 | 2026-10-30 | `tarea/T-004-organizaciones` (fusionada, PR #11) |
-| T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (aprobada, pendiente de subir) |
+| T-005 Organización y rol en la interfaz | frontend | RF-02, RNF-13 | 2026-10-30 | `tarea/T-005-organizacion-en-ui` (fusionada, PR #12) |
+| T-006 Permisos por rol en el backend | backend | RF-03, RNF-02, RNF-01 | 2026-10-30 | `tarea/T-006-permisos-por-rol` (aprobada en revisión 2, pendiente de subir) |
 
 ## En curso
 
-- En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
+- En cola: T-007 gestión de miembros (backend) → T-008 pantalla de miembros y acciones por rol (frontend).
+- Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
 ## Bloqueado / requiere decisión del usuario
 
@@ -32,6 +34,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 - Docs de prompts desactualizados: `COMO_FUNCIONA.md` §6 dice "4 prompts" (son 10); `schemas_v2.py:16` y el docstring de `thematic.py` nombran solo `prompts.json`.
 - `store.inc_project_usage` filtra solo por `id` (escritura del sistema), y `_codify_progress`/`_report_progress` en memoria se indexan solo por `project_id` (protegidos por `_get_or_404`).
+- Lección (T-006): la prueba de cobertura de T-002 pasó en vacío desde T-003a (`app.routes` con `_IncludedRouter`); corregida leyendo OpenAPI con umbral mínimo. Toda prueba de cobertura debe afirmar que encontró rutas.
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
 - La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).

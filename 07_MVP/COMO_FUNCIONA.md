@@ -51,7 +51,7 @@ MongoDB (base "softinsight")
 07_MVP/backend/
 ├── .env                     ← Secretos: API key de Anthropic, SECRET_KEY. NUNCA subir a git.
 ├── app/main.py              ← Solo configuración de la app: `FastAPI`, `init_db`, manejador de errores, sink de costo de Claude, CORS e `include_router`. No define endpoints.
-├── app/deps.py              ← Lo que comparten los routers: `_get_or_404`, `_check_admin`, `ADMIN_PASSWORD`, `_slug` y el progreso en memoria de codificación/informe.
+├── app/deps.py              ← Lo que comparten los routers: `_get_or_404`, `require_role` (permisos por rol), `_check_admin`, `ADMIN_PASSWORD`, `_slug` y el progreso en memoria de codificación/informe.
 ├── app/routers/projects.py  ← Plantillas, proyectos (crear, listar, obtener, borrar, importar), respuestas y consumo de API.
 ├── app/routers/integrations.py ← Credenciales y encuestas de Qualtrics; crear proyecto desde Qualtrics o Google Forms.
 ├── app/routers/analysis.py  ← Léxico, categorías y comentarios, codificación (con progreso), re-codificación, resumen y auditoría.
@@ -73,7 +73,7 @@ MongoDB (base "softinsight")
 | email | único (índice único en Mongo), en minúsculas |
 | password_hash | la contraseña **nunca se guarda en texto plano** (ver sección 4) |
 | nombre, empresa | datos de perfil |
-| org_id, rol | organización a la que pertenece (una sola) y su rol (`admin` por ahora; los permisos por rol llegan con RF-03) |
+| org_id, rol | organización a la que pertenece (una sola) y su rol (`admin`, `analista` o `lector`; ver sección 4.1) |
 | integrations | credenciales de integraciones **cifradas** (ej: `integrations.qualtrics.token_enc`) |
 
 **`organizations`** — `{_id: "org_<10 hex>", nombre, created_at}`. Al registrarse se crea una organización nueva (nombre = `empresa`, o "Organización de <nombre|email>") y el usuario queda como `admin`. Los proyectos pertenecen a la organización, no al usuario.
@@ -147,6 +147,22 @@ Texto firmado criptográficamente que dice "soy el usuario `usr_xyz`, válido ha
 ### En cada petición
 
 Todos los endpoints de proyectos declaran la dependencia `get_current_user`, que verifica firma y expiración (si falla → 401 y el frontend redirige a `/login`) y carga el usuario desde Mongo. No hay forma de llegar a datos de proyecto sin pasar por esta puerta.
+
+### 4.1 Permisos por rol (RF-03)
+
+El rol se verifica **en el backend**; la UI solo lo refleja. `app/deps.py` tiene una única tabla de niveles (`lector < analista < admin`) y etiquetas en español, y la dependencia `require_role("analista")`: llama a `get_current_user` (401) y, si el rol no alcanza, responde **403** `"Tu rol (Lector) no permite esta acción."`. Un rol desconocido en la base se trata como lector, nunca como admin. Como es una dependencia, corre antes de `_get_or_404`: el orden es siempre **401 → 403 → 404**, y el 403 no depende de que el proyecto exista (no revela proyectos de otras organizaciones).
+
+| Operación | Lector | Analista | Admin |
+| --- | --- | --- | --- |
+| Ver proyectos, resultados, auditoría, informe, uso; descargar exportaciones | sí | sí | sí |
+| Comentar categorías | sí | sí | sí |
+| Borrar comentario | solo los suyos (`author_id`) | todos | todos |
+| Crear proyecto (archivo, Qualtrics, Google Forms, import-legacy) | no | sí | sí |
+| Analizar (plantilla, léxico, categorías, codificar, recodificar, generar informe) | no | sí | sí |
+| Borrar proyecto | no | sí | sí |
+| Credenciales y encuestas de Qualtrics | no | sí | sí |
+
+Los comentarios guardan `author_id` (id del usuario); los antiguos no lo tienen y un lector no puede borrarlos. `/api/admin/*` sigue protegido solo por `X-Admin-Password`. La prueba `tests/test_permisos_pytest.py` declara el rol mínimo de cada operación `/api/` en la tabla `PERMISOS` y falla si aparece una ruta sin declarar.
 
 ### Logout
 
@@ -381,7 +397,7 @@ Total con informe rápido: **menos de US$1 por corrida completa**. El informe pr
 
 **Limitaciones conocidas:**
 
-1. **Colaboración**: comentarios sí; codificación concurrente de varios analistas y roles/permisos, todavía no.
+1. **Colaboración**: comentarios sí; codificación concurrente de varios analistas todavía no (los roles ya existen: ver 4.1).
 2. **Progreso en memoria**: si el servidor se reinicia a mitad de una codificación o informe, la barra se pierde (lo ya guardado persiste; se puede relanzar sin daño).
 3. **Sin emails** (confirmación, recuperación): decisión de alcance.
 4. **Integraciones puntuales**: importan al crear el proyecto; no hay sincronización continua ni OAuth de Google (documentado).

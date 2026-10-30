@@ -4,9 +4,10 @@ from __future__ import annotations
 import os
 import unicodedata
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 
 from app import store
+from app.auth import get_current_user
 from app.models import User
 from app.services import claude_log
 
@@ -28,6 +29,21 @@ def _check_admin(request: Request) -> None:
     pwd = request.headers.get("X-Admin-Password", "")
     if pwd != ADMIN_PASSWORD:
         raise HTTPException(401, "Contraseña de administrador incorrecta")
+
+
+# Única tabla de roles (RF-03): nivel de menor a mayor y etiqueta en español.
+# Un rol desconocido en la base se trata como lector, nunca como admin.
+ROL_NIVEL = {"lector": 0, "analista": 1, "admin": 2}
+ROL_ETIQUETA = {"lector": "Lector", "analista": "Analista", "admin": "Administrador"}
+
+
+def require_role(minimo: str):
+    """Dependencia como get_current_user (401) que además exige rol >= `minimo` (403)."""
+    def dep(user: User = Depends(get_current_user)) -> User:
+        if ROL_NIVEL.get(user.rol, 0) < ROL_NIVEL[minimo]:
+            raise HTTPException(403, f"Tu rol ({ROL_ETIQUETA.get(user.rol, 'Lector')}) no permite esta acción.")
+        return user
+    return dep
 
 
 def _get_or_404(project_id: str, user: User) -> dict:
