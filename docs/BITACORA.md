@@ -46,7 +46,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🔨 T-006 incorporada; T-007 en desarrollo; T-008 en cola |
+| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 incorporada; T-007 aprobada por el supervisor, espera autorización; T-008 en cola |
 
 ---
 
@@ -329,6 +329,24 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Hallazgo en la revisión:** el programador descubrió que una de las pruebas de seguridad de T-002 había dejado de vigilar sin avisar. Era la que alerta si se agrega una operación nueva sin su prueba de acceso cruzado, y se rompió cuando se ordenó el código del servidor (T-003). **No hubo ninguna fuga:** las pruebas que verifican que un ajeno no ve nada siguieron funcionando, y hoy todas las operaciones están cubiertas. El supervisor debió detectarlo en la revisión de T-003 y no lo hizo. Se corrigió en esta tarea, y la prueba ahora falla si no encuentra operaciones que revisar.
 - **Cómo se verificó:** hay **99 pruebas automáticas** (antes 59) y todas pasan. Las nuevas cubren cada operación con cada rol, comprueban que la IA no se active cuando un lector intenta analizar, y fallan si se agrega una operación sin declarar quién puede usarla.
 - **Estado:** incorporada a la versión oficial por el responsable (PR #13 en GitHub). T-007 (gestión de miembros) en desarrollo.
+
+---
+
+### 27. T-007 · Gestión de miembros
+
+- **Qué se hizo** (en el servidor; la pantalla llega con T-008):
+  - El administrador puede ver los miembros de su organización, **crear** uno nuevo (email, nombre y rol), **cambiarle el rol**, **desactivarlo** y **reactivarlo**.
+  - Al crear un miembro, el sistema genera una **contraseña temporal** de 12 caracteres, sin letras que se confundan como la "O" y el "0". Se muestra **una sola vez**: en la base de datos solo queda cifrada, y no aparece en la auditoría ni en los registros.
+  - Quien entra con una contraseña temporal **solo puede cambiarla**. Hasta hacerlo, todo lo demás está bloqueado.
+  - Cualquier persona puede cambiar su contraseña.
+  - Un miembro desactivado no puede entrar, y si tenía la sesión abierta, se le corta en ese momento. Sus proyectos siguen en la organización con su nombre como creador.
+  - La organización **nunca queda sin un administrador activo**, y nadie puede desactivarse a sí mismo.
+  - Cada alta, cambio de rol, desactivación y cambio de contraseña queda en la auditoría.
+- **Cómo se verificó:** hay **113 pruebas automáticas** y todas pasan. Una de ellas recorre todas las operaciones de la plataforma con una cuenta que aún tiene la contraseña temporal y confirma que ninguna la deja pasar.
+- **Pendientes menores:**
+  - Cambiar la contraseña todavía no cierra las otras sesiones abiertas de esa persona. Se resolverá con la seguridad de producción.
+  - Si dos administradores se quitaran el rol mutuamente en el mismo instante, la organización podría quedar sin administrador. Es muy improbable.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

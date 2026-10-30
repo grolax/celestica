@@ -50,3 +50,12 @@ El admin de una organización puede listar, crear (con contraseña temporal gene
 - [ ] Las pruebas de cobertura de T-002 y T-006 siguen afirmando que encontraron rutas y cubren las nuevas.
 - [ ] `COMO_FUNCIONA.md` actualizado (miembros, estados de cuenta, auditoría de organización).
 - [ ] Commits con el formato `T-007 RF-03: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 113 pasan (99 + 14 nuevas). En `test_permisos_pytest.py` solo se agregaron las 3 rutas con rol `admin`.
+- Bloqueos: `get_current_user_pendiente` (sesión + cuenta activa, consultando la base en cada petición) y `get_current_user` (además, temporal pendiente → 403). `require_role` y todas las rutas `/api/` usan la segunda; solo `/auth/me` y `/auth/change-password` usan la primera. `test_pendiente_bloquea_toda_ruta_protegida_de_la_api` recorre OpenAPI (>30 rutas, con umbral) y exige 403 en todas.
+- Contraseña temporal con `secrets`, 12 caracteres sin ambiguos, solo hash en la base; prueba que la busca en `users` y `audit_events`.
+- Login de desactivado solo revela el estado con contraseña correcta. Auditoría de organización solo por inserción, sin contraseñas.
+- Precedencia 409 antes que 400 aceptada y documentada en el contrato; también que cambiar la contraseña no revoca sesiones.
+- Deuda aceptada: comprobación del último admin no atómica (`shortcut:` en `org.py`); funciones de miembros en `store` sin resguardo explícito ante `org_id` vacío (hoy solo las llama un admin con `org_id` válido).
