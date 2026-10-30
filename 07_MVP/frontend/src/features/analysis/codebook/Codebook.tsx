@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import PageHeader from "@/shared/components/PageHeader";
@@ -13,13 +15,14 @@ import ManualCategoryForm from "./ManualCategoryForm";
 export default function Codebook() {
   const { project, refresh } = useProject();
   const { busy, error, setError, run } = useAsync();
+  const canEdit = puede(useAuth().user, "analista");
   const [templates, setTemplates] = useState<FrameworkTemplate[]>([]);
 
   useEffect(() => {
-    if (project.categories.length === 0) {
+    if (canEdit && project.categories.length === 0) {
       projectsApi.listTemplates().then(setTemplates).catch(() => {});
     }
-  }, [project.categories.length]);
+  }, [canEdit, project.categories.length]);
 
   async function propose() {
     const ok = await run(() => analysisApi.proposeCategories(project.id));
@@ -48,7 +51,7 @@ export default function Codebook() {
         <span className="pill ok">{nValidated} validadas</span>
       </PageHeader>
       {error && <div className="alert alert-error">{error}</div>}
-      <Card>
+      {canEdit && <Card>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <Button onClick={propose} busy={busy}>
             {busy ? "Claude está analizando la muestra…" : "Proponer categorías con IA"}
@@ -69,7 +72,7 @@ export default function Codebook() {
             </select>
           )}
         </div>
-      </Card>
+      </Card>}
 
       <div className="cat-grid">
         {project.categories.map((c) => (
@@ -77,7 +80,8 @@ export default function Codebook() {
         ))}
       </div>
 
-      <ManualCategoryForm projectId={project.id} onChange={refresh} onError={setError} />
+      {canEdit && <ManualCategoryForm projectId={project.id} onChange={refresh} onError={setError} />}
+      {!canEdit && project.categories.length === 0 && <p className="muted">Aún no hay categorías. Un analista de tu organización las propondrá y validará.</p>}
     </>
   );
 }

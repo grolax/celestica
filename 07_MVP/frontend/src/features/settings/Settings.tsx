@@ -4,7 +4,7 @@ import { ClaudeUsageTotals } from "@/features/analysis/types";
 import { projectsApi } from "@/features/projects/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/useAuth";
-import { ROL_LABEL } from "@/features/auth/api";
+import { puede, ROL_LABEL } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import PageHeader from "@/shared/components/PageHeader";
 import Card from "@/shared/components/Card";
@@ -47,7 +47,7 @@ export default function Settings() {
         <Button variant="secondary" onClick={() => navigate("/cambiar-contrasena")}>Cambiar contraseña</Button>
       </Card>
 
-      <Card title="Importar proyectos antiguos">
+      {puede(user, "analista") && <Card title="Importar proyectos antiguos">
         <p className="muted">
           Si usaste la versión demo de Celestica (sin cuentas), puedes importar esos proyectos a tu cuenta.
         </p>
@@ -58,7 +58,7 @@ export default function Settings() {
         ) : (
           <Button variant="secondary" onClick={importLegacy}>Importar proyectos de la demo</Button>
         )}
-      </Card>
+      </Card>}
 
       <AdminPrompts />
     </>

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import PageHeader from "@/shared/components/PageHeader";
@@ -13,6 +15,7 @@ const PAGE_SIZE = 25;
 
 export default function Coding() {
   const { project, refresh } = useProject();
+  const canEdit = puede(useAuth().user, "analista");
   const [items, setItems] = useState<ResponseItem[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -89,10 +92,12 @@ export default function Coding() {
           <span className="conf-badge conf-low">baja</span>).
           Puedes re-codificar manualmente cualquier respuesta; todo queda auditado.
         </p>
-        <Button onClick={runCodify} busy={busy} disabled={validated.length === 0}>
-          {busy ? "Codificando…" : "Codificar corpus con IA"}
-        </Button>
-        {validated.length === 0 && (
+        {canEdit && (
+          <Button onClick={runCodify} busy={busy} disabled={validated.length === 0}>
+            {busy ? "Codificando…" : "Codificar corpus con IA"}
+          </Button>
+        )}
+        {canEdit && validated.length === 0 && (
           <p className="small muted" style={{ marginTop: 8 }}>Primero valida categorías en el Libro de códigos.</p>
         )}
 
@@ -130,7 +135,7 @@ export default function Coding() {
         }
       >
         <ResponsesTable items={visible} categories={project.categories}
-                        validated={validated} onRecode={recode} />
+                        validated={validated} onRecode={canEdit ? recode : undefined} />
         <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
           <Button variant="secondary" size="sm" disabled={offset === 0}
                   onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}><Icon name="arrowLeft" size={16} /> Anterior</Button>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { analysisApi } from "../api";
 import { LexicalResult } from "../types";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import PageHeader from "@/shared/components/PageHeader";
@@ -8,6 +10,7 @@ import { useProject } from "@/features/projects/useProjectData";
 
 export default function LexicalAnalysis() {
   const { project, refresh } = useProject();
+  const canEdit = puede(useAuth().user, "analista");
   const [result, setResult] = useState<LexicalResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -42,9 +45,9 @@ export default function LexicalAnalysis() {
             Frecuencias, bigramas, co-ocurrencias y sentimiento por lexicón. Al finalizar, la IA genera
             una breve interpretación de los patrones. El análisis numérico es determinístico y se ejecuta en segundos.
           </p>
-          <Button onClick={run} busy={busy}>
-            {busy ? "Analizando e interpretando…" : "Ejecutar análisis léxico"}
-          </Button>
+          {canEdit
+            ? <Button onClick={run} busy={busy}>{busy ? "Analizando e interpretando…" : "Ejecutar análisis léxico"}</Button>
+            : <p className="small muted">Aún no se ejecuta. Un analista de tu organización puede hacerlo.</p>}
         </Card>
       )}
       {result && (
@@ -90,7 +93,7 @@ export default function LexicalAnalysis() {
               ))}
             </div>
             <p className="small muted" style={{ marginTop: 12 }}><strong>Método:</strong> {result.method_note}</p>
-            <Button variant="secondary" size="sm" onClick={run} busy={busy}>Re-ejecutar</Button>
+            {canEdit && <Button variant="secondary" size="sm" onClick={run} busy={busy}>Re-ejecutar</Button>}
           </Card>
         </>
       )}

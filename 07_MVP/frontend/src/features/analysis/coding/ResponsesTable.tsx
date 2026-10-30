@@ -6,13 +6,13 @@ export default function ResponsesTable({ items, categories, validated, onRecode 
   items: ResponseItem[];
   categories: Category[];
   validated: Category[];
-  onRecode: (responseId: string, categoryId: string) => void;
+  onRecode?: (responseId: string, categoryId: string) => void;
 }) {
   const catName = (cid: string) =>
     cid === "SIN_CATEGORIA" ? "Sin categoría" : categories.find((c) => c.id === cid)?.nombre ?? cid;
 
   return (
-    <Table headers={["ID", "Respuesta", "Sentimiento", "Codificación", "Re-codificar"]}>
+    <Table headers={["ID", "Respuesta", "Sentimiento", "Codificación", ...(onRecode ? ["Re-codificar"] : [])]}>
       {items.map((r) => (
         <tr key={r.id}>
           <td className="muted">{r.id}</td>
@@ -30,12 +30,14 @@ export default function ResponsesTable({ items, categories, validated, onRecode 
               </div>
             ))}
           </td>
-          <td>
-            <select defaultValue="" onChange={(e) => e.target.value && onRecode(r.id, e.target.value)}>
-              <option value="">— elegir —</option>
-              {validated.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-            </select>
-          </td>
+          {onRecode && (
+            <td>
+              <select defaultValue="" onChange={(e) => e.target.value && onRecode(r.id, e.target.value)}>
+                <option value="">— elegir —</option>
+                {validated.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+              </select>
+            </td>
+          )}
         </tr>
       ))}
     </Table>

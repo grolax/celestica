@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import PageHeader from "@/shared/components/PageHeader";
@@ -13,6 +15,7 @@ import Icon from "@/shared/components/Icon";
 export default function ReportView() {
   const { project, refresh } = useProject();
   const navigate = useNavigate();
+  const canEdit = puede(useAuth().user, "analista");
   const [report, setReport] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -132,14 +135,20 @@ export default function ReportView() {
               de frecuencias: es análisis sustantivo con hipótesis, tensiones y preguntas para profundizar,
               anclado al marco teórico del proyecto.
             </p>
-            {!canGenerate && (
-              <p className="muted">Primero completa la codificación para habilitar el informe.</p>
+            {!canEdit ? (
+              <p className="muted">Aún no se genera el informe. Un analista de tu organización puede hacerlo.</p>
+            ) : (
+              <>
+                {!canGenerate && (
+                  <p className="muted">Primero completa la codificación para habilitar el informe.</p>
+                )}
+                {canGenerate && modeSelector}
+                <Button size="lg" onClick={() => generate(false)} busy={busy} disabled={!canGenerate}>
+                  {busy ? "Claude está redactando el informe…" : "Generar informe cualitativo"}
+                </Button>
+                {progressBar}
+              </>
             )}
-            {canGenerate && modeSelector}
-            <Button size="lg" onClick={() => generate(false)} busy={busy} disabled={!canGenerate}>
-              {busy ? "Claude está redactando el informe…" : "Generar informe cualitativo"}
-            </Button>
-            {progressBar}
           </div>
         </Card>
       ) : (
@@ -149,10 +158,12 @@ export default function ReportView() {
             actions={
               <>
                 <Button variant="secondary" size="sm" onClick={() => navigate("../exportar")}><Icon name="download" size={16} /> Exportar PDF/Word</Button>
-                <Button variant="ghost" size="sm" onClick={() => generate(false)} busy={busy}>
-                  {busy ? "Regenerando…" : "Regenerar"}
-                </Button>
-                {mode === "v2" && !busy && (
+                {canEdit && (
+                  <Button variant="ghost" size="sm" onClick={() => generate(false)} busy={busy}>
+                    {busy ? "Regenerando…" : "Regenerar"}
+                  </Button>
+                )}
+                {canEdit && mode === "v2" && !busy && (
                   <Button variant="ghost" size="sm" onClick={() => setConfirmFull(true)} title="Ignora el caché del análisis por respondente">
                     Regenerar desde cero
                   </Button>

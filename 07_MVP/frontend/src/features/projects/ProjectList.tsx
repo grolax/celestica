@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { projectsApi } from "./api";
 import { ProjectSummary } from "./types";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Table from "@/shared/components/Table";
@@ -10,6 +12,7 @@ import PageHeader from "@/shared/components/PageHeader";
 
 export default function ProjectList() {
   const navigate = useNavigate();
+  const canEdit = puede(useAuth().user, "analista");
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState("");
 
@@ -31,7 +34,7 @@ export default function ProjectList() {
   return (
     <>
       <PageHeader title="Mis proyectos" help="Aquí están tus encuestas en análisis. Abre una para continuar o crea un proyecto nuevo.">
-        <Button onClick={() => navigate("/proyectos/nuevo")}>+ Nuevo proyecto</Button>
+        {canEdit && <Button onClick={() => navigate("/proyectos/nuevo")}>+ Nuevo proyecto</Button>}
       </PageHeader>
       {error && <div className="alert alert-error">{error}</div>}
 
@@ -39,8 +42,14 @@ export default function ProjectList() {
         <Card>
           <div className="empty-state">
             <div className="icon"><Icon name="chart" size={40} /></div>
-            <p>Todavía no tienes proyectos. Crea el primero subiendo tu encuesta.</p>
-            <Button onClick={() => navigate("/proyectos/nuevo")}>Crear proyecto</Button>
+            {canEdit ? (
+              <>
+                <p>Todavía no tienes proyectos. Crea el primero subiendo tu encuesta.</p>
+                <Button onClick={() => navigate("/proyectos/nuevo")}>Crear proyecto</Button>
+              </>
+            ) : (
+              <p>Todavía no hay proyectos. Un analista de tu organización puede crear el primero.</p>
+            )}
           </div>
         </Card>
       )}
@@ -69,7 +78,7 @@ export default function ProjectList() {
                 <td onClick={(e) => e.stopPropagation()}>
                   <div style={{ display: "flex", gap: 6 }}>
                     <Button size="sm" variant="secondary" onClick={() => navigate(`/proyectos/${p.id}`)}>Abrir</Button>
-                    <Button size="sm" variant="danger" onClick={() => remove(p)}>Eliminar</Button>
+                    {canEdit && <Button size="sm" variant="danger" onClick={() => remove(p)}>Eliminar</Button>}
                   </div>
                 </td>
               </tr>
