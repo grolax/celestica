@@ -199,3 +199,45 @@ Tres endpoints de **solo lectura**: leen los datos, detectan el tipo de cada col
   - 400 — mensajes de integración (Qualtrics/Google) igual que en `from-qualtrics` / `from-google-forms`.
   - 403 — "Tu rol (Lector) no permite esta acción."
   - 413 — "El archivo supera el máximo de 20 MB." (solo `preview` con archivo).
+
+---
+
+## RF-23 · Preguntas del proyecto y varias preguntas abiertas (T-011a)
+
+Decisiones del usuario (2026-10-30): un análisis por pregunta abierta, la IA solo se ejecuta a pedido y pregunta por pregunta; respuestas vacías = **N/A** (se guardan como `null`, nunca como una opción); columnas ramificadas se unen en una pregunta; a la IA solo se le envían como contexto las preguntas marcadas `contexto_ia` (por defecto solo **género** y **edad**) y **nunca** las de tipo `identificador`.
+
+### Objeto `pregunta`
+```json
+{ "id": "q_3", "titulo": "¿En qué comuna vives actualmente?", "columnas": ["¿En qué comuna vives actualmente?  ", "¿En qué comuna vives actualmente?   2"],
+  "tipo": "segmento", "contexto_ia": false, "n_respuestas": 498, "n_na": 2 }
+```
+- `tipo`: los mismos de T-010. `columnas`: una o varias (varias = columnas ramificadas unidas; el valor de cada persona es el primero no vacío). `n_na`: respuestas vacías.
+
+### `POST /api/projects`, `/api/projects/from-qualtrics`, `/api/projects/from-google-forms` (modificados)
+- **Roles:** analista, admin.
+- **Entrada nueva (opcional):** `preguntas`: lista con lo que el usuario confirmó en la vista previa. En `POST /api/projects` va como campo de formulario con JSON en texto; en los otros dos, como campo del cuerpo JSON.
+```json
+[ {"titulo": "28. ¿Qué tendría que cambiar…?", "columnas": ["28. ¿Qué tendría que cambiar…?"], "tipo": "abierta", "contexto_ia": false},
+  {"titulo": "Comuna", "columnas": ["¿En qué comuna vives actualmente?  ", "¿En qué comuna vives actualmente?   2"], "tipo": "segmento", "contexto_ia": false},
+  {"titulo": "1. ¿Cuál es tu edad?", "columnas": ["1. ¿Cuál es tu edad?"], "tipo": "segmento", "contexto_ia": true} ]
+```
+  - Columnas que no aparecen en ninguna pregunta no se guardan.
+  - **Sin `preguntas` (compatibilidad):** se arman con `detectar()` sobre todas las columnas, se fuerza `text_column` (o la detectada, como hoy) a `abierta`, y `contexto_ia` queda `true` solo en preguntas `segmento` cuyo título menciona género/sexo o edad.
+- **Respuesta 200:** la de hoy más `preguntas_abiertas`:
+```json
+{ "id": "proj_ab12cd34ef", "n_responses": 484, "text_column": "28. ¿Qué tendría que cambiar…?",
+  "preguntas_abiertas": [ {"id": "q_28", "titulo": "28. ¿Qué tendría que cambiar…?", "n_respuestas": 484}, {"id": "q_30", "titulo": "30. ¿Qué palabras asocias…?", "n_respuestas": 211} ] }
+```
+  `n_responses` y `text_column` corresponden a la **primera** pregunta abierta (la "pregunta por defecto").
+- **Errores nuevos:**
+  - 400 — "Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto." (ninguna pregunta `abierta`).
+  - 422 — "La columna «X» no existe en los datos." · "La columna «X» está en más de una pregunta." · "Tipo de pregunta no válido: X." · "Una columna de identificación no se puede enviar a la IA." (`tipo: identificador` con `contexto_ia: true`).
+
+### Parámetro `pregunta` en las operaciones de análisis (nuevo, opcional)
+Query `?pregunta=<id>` en: `GET /api/projects/{id}`, `GET .../responses`, `POST/GET .../lexical`, `POST .../categories/propose`, `POST .../categories`, `PATCH .../categories/{cid}`, `POST/DELETE .../comments`, `POST .../codify`, `GET .../codify/progress`, `PUT .../responses/{rid}/codings`, `GET .../summary`, `POST/GET .../report`, `GET .../report/progress`, `GET .../export/*`.
+- Sin `pregunta`: se usa la **pregunta por defecto** (primera abierta). Con un id que no existe o que no es `abierta`: **404** — "Pregunta no encontrada".
+- Las respuestas y los campos de análisis (`responses`, `lexical`, `lexical_interpretation`, `categories`, `codings`, `qualitative_report`) que devuelven estas operaciones **son los de esa pregunta**, con la misma forma que hoy. `responses[].meta` contiene **solo** las preguntas con `contexto_ia: true` (por título), nunca identificadores.
+- Codificación e informe se lanzan por pregunta y su progreso es por pregunta: dos preguntas del mismo proyecto pueden tener estados distintos.
+
+### `GET /api/projects/{id}` (modificado)
+Además de lo de hoy (para la pregunta elegida o por defecto): `preguntas: [<pregunta>, ...]` (todas, sin las respuestas) y `pregunta: "<id de la pregunta que se está mostrando>"`.

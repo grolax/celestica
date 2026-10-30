@@ -24,11 +24,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-008a Cambio de contraseña y estados de cuenta | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008a-cuenta-y-contrasena` (fusionada, PR #15) |
 | T-009 Panel interno responde 403 | backend | RNF-13, RNF-02 | 2026-10-30 | `tarea/T-009-admin-403` (fusionada, PR #16) |
 | T-008b Pantalla de miembros y acciones por rol | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008b-miembros-y-acciones-por-rol` (fusionada, PR #17) |
-| T-010 Detección de tipos y vista previa | backend | RF-22, RF-25 | 2026-10-30 | `tarea/T-010-deteccion-de-tipos` (aprobada, pendiente de subir) |
+| T-010 Detección de tipos y vista previa | backend | RF-22, RF-25 | 2026-10-30 | `tarea/T-010-deteccion-de-tipos` (fusionada, PR #18) |
 
 ## En curso
 
-- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (aprobada) → T-011 modelo de preguntas y varias abiertas + migración (backend) → T-012 paso "Revisa las preguntas" (frontend) → T-013 selector de pregunta abierta (frontend).
+- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → **T-011a preguntas en el proyecto, un análisis por pregunta, contexto IA y migración (backend, rama `tarea/T-011a-preguntas-en-el-proyecto`)** → T-012 paso "Revisa las preguntas" (frontend) → T-013 selector de pregunta abierta (frontend).
 - Decisiones iteración 2 (usuario, 2026-10-30): RF-24 (proyectos solo cerradas) pospuesto a iteración 3 con RF-30; IA pregunta por pregunta a pedido del usuario (cuidar tokens sin perder calidad); un informe por pregunta abierta hasta RF-51; proyectos existentes quedan con su única pregunta abierta; agregar preguntas después llega con RF-27.
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
@@ -38,6 +38,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 - **Columnas ramificadas de Google Forms (decisión del usuario 2026-10-30):** una misma pregunta repartida en varias columnas ("¿En qué comuna vives actualmente?", "… 2", … "… 16", una por región) se ofrece unir en una sola en la revisión de preguntas (T-011/T-012).
 - **Respuestas vacías = "N/A" (decisión del usuario 2026-10-30):** donde una persona no respondió (o la columna ramificada no le correspondía), la plataforma muestra **"N/A"**, nunca un valor que parezca elegido. "N/A" se cuenta aparte y no se trata como una opción más de la pregunta.
+
+- **Contexto para la IA (decisión del usuario 2026-10-30):** a la IA solo se le envían como contexto las preguntas marcadas; por defecto solo **género y edad**; **nunca** identificadores (nombre, RUT, email). Hallazgo: el informe v2 enviaba todas las columnas `meta` de cada persona → corregido en T-011a.
 
 ## Bloqueado / requiere decisión del usuario
 
