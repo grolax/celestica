@@ -41,11 +41,14 @@ def _reconstruir(vc: pd.Series, sep: str) -> tuple[list, Counter]:
     """Opciones de una selección múltiple, volviendo a unir las que traen el separador adentro.
 
     Google Forms une las opciones marcadas con ", ": una opción con coma ("Subsidios (DS1, DS19)") llega partida.
-    Se une (1) lo que queda dentro de un paréntesis sin cerrar y (2) los trozos A y B que siempre van juntos:
-    B solo aparece justo después de A y A siempre va seguido de B. Si A aparece a veces sin B, queda ambiguo y se deja separado.
+    Se une (1) lo que queda dentro de un paréntesis sin cerrar, (2) un trozo que empieza con minúscula al anterior
+    (las alternativas de Google Forms empiezan con mayúscula), salvo que ese trozo también sea una respuesta completa, y
+    (3) los trozos A y B que siempre van juntos: B solo aparece justo después de A y A siempre va seguido de B.
+    Si A aparece a veces sin B, queda ambiguo y se deja separado.
     Devuelve ([(opciones de la respuesta, n)], conteo de cada opción).
     """
     filas = []
+    solos = {v.strip() for v in vc.index}  # un trozo que también es una respuesta completa es una opción real
     for v, n in vc.items():
         ch = [c.strip() for c in v.split(sep) if c.strip()]
         out, i = [], 0
@@ -56,7 +59,10 @@ def _reconstruir(vc: pd.Series, sep: str) -> tuple[list, Counter]:
                 txt += f"{sep} {ch[j]}"
             if "(" in txt and txt.count("(") > txt.count(")"):  # el paréntesis nunca cierra: no se une
                 j, txt = i, ch[i]
-            out.append(txt)
+            if out and txt[0].islower() and txt not in solos:  # continuación ("pero…", "fondos mutuos…"), no una opción
+                out[-1] += f"{sep} {txt}"
+            else:
+                out.append(txt)
             i = j + 1
         filas.append((out, int(n)))
     while True:

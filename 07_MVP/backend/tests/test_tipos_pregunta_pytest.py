@@ -301,6 +301,24 @@ def test_rev4_motivo_con_concordancia_y_ortografia():
     assert "(área)" in tipo500("¿En qué área trabajas?", ["Ventas", "TI", "Finanzas"] * 20)["motivo"]
 
 
+# ---------- revisión 5: continuación en minúscula ----------
+
+def test_rev5_trozo_final_compartido_por_varias_alternativas_es_seleccion_unica():
+    alt = ["Me interesa comprar para vivir, pero todavía no he buscado.",
+           "Me interesa comprar como inversión, pero todavía no he buscado.",
+           "No me interesa comprar."]
+    # el final "pero todavía no he buscado." sigue a dos prefijos distintos: la regla de pares no lo une
+    p = tipo500("¿Cuál es tu situación actual?", [alt[i % 3] for i in range(N500)])
+    assert p["tipo"] == "seleccion_unica" and {o["valor"] for o in p["opciones"]} == set(alt)
+
+
+def test_rev5_trozo_en_minuscula_que_tambien_aparece_solo_se_mantiene_separado():
+    ops = ["Comprar para vivir", "Comprar como inversión", "pero todavía no he buscado."]
+    marcas = [(0,), (1,), (2,), (0, 2), (1, 2), (0, 1)]
+    p = tipo500("Selecciona tus metas", _filas(ops, marcas))
+    assert p["tipo"] == "seleccion_multiple" and {o["valor"] for o in p["opciones"]} == set(ops)
+
+
 # ---------- dataset demo ----------
 
 def test_dataset_demo():
