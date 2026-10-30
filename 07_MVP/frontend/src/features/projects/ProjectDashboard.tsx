@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { analysisApi } from "@/features/analysis/api";
 import { ProjectStats } from "@/features/analysis/types";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card, { StatCard } from "@/shared/components/Card";
 import { useProject } from "./useProjectData";
@@ -11,6 +13,7 @@ import PageHeader from "@/shared/components/PageHeader";
 export default function ProjectDashboard() {
   const { project } = useProject();
   const navigate = useNavigate();
+  const canEdit = puede(useAuth().user, "analista");
   const [stats, setStats] = useState<ProjectStats | null>(null);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function ProjectDashboard() {
 
       <div className="grid-2">
         <Card title="Estado del análisis"
-              actions={nextStep && (
+              actions={canEdit && nextStep && (
                 <Button size="sm" onClick={() => navigate(nextStep.to)}>
                   {nextStep.cta} {nextStep.label.toLowerCase().split(" ")[0]} <Icon name="arrowRight" size={16} />
                 </Button>
@@ -56,7 +59,7 @@ export default function ProjectDashboard() {
                 {s.done ? <Icon name="check" size={14} /> : i + 1}
               </span>
               <span style={{ flex: 1, fontWeight: s.done ? 400 : 600 }}>{s.label}</span>
-              {!s.done && (
+              {canEdit && !s.done && (
                 <Button size="sm" variant="secondary" onClick={() => navigate(s.to)}>{s.cta}</Button>
               )}
             </div>

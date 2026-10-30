@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import { TextArea } from "@/shared/components/Input";
@@ -14,6 +16,7 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
   onChange: () => void;
   onError: (msg: string) => void;
 }) {
+  const canEdit = puede(useAuth().user, "analista");
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     nombre: c.nombre, definicion: c.definicion,
@@ -50,11 +53,11 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
       title={editing
         ? <input value={form.nombre} onChange={set("nombre")} style={{ fontWeight: 700 }} />
         : <h3 style={{ margin: 0 }}>{c.nombre}</h3>}
-      actions={
+      actions={canEdit && (
         <Button size="sm" variant="ghost" onClick={() => setEditing(!editing)}>
           {editing ? "Cancelar" : <><Icon name="edit" size={16} /> Editar</>}
         </Button>
-      }
+      )}
     >
       <p style={{ marginTop: -4 }}>
         <span className={`pill ${c.status}`}>{c.status}</span>{" "}
@@ -81,9 +84,9 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
       )}
 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-        {c.status !== "validada" && <Button size="sm" variant="success" onClick={() => setStatus("validada")}>Validar</Button>}
-        {c.status !== "descartada" && <Button size="sm" variant="danger" onClick={() => setStatus("descartada")}>Descartar</Button>}
-        {c.status !== "propuesta" && <Button size="sm" variant="ghost" onClick={() => setStatus("propuesta")}>Revertir</Button>}
+        {canEdit && c.status !== "validada" && <Button size="sm" variant="success" onClick={() => setStatus("validada")}>Validar</Button>}
+        {canEdit && c.status !== "descartada" && <Button size="sm" variant="danger" onClick={() => setStatus("descartada")}>Descartar</Button>}
+        {canEdit && c.status !== "propuesta" && <Button size="sm" variant="ghost" onClick={() => setStatus("propuesta")}>Revertir</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowComments(!showComments)}>
           <Icon name="comment" size={16} /> {comments.length > 0 ? comments.length : ""}
         </Button>

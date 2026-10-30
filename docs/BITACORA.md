@@ -46,8 +46,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 y T-007 incorporadas; T-008a incorporada (PR #15); T-008b en cola |
-| T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | 🟡 Aprobada por el supervisor, espera autorización |
+| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006, T-007 y T-008a incorporadas; T-008b aprobada por el supervisor, espera autorización |
+| T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
 
@@ -368,6 +368,17 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hizo:** si alguien escribe mal la contraseña del panel interno de prompts, el servidor ahora responde "no tienes permiso" en vez de "tu sesión venció". Así la persona **no pierde su sesión** y sigue viendo "Contraseña incorrecta.".
 - **Por qué:** el error lo encontró el programador durante T-008a, y el responsable pidió corregirlo cuanto antes.
 - **Cómo se verificó:** hay **128 pruebas automáticas** y todas pasan. Las nuevas prueban las 5 operaciones del panel con la contraseña correcta, con una incorrecta y sin contraseña.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #16 en GitHub).
+
+---
+
+### 30. T-008b · Pantalla de miembros y botones según el rol
+
+- **Qué se hizo:**
+  - **Grupo "Organización"** en el menú, visible solo para el administrador, con la pantalla **"Miembros"**. Ahí se ve el equipo, se agregan personas, se cambia su rol y se las desactiva o reactiva. Al agregar a alguien aparece la contraseña temporal una sola vez, con un botón "Copiar".
+  - Cada persona **ve solo los botones que su rol permite**. El lector ve todas las pestañas, descarga y comenta, pero no ve los botones para crear, analizar ni borrar, y cada proyecto le muestra la marca **"Solo lectura"**. Donde se ocultó un botón importante, el lector ve un aviso breve: "Un analista de tu organización puede…".
+- **Cómo se verificó:** el programador creó tres cuentas de prueba (administrador, analista y lector) en la plataforma local, sin IA. Recorrió el ciclo completo: crear al lector, entrar con su contraseña temporal y cambiarla, comentar, ascenderlo a analista, desactivarlo y reactivarlo. El supervisor revisó todos los cambios.
+- **Con esto quedan completos RF-02 (organizaciones) y RF-03 (roles y miembros).**
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---

@@ -2,6 +2,7 @@ export interface CategoryComment {
   id: string;
   text: string;
   author: string;
+  author_id?: string;
   timestamp: string;
 }
 
