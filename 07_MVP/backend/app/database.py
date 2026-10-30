@@ -6,7 +6,7 @@ Producción: MongoDB Atlas — basta cambiar MONGODB_URI en .env, el código
 no cambia (DEC-03 actualizada en v1.1).
 
 El modelo de datos es documental por diseño: cada proyecto es un documento
-(responses, categories, codings, audit_log) y Mongo permite actualizarlo
+(respondentes, analisis por pregunta, audit_log) y Mongo permite actualizarlo
 parcialmente ($set/$push) e indexar campos anidados.
 """
 from __future__ import annotations
@@ -16,7 +16,7 @@ import os
 from pymongo import ASCENDING, DESCENDING, MongoClient
 from pymongo.database import Database
 
-from app.migrations import migrate_orgs
+from app.migrations import migrate_orgs, migrate_preguntas
 
 MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/softinsight")
 
@@ -42,7 +42,7 @@ def init_db() -> None:
     - projects.org_id: aislamiento multi-tenant (toda lista filtra por organización)
     - users.org_id: miembros de una organización
     - audit_events.project_id: consultas de auditoría por proyecto
-    Al final corre la migración a organizaciones (RF-02), barata si no hay nada pendiente.
+    Al final corre las migraciones (organizaciones RF-02; preguntas RF-23), baratas si no hay nada pendiente.
     """
     db = get_db()
     db.users.create_index([("email", ASCENDING)], unique=True)

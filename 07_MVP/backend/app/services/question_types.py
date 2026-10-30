@@ -25,6 +25,10 @@ MULTIPLE = r"seleccion|mas de una|hasta \d"  # pista de título: "Selecciona…"
 FECHA = r"^\d{4}-\d{1,2}-\d{1,2}|^\d{4}/\d{1,2}/\d{1,2}|^\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}"
 
 
+TIPOS = {"abierta", "seleccion_unica", "seleccion_multiple", "segmento", "escala", "nps", "si_no",
+         "numerica", "fecha", "identificador", "constante", "sin_datos"}
+
+
 def _sin_tildes(t: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", t.lower()) if not unicodedata.combining(c))
 
@@ -216,3 +220,8 @@ def detectar(df: pd.DataFrame) -> dict:
     advertencias += [f"La columna «{p['columna']}» tiene más de la mitad de sus respuestas vacías."
                      for p in preguntas if p["n_vacias"] > n / 2]
     return {"n_filas": n, "preguntas": preguntas, "advertencias": advertencias}
+
+
+def contexto_por_defecto(tipo: str, titulo: str) -> bool:
+    """Qué preguntas van como contexto a la IA si el usuario no decide: solo segmentos de género/sexo/edad."""
+    return tipo == "segmento" and bool(re.search(r"\b(genero|sexo|edad)\b", _sin_tildes(titulo)))

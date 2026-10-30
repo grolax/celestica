@@ -19,6 +19,10 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+import pandas as pd
+
+from app.services.question_types import contexto_por_defecto, detectar
+
 SIN_ORG = {"org_id": {"$exists": False}}
 
 
@@ -54,3 +58,52 @@ def migrate_orgs(db) -> dict:
         if org_id:
             counts["eventos"] += n
     return counts
+
+
+# ---------- RF-23 (T-011a): un proyecto guarda todas sus preguntas y un análisis por pregunta abierta ----------
+
+# Campos que hoy viven en la raíz y pasan a analisis.q_1
+CAMPOS_ANALISIS = ("lexical", "lexical_interpretation", "categories", "codings", "qualitative_report",
+                   "v2_analyses_cache")
+CAMPOS_VIEJOS = ("responses", *CAMPOS_ANALISIS)  # salen de la raíz
+
+
+def convertir_proyecto(p: dict) -> dict:
+    """Documento antiguo (responses en la raíz) → {preguntas, respondentes, analisis}. Función pura."""
+    responses = p.get("responses") or []
+    texto = p.get("text_column") or ""
+    meta_keys = list(dict.fromkeys(k for r in responses for k in r.get("meta", {})))
+    meta_cols = [c for c in (p.get("columns") or []) if c in meta_keys]
+    meta_cols += [k for k in meta_keys if k not in meta_cols]
+    preguntas = [{"id": "q_1", "titulo": texto, "columnas": [texto], "tipo": "abierta", "contexto_ia": False}]
+    if meta_cols and responses:
+        df = pd.DataFrame([{c: r.get("meta", {}).get(c) or None for c in meta_cols} for r in responses])
+        tipos = {x["columna"]: x["tipo"] for x in detectar(df)["preguntas"]}
+        for i, c in enumerate(meta_cols, start=2):
+            preguntas.append({"id": f"q_{i}", "titulo": c, "columnas": [c], "tipo": tipos[c],
+                              "contexto_ia": contexto_por_defecto(tipos[c], c)})
+    ids = {q["titulo"]: q["id"] for q in preguntas[1:]}
+    respondentes = [
+        {"id": r["id"], "valores": {"q_1": r.get("text") or None,
+                                    **{ids[c]: v or None for c, v in r.get("meta", {}).items()}}}
+        for r in responses
+    ]
+    return {"preguntas": preguntas, "respondentes": respondentes,
+            "analisis": {"q_1": {c: p[c] for c in CAMPOS_ANALISIS if c in p}}}
+
+
+def migrate_preguntas(db) -> dict:
+    """Todo proyecto sin `preguntas` pasa al esquema por pregunta; `q_1` es la columna de texto de siempre.
+
+    Idempotente: solo toca proyectos sin `preguntas` y el filtro del update lo vuelve a exigir (dos procesos a la
+    vez no se pisan). `columns` y `text_column` quedan como dato de origen. `init_db()` la corre al arrancar.
+    """
+    n = 0
+    for p in db.projects.find({"preguntas": {"$exists": False}}):
+        nuevo = convertir_proyecto(p)
+        r = db.projects.update_one(
+            {"_id": p["_id"], "preguntas": {"$exists": False}},
+            {"$set": nuevo, "$unset": {c: "" for c in CAMPOS_VIEJOS}},
+        )
+        n += r.modified_count
+    return {"proyectos": n}
