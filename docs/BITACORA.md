@@ -491,7 +491,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 
 - **Qué se hace:** algunos campos de texto se veían como un recuadro simple del navegador, sin el estilo de Celestica. Pasaba en el registro (Nombre y Organización), en la categoría manual y en Qualtrics. La causa está en un solo componente y se corrige con una línea.
 - **Por qué ahora:** el responsable pidió arreglarlo antes de seguir con T-013.
-- **Estado:** en desarrollo.
+- **Resultado:** se cambió una línea. Una captura de la pantalla de registro confirma que todos los campos se ven iguales, con el estilo de Celestica.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

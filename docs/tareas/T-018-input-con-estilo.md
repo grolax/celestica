@@ -20,3 +20,8 @@ El estilo de los campos en `globals.css` se aplica por tipo (`input[type=...]`).
 - [ ] `npm run build` sin errores.
 - [ ] Los 4 campos (registro: Nombre y Organización; categoría manual: Nombre; Qualtrics: Datacenter ID) se ven con el mismo estilo que los demás. Indica cómo lo verificaste.
 - [ ] Commits con el formato `T-018 RNF-16: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- Diff de 1 línea en `Input.tsx` (`type="text"` antes de `{...rest}`, un `type` explícito sigue mandando). `npm run build` sin errores.
+- Captura del supervisor de `/signup`: los 5 campos con el mismo estilo (Nombre y Organización ahora `type=text`, radio 8 px). El programador verificó además categoría manual y Datacenter de Qualtrics por estilo calculado.
