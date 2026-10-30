@@ -427,6 +427,19 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 
 ---
 
+### 35. T-010 · Segunda prueba con la encuesta real: opciones con comas
+
+- **Qué se encontró:** al revisar de nuevo la encuesta de vivienda, apareció otro error. Google Forms separa con comas las opciones marcadas, y algunas opciones **tienen comas dentro**, como "Subsidios habitacionales (DS1, DS19, DS49)" o "Invertir en depósitos a plazo, fondos mutuos, acciones…". La plataforma las cortaba en trozos falsos. Más adelante, eso habría dado **conteos y porcentajes equivocados**.
+- **Qué se hizo:** en dos rondas de corrección, la plataforma aprendió a rearmar esas opciones:
+  - no corta dentro de un paréntesis;
+  - une los trozos que siempre aparecen juntos;
+  - une al anterior todo trozo que empieza con minúscula, como "pero todavía no he buscado".
+- **Resultado:** en la encuesta real, todas las opciones quedan completas y con sus conteos correctos. La pregunta "¿Cuál de estas alternativas describe mejor…?" quedó bien reconocida como selección única. Hay **176 pruebas automáticas** y todas pasan.
+- **Para la pantalla de revisión (T-012):** las respuestas escritas a mano en la opción "Otro" de Google Forms se agruparán bajo "Otro".
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+
+---
+
 ## Glosario
 
 | Término | Significado |

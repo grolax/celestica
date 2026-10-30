@@ -54,7 +54,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - `Input` genera ids con `label.replace(/\W/g, "_")`: la ñ pasa a `_` (colisión posible entre etiquetas que solo difieren en ñ).
 - `Input` sin `type` explícito pierde el estilo del campo (CSS por selector de tipo).
 - El rol en la UI viene de `/auth/me` al cargar; un cambio de rol hecho por otro admin se ve tras recargar.
-- `question_types`: selección única con comas dentro de las alternativas sale `seleccion_multiple`; pistas de título pueden dar `segmento` de más ("educación financiera"); motivo "1 valores distintos"; motivo repite la palabra del título sin tilde; detección por texto sobre muestra de 1.000 valores; enteros casi todos distintos → identificador (posible falso positivo).
+- `question_types`: pistas de título pueden dar `segmento` de más ("educación financiera"); respuestas "Otro" de Google Forms salen como opciones de 1 mención (agrupar en T-012); una continuación en minúscula que es opción real se une a la anterior (se corrige en T-012); peor caso 30 multi-selección × 4.000 combinaciones ≈ 2,2 s; detección por texto sobre muestra de 1.000 valores; enteros casi todos distintos → identificador (posible falso positivo).
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
 - La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).

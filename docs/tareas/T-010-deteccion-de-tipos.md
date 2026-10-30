@@ -97,3 +97,10 @@ El supervisor repitió la detección sobre la encuesta real: las opciones con co
 2. **`COMO_FUNCIONA.md`** (está en `07_MVP/`, no en `docs/`: sí te corresponde): documenta la reconstrucción de opciones (paréntesis, trozos siempre juntos, continuación en minúscula) y la regla de selección única con comas.
 
 Pruebas sintéticas: dos prefijos con el mismo final en minúscula → `seleccion_unica` con las alternativas completas; un trozo en minúscula que también aparece solo → se mantiene separado. Lo demás debe seguir igual.
+
+## Revisión 6
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 176 pasan; ninguna prueba existente modificada en las rondas 4 y 5.
+- Encuesta real (solo lectura local): la selección única con final compartido en minúscula queda `seleccion_unica` con sus alternativas completas; las opciones con coma interna (ahorro, subsidios DS1/DS19/DS49, transparencia) completas y con conteos correctos; 2 abiertas verdaderas; escalas, sí/no, fecha y segmentos sin cambios.
+- `COMO_FUNCIONA.md` documenta la reconstrucción de opciones.
+- Para T-012: las respuestas escritas en "Otro" de Google Forms aparecen como opciones de 1 mención; conviene agruparlas como "Otro" en la revisión de preguntas. "educación financiera" sigue como `segmento` (aceptado). Peor caso sintético de 30 columnas multi-selección con ~4.000 combinaciones: ~2,2 s (aceptado; escenario improbable).
