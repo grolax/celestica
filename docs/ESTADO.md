@@ -25,11 +25,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-009 Panel interno responde 403 | backend | RNF-13, RNF-02 | 2026-10-30 | `tarea/T-009-admin-403` (fusionada, PR #16) |
 | T-008b Pantalla de miembros y acciones por rol | frontend | RF-03, RNF-13, RNF-14 | 2026-10-30 | `tarea/T-008b-miembros-y-acciones-por-rol` (fusionada, PR #17) |
 | T-010 Detección de tipos y vista previa | backend | RF-22, RF-25 | 2026-10-30 | `tarea/T-010-deteccion-de-tipos` (fusionada, PR #18) |
-| T-011a Preguntas en el proyecto, un análisis por pregunta, contexto IA y migración | backend | RF-23, RNF-05, RNF-08, RNF-21 | 2026-10-30 | `tarea/T-011a-preguntas-en-el-proyecto` (aprobada en revisión 2, pendiente de subir) |
+| T-011a Preguntas en el proyecto, un análisis por pregunta, contexto IA y migración | backend | RF-23, RNF-05, RNF-08, RNF-21 | 2026-10-30 | `tarea/T-011a-preguntas-en-el-proyecto` (fusionada, PR #19) |
 
 ## En curso
 
-- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (frontend) → T-013 selector de pregunta abierta (frontend).
+- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → **T-012 paso "Revisa las preguntas" (frontend, rama `tarea/T-012-revisar-preguntas`; boceto aprobado por el usuario, pidió capturas reales del resultado)** → T-013 selector de pregunta abierta (frontend).
 - Decisiones iteración 2 (usuario, 2026-10-30): RF-24 (proyectos solo cerradas) pospuesto a iteración 3 con RF-30; IA pregunta por pregunta a pedido del usuario (cuidar tokens sin perder calidad); un informe por pregunta abierta hasta RF-51; proyectos existentes quedan con su única pregunta abierta; agregar preguntas después llega con RF-27.
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 
