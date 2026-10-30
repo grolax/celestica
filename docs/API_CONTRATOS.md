@@ -222,7 +222,7 @@ Decisiones del usuario (2026-10-30): un análisis por pregunta abierta, la IA so
   {"titulo": "1. ¿Cuál es tu edad?", "columnas": ["1. ¿Cuál es tu edad?"], "tipo": "segmento", "contexto_ia": true} ]
 ```
   - Columnas que no aparecen en ninguna pregunta no se guardan.
-  - **Sin `preguntas` (compatibilidad):** se arman con `detectar()` sobre todas las columnas, se fuerza `text_column` (o la detectada, como hoy) a `abierta`, y `contexto_ia` queda `true` solo en preguntas `segmento` cuyo título menciona género/sexo o edad.
+  - **Sin `preguntas` (compatibilidad):** se arman con `detectar()` sobre todas las columnas, se fuerza `text_column` (o la detectada, como hoy) a `abierta`, y `contexto_ia` queda `true` solo en preguntas `segmento`, `numerica` o `seleccion_unica` cuyo título menciona género/sexo o edad (nunca `identificador`).
 - **Respuesta 200:** la de hoy más `preguntas_abiertas`:
 ```json
 { "id": "proj_ab12cd34ef", "n_responses": 484, "text_column": "28. ¿Qué tendría que cambiar…?",
@@ -234,7 +234,7 @@ Decisiones del usuario (2026-10-30): un análisis por pregunta abierta, la IA so
   - 422 — "La columna «X» no existe en los datos." · "La columna «X» está en más de una pregunta." · "Tipo de pregunta no válido: X." · "Una columna de identificación no se puede enviar a la IA." (`tipo: identificador` con `contexto_ia: true`).
 
 ### Parámetro `pregunta` en las operaciones de análisis (nuevo, opcional)
-Query `?pregunta=<id>` en: `GET /api/projects/{id}`, `GET .../responses`, `POST/GET .../lexical`, `POST .../categories/propose`, `POST .../categories`, `PATCH .../categories/{cid}`, `POST/DELETE .../comments`, `POST .../codify`, `GET .../codify/progress`, `PUT .../responses/{rid}/codings`, `GET .../summary`, `POST/GET .../report`, `GET .../report/progress`, `GET .../export/*`.
+Query `?pregunta=<id>` en: `GET /api/projects/{id}`, `POST .../apply-template`, `GET .../responses`, `POST/GET .../lexical`, `POST .../categories/propose`, `POST .../categories`, `PATCH .../categories/{cid}`, `POST/DELETE .../comments`, `POST .../codify`, `GET .../codify/progress`, `PUT .../responses/{rid}/codings`, `GET .../summary`, `POST/GET .../report`, `GET .../report/progress`, `GET .../export/*`.
 - Sin `pregunta`: se usa la **pregunta por defecto** (primera abierta). Con un id que no existe o que no es `abierta`: **404** — "Pregunta no encontrada".
 - Las respuestas y los campos de análisis (`responses`, `lexical`, `lexical_interpretation`, `categories`, `codings`, `qualitative_report`) que devuelven estas operaciones **son los de esa pregunta**, con la misma forma que hoy. `responses[].meta` contiene **solo** las preguntas con `contexto_ia: true` (por título), nunca identificadores.
 - Codificación e informe se lanzan por pregunta y su progreso es por pregunta: dos preguntas del mismo proyecto pueden tener estados distintos.
