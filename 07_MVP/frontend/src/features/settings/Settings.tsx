@@ -3,6 +3,7 @@ import { adminApi, AdminHealth, PromptEntry, PromptsData, UsageProject } from ".
 import { ClaudeUsageTotals } from "@/features/analysis/types";
 import { projectsApi } from "@/features/projects/api";
 import { useAuth } from "@/features/auth/useAuth";
+import { ROL_LABEL } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import PageHeader from "@/shared/components/PageHeader";
 import Card from "@/shared/components/Card";
@@ -33,7 +34,12 @@ export default function Settings() {
 
       <Card title="Mi cuenta">
         <p><strong>{user?.nombre || "—"}</strong> · {user?.email}</p>
-        {user?.empresa && <p className="muted">{user.empresa}</p>}
+        {user && (
+          <>
+            <p className="muted">Organización: {user.organizacion?.nombre || user.empresa}</p>
+            <p className="muted">Rol: {ROL_LABEL[user.rol] ?? user.rol}</p>
+          </>
+        )}
       </Card>
 
       <Card title="Importar proyectos antiguos">

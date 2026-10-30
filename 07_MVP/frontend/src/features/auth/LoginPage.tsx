@@ -101,7 +101,7 @@ export function SignupPage() {
         {error && <div className="alert alert-error">{error}</div>}
         <Input label="Nombre" value={form.nombre} required autoFocus
                onChange={set("nombre")} placeholder="Ej: Francisco Salazar" />
-        <Input label="Institución / Empresa" value={form.empresa}
+        <Input label="Organización (institución o empresa)" value={form.empresa}
                onChange={set("empresa")} placeholder="Ej: Universidad Diego Portales, CADEM, SernacFacilita" />
         <Input label="Email" type="email" value={form.email} required
                onChange={set("email")} placeholder="tu@organizacion.cl" />

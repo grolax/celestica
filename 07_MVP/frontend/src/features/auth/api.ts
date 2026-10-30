@@ -1,10 +1,20 @@
 import { jsonBody, req } from "@/shared/api/client";
 
+export type Rol = "admin" | "analista" | "lector";
+
+export const ROL_LABEL: Record<Rol, string> = {
+  admin: "Administrador",
+  analista: "Analista",
+  lector: "Lector",
+};
+
 export interface User {
   id: string;
   email: string;
   nombre: string;
   empresa: string;
+  rol: Rol;
+  organizacion: { id: string; nombre: string };
 }
 
 export interface AuthResponse {
