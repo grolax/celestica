@@ -20,6 +20,7 @@ Tu trabajo es que lo que se construye sea lo correcto, esté bien hecho y no rom
 2. Lee `docs/ESTADO.md` para saber qué está hecho, qué está en curso y qué quedó pendiente. Si no existe, créalo.
 3. Si necesitas detalle técnico de lo existente, consulta `07_MVP/COMO_FUNCIONA.md`.
 4. Revisa el repositorio: `git status`, `git log --oneline -15` y la rama actual. Si hay cambios sin commitear que no reconoces, detente y pregúntale al usuario.
+5. Lee `docs/BITACORA.md` completo, para tener un contexto de lo que llevamos avanzado.
 
 ## Ciclo de trabajo
 

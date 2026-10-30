@@ -47,7 +47,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010, T-011a y T-012 incorporadas; T-013 aprobada por el supervisor, espera autorización |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | ✅ Incorporadas a la versión oficial (T-010, T-011a, T-012 y T-013) |
+| T-019 | Arreglo: el servidor no permite codificar dos veces a la vez la misma pregunta | 🔵 En curso |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -509,6 +510,13 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Corrección en las pantallas:** ahora Codificación e Informe detectan si hay un proceso en curso y muestran su avance en vez del botón.
 - **Corrección pendiente en el servidor (T-019):** bloquear una segunda codificación de la misma pregunta mientras la primera no termine, como ya se hace con el informe.
 - **Con T-013 se completa la iteración de "encuestas completas".**
+- **Estado:** incorporada a la versión oficial (PR #22).
+
+### 43. T-019 · Plan: que el servidor no gaste la IA dos veces
+
+- **Problema:** las pantallas ya evitan lanzar dos veces la codificación de una pregunta, pero con dos pestañas abiertas o dos personas trabajando a la vez todavía se podía lanzar dos veces y pagar el doble.
+- **Arreglo:** si ya hay una codificación en curso para esa pregunta, el servidor responde "ya está en curso" y no llama a la IA. Otra pregunta del mismo proyecto sí puede codificarse al mismo tiempo.
+- **Resultado:** funciona. Las pruebas confirman que un segundo pedido de la misma pregunta no llama a la IA, que otra pregunta sí puede codificarse en paralelo y que tras terminar (o tras un error) se puede volver a lanzar. De paso se reforzó el mismo bloqueo del informe. 197 pruebas en verde.
 - **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---

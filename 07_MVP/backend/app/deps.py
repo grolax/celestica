@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import threading
 import unicodedata
 from typing import Optional
 
@@ -16,6 +17,8 @@ from app.services import claude_log
 # Estado de progreso de codificación y de informe por (proyecto, pregunta) (en memoria)
 _codify_progress: dict = {}
 _report_progress: dict = {}
+# Comprobar "¿hay uno en curso?" e iniciar debe ser atómico: los endpoints síncronos corren en un pool de hilos.
+_progress_lock = threading.Lock()
 
 # Largo típico de un informe (~4000 tokens ≈ 12k caracteres): para estimar %.
 # El progreso son caracteres realmente recibidos del stream; el % se satura en 95
