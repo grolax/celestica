@@ -46,7 +46,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
-| T-006 a T-008 | Roles y gestión de miembros | 🔨 T-006 y T-007 incorporadas; T-008a en desarrollo; T-008b en cola |
+| T-006 a T-008 | Roles y gestión de miembros | 🟡 T-006 y T-007 incorporadas; T-008a aprobada por el supervisor, espera autorización; T-008b en cola |
 
 ---
 
@@ -356,7 +356,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Textos propuestos por el supervisor**, que el responsable puede ajustar:
   - El aviso de contraseña temporal: "Por seguridad, cambia la contraseña temporal que te entregó tu administrador antes de continuar."
   - La explicación de cada rol en la pantalla Miembros.
-- **Estado:** T-008a en desarrollo.
+- **T-008a, resultado:** quien entra con una contraseña temporal es llevado a cambiarla antes de seguir. En Configuración hay un botón para cambiar la contraseña. Si alguien es desactivado con la sesión abierta, vuelve al inicio de sesión y ve el aviso. Se verificó en la plataforma local con cuentas de prueba, sin usar IA.
+- **Hallazgo:** ya existía un error. Si alguien escribe mal la contraseña del panel interno de prompts, la plataforma le cierra la sesión. Quedó anotado para corregirlo en una tarea corta.
+- **Estado:** T-008a aprobada por el supervisor; espera que el responsable autorice publicarla. T-008b en cola.
 
 ---
 

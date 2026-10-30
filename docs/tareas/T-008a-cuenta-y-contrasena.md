@@ -32,3 +32,12 @@ La interfaz respeta los dos estados de cuenta del backend: quien entra con una c
 - [ ] Desactivar al miembro (PATCH) mientras tiene la sesión abierta: en su siguiente acción vuelve a `/login` con el mensaje "Tu cuenta fue desactivada. Contacta al administrador de tu organización."
 - [ ] Formulario accesible: etiquetas, foco inicial, errores asociados a su campo, recorrible con Tab.
 - [ ] Commits con el formato `T-008a RF-03: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff +116/-15 en 8 archivos, solo frontend.
+- `ProtectedLayout` redirige toda ruta protegida a `/cambiar-contrasena` mientras `debe_cambiar_password`; tras el cambio, `useAuth.changePassword` actualiza `user` con la respuesta.
+- `client.ts`: cambio mínimo; el manejador de 401 recibe el `detail` (misma condición, ahora después de leer el cuerpo). `LoginPage` muestra el aviso una vez.
+- `Input.tsx` gana `aria-invalid`/`aria-describedby` (fuera de "Archivos probables", aceptado: lo exige el criterio de accesibilidad y solo agrega atributos).
+- Verificado por el programador contra el backend local sin IA: redirección obligatoria, errores por campo, cambio desde Configuración y aviso de cuenta desactivada.
+- Hallazgo previo (no causado por esta tarea): `/api/admin/*` responde **401** con contraseña de admin incorrecta y `adminApi` usa `req`, así que un error de contraseña del panel de prompts cierra la sesión del usuario. Anotado como deuda (backend: responder 403).
