@@ -4,6 +4,7 @@ import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import { TextArea } from "@/shared/components/Input";
+import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
 import { Category } from "../types";
 import CommentThread from "./CommentThread";
@@ -17,6 +18,7 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
   onError: (msg: string) => void;
 }) {
   const canEdit = puede(useAuth().user, "analista");
+  const { pregunta } = useProject().project;
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     nombre: c.nombre, definicion: c.definicion,
@@ -28,7 +30,7 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
 
   async function setStatus(status: Category["status"]) {
     try {
-      await analysisApi.updateCategory(projectId, c.id, { status });
+      await analysisApi.updateCategory(projectId, pregunta, c.id, { status });
       onChange();
     } catch (e) {
       onError((e as Error).message);
@@ -37,7 +39,7 @@ export default function CategoryCard({ category: c, projectId, onChange, onError
 
   async function saveEdit() {
     try {
-      await analysisApi.updateCategory(projectId, c.id, form);
+      await analysisApi.updateCategory(projectId, pregunta, c.id, form);
       setEditing(false);
       onChange();
     } catch (e) {

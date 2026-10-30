@@ -25,12 +25,12 @@ export default function Codebook() {
   }, [canEdit, project.categories.length]);
 
   async function propose() {
-    const ok = await run(() => analysisApi.proposeCategories(project.id));
+    const ok = await run(() => analysisApi.proposeCategories(project.id, project.pregunta));
     if (ok) refresh();
   }
 
   async function applyTemplate(key: string) {
-    const ok = await run(() => projectsApi.applyTemplate(project.id, key));
+    const ok = await run(() => projectsApi.applyTemplate(project.id, project.pregunta, key));
     if (ok) refresh();
   }
 

@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { useAuth } from "@/features/auth/useAuth";
 import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
+import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
 import { CategoryComment } from "../types";
 import Icon from "@/shared/components/Icon";
@@ -15,13 +16,14 @@ export default function CommentThread({ projectId, categoryId, comments, onChang
   onError: (msg: string) => void;
 }) {
   const { user } = useAuth();
+  const { pregunta } = useProject().project;
   const [commentText, setCommentText] = useState("");
 
   async function addComment(e: FormEvent) {
     e.preventDefault();
     if (!commentText.trim()) return;
     try {
-      await analysisApi.addComment(projectId, categoryId, commentText.trim());
+      await analysisApi.addComment(projectId, pregunta, categoryId, commentText.trim());
       setCommentText("");
       onChange();
     } catch (err) {
@@ -38,7 +40,7 @@ export default function CommentThread({ projectId, categoryId, comments, onChang
             {com.author} · {new Date(com.timestamp).toLocaleString("es-CL")}
             {(puede(user, "analista") || (!!com.author_id && com.author_id === user?.id)) && (
               <button className="btn btn-ghost btn-sm" style={{ padding: "0 6px", marginLeft: 6 }}
-                      aria-label="Borrar comentario" onClick={async () => { await analysisApi.deleteComment(projectId, categoryId, com.id); onChange(); }}>
+                      aria-label="Borrar comentario" onClick={async () => { await analysisApi.deleteComment(projectId, pregunta, categoryId, com.id); onChange(); }}>
                 <Icon name="close" size={14} />
               </button>
             )}

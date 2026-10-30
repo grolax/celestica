@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { analysisApi } from "@/features/analysis/api";
 import { ProjectStats } from "@/features/analysis/types";
 import { useAuth } from "@/features/auth/useAuth";
@@ -13,12 +13,13 @@ import PageHeader from "@/shared/components/PageHeader";
 export default function ProjectDashboard() {
   const { project } = useProject();
   const navigate = useNavigate();
+  const { search } = useLocation();
   const canEdit = puede(useAuth().user, "analista");
   const [stats, setStats] = useState<ProjectStats | null>(null);
 
   useEffect(() => {
-    analysisApi.summary(project.id).then(setStats).catch(() => {});
-  }, [project.id, project.n_coded]);
+    analysisApi.summary(project.id, project.pregunta).then(setStats).catch(() => {});
+  }, [project.id, project.pregunta, project.n_coded]);
 
   const validated = project.categories.filter((c) => c.status === "validada").length;
   const pctCoded = project.n_responses ? Math.round((project.n_coded / project.n_responses) * 100) : 0;
@@ -49,7 +50,7 @@ export default function ProjectDashboard() {
       <div className="grid-2">
         <Card title="Estado del análisis"
               actions={canEdit && nextStep && (
-                <Button size="sm" onClick={() => navigate(nextStep.to)}>
+                <Button size="sm" onClick={() => navigate(nextStep.to + search)}>
                   {nextStep.cta} {nextStep.label.toLowerCase().split(" ")[0]} <Icon name="arrowRight" size={16} />
                 </Button>
               )}>
@@ -60,13 +61,13 @@ export default function ProjectDashboard() {
               </span>
               <span style={{ flex: 1, fontWeight: s.done ? 400 : 600 }}>{s.label}</span>
               {canEdit && !s.done && (
-                <Button size="sm" variant="secondary" onClick={() => navigate(s.to)}>{s.cta}</Button>
+                <Button size="sm" variant="secondary" onClick={() => navigate(s.to + search)}>{s.cta}</Button>
               )}
             </div>
           ))}
           {!nextStep && (
             <div className="alert alert-success" style={{ marginTop: 12, marginBottom: 0 }}>
-              Análisis completo. <a onClick={() => navigate("exportar")} style={{ cursor: "pointer" }}><strong>Exporta el reporte final</strong> <Icon name="arrowRight" size={16} /></a>
+              Análisis completo. <a onClick={() => navigate(`exportar${search}`)} style={{ cursor: "pointer" }}><strong>Exporta el reporte final</strong> <Icon name="arrowRight" size={16} /></a>
             </div>
           )}
         </Card>
@@ -101,7 +102,7 @@ export default function ProjectDashboard() {
 
       <Card title="Exportar" actions={<span className="pill claude">listo para acreditación</span>}>
         <p className="muted">Informe PDF/Word con tabla de trazabilidad completa, y datos en CSV/Excel.</p>
-        <Button onClick={() => navigate("exportar")}>Ir a Exportar <Icon name="arrowRight" size={16} /></Button>
+        <Button onClick={() => navigate(`exportar${search}`)}>Ir a Exportar <Icon name="arrowRight" size={16} /></Button>
       </Card>
     </>
   );

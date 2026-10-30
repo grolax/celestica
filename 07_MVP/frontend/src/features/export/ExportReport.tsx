@@ -49,11 +49,11 @@ export default function ExportReport() {
           </label>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Button busy={busyKey === "pdf"}
-                    onClick={() => download("pdf", () => exportApi.downloadPdf(project.id, includeDetails))}>
+                    onClick={() => download("pdf", () => exportApi.downloadPdf(project.id, project.pregunta, includeDetails))}>
               <Icon name="download" /> Descargar PDF
             </Button>
             <Button variant="secondary" busy={busyKey === "docx"}
-                    onClick={() => download("docx", () => exportApi.downloadDocx(project.id, includeDetails))}>
+                    onClick={() => download("docx", () => exportApi.downloadDocx(project.id, project.pregunta, includeDetails))}>
               <Icon name="download" /> Descargar Word (.docx)
             </Button>
           </div>
@@ -66,11 +66,11 @@ export default function ExportReport() {
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
             <Button variant="secondary" busy={busyKey === "csv"}
-                    onClick={() => download("csv", () => exportApi.downloadCsv(project.id))}>
+                    onClick={() => download("csv", () => exportApi.downloadCsv(project.id, project.pregunta))}>
               <Icon name="download" /> CSV (UTF-8)
             </Button>
             <Button variant="secondary" busy={busyKey === "xlsx"}
-                    onClick={() => download("xlsx", () => exportApi.downloadXlsx(project.id))}>
+                    onClick={() => download("xlsx", () => exportApi.downloadXlsx(project.id, project.pregunta))}>
               <Icon name="download" /> Excel (.xlsx)
             </Button>
           </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Input, { TextArea } from "@/shared/components/Input";
+import { useProject } from "@/features/projects/useProjectData";
 import { analysisApi } from "../api";
 
 /** Alta manual de categorías (entran validadas: las escribió un humano). */
@@ -10,6 +11,7 @@ export default function ManualCategoryForm({ projectId, onChange, onError }: {
   onChange: () => void;
   onError: (msg: string) => void;
 }) {
+  const { pregunta } = useProject().project;
   const empty = { nombre: "", definicion: "", criterios_inclusion: "", criterios_exclusion: "", ejemplo: "" };
   const [form, setForm] = useState(empty);
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
@@ -18,7 +20,7 @@ export default function ManualCategoryForm({ projectId, onChange, onError }: {
   async function add() {
     if (!form.nombre.trim()) return;
     try {
-      await analysisApi.createCategory(projectId, form);
+      await analysisApi.createCategory(projectId, pregunta, form);
       setForm(empty);
       onChange();
     } catch (e) {

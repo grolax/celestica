@@ -27,11 +27,13 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-010 Detección de tipos y vista previa | backend | RF-22, RF-25 | 2026-10-30 | `tarea/T-010-deteccion-de-tipos` (fusionada, PR #18) |
 | T-011a Preguntas en el proyecto, un análisis por pregunta, contexto IA y migración | backend | RF-23, RNF-05, RNF-08, RNF-21 | 2026-10-30 | `tarea/T-011a-preguntas-en-el-proyecto` (fusionada, PR #19) |
 | T-012 Paso "Revisa las preguntas" al crear un proyecto | frontend | RF-25, RF-22, RF-40 (parcial) | 2026-10-30 | `tarea/T-012-revisar-preguntas` (fusionada, PR #20) |
-| T-018 Campos de texto con estilo por defecto | frontend | RNF-16, RNF-14 | 2026-10-30 | `tarea/T-018-input-con-estilo` (aprobada, pendiente de subir) |
+| T-018 Campos de texto con estilo por defecto | frontend | RNF-16, RNF-14 | 2026-10-30 | `tarea/T-018-input-con-estilo` (fusionada, PR #21) |
+| T-013 Selector de pregunta abierta | frontend | RF-23, RNF-08, RNF-13 | 2026-10-30 | `tarea/T-013-selector-de-pregunta` (aprobada en revisión 2, pendiente de subir) |
 
 ## En curso
 
-- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (aprobada) → T-013 selector de pregunta abierta (frontend).
+- Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (aprobada) → T-013 selector de pregunta (aprobada). **Iteración 2 completa.**
+- Siguiente: T-019 (backend) bloquear una segunda codificación simultánea de la misma pregunta (riesgo de gasto doble de IA).
 - Decisiones iteración 2 (usuario, 2026-10-30): RF-24 (proyectos solo cerradas) pospuesto a iteración 3 con RF-30; IA pregunta por pregunta a pedido del usuario (cuidar tokens sin perder calidad); un informe por pregunta abierta hasta RF-51; proyectos existentes quedan con su única pregunta abierta; agregar preguntas después llega con RF-27.
 - Decisiones RF-03 del usuario (2026-10-30): contraseña temporal obligatoria de cambiar; quitar = desactivar; nunca sin admin activo; el admin cambia roles; el lector borra solo sus comentarios.
 

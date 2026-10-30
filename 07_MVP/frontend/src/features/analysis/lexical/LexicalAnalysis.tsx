@@ -16,14 +16,14 @@ export default function LexicalAnalysis() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    analysisApi.getLexical(project.id).then(setResult).catch(() => {});
-  }, [project.id]);
+    analysisApi.getLexical(project.id, project.pregunta).then(setResult).catch(() => {});
+  }, [project.id, project.pregunta]);
 
   async function run() {
     setBusy(true);
     setError("");
     try {
-      setResult(await analysisApi.runLexical(project.id));
+      setResult(await analysisApi.runLexical(project.id, project.pregunta));
       refresh();
     } catch (e) {
       setError((e as Error).message);
