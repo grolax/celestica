@@ -47,7 +47,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 y T-011a incorporadas; T-012 incorporada; T-013 en cola |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🔨 T-010, T-011a y T-012 incorporadas; T-013 en desarrollo |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -492,7 +492,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se hace:** algunos campos de texto se veían como un recuadro simple del navegador, sin el estilo de Celestica. Pasaba en el registro (Nombre y Organización), en la categoría manual y en Qualtrics. La causa está en un solo componente y se corrige con una línea.
 - **Por qué ahora:** el responsable pidió arreglarlo antes de seguir con T-013.
 - **Resultado:** se cambió una línea. Una captura de la pantalla de registro confirma que todos los campos se ven iguales, con el estilo de Celestica.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #21 en GitHub).
+
+---
+
+### 41. T-013 · Elegir qué pregunta abierta analizar
+
+- **Qué se hace:** en los proyectos con varias preguntas abiertas, aparece arriba de las pestañas un selector, **"Pregunta que estás analizando"**. Todas las pestañas trabajan sobre la pregunta elegida: resumen, léxico, libro de códigos, codificación, trazabilidad, informe y exportar. Si el proyecto tiene una sola pregunta abierta, no aparece nada nuevo.
+- **Por qué:** es la última pieza para analizar encuestas con varias preguntas abiertas. Cada una tiene su propio análisis, y la IA trabaja solo sobre la elegida y solo cuando se lo piden.
+- **Estado:** en desarrollo.
 
 ---
 
