@@ -15,6 +15,7 @@ export interface User {
   empresa: string;
   rol: Rol;
   organizacion: { id: string; nombre: string };
+  debe_cambiar_password: boolean;
 }
 
 export interface AuthResponse {
@@ -28,4 +29,6 @@ export const authApi = {
   login: (body: { email: string; password: string }) =>
     req<AuthResponse>("/login", { method: "POST", ...jsonBody(body) }, "/auth"),
   me: () => req<User>("/me", {}, "/auth"),
+  changePassword: (body: { password_actual: string; password_nueva: string }) =>
+    req<{ user: User }>("/change-password", { method: "POST", ...jsonBody(body) }, "/auth"),
 };
