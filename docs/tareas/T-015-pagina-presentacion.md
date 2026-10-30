@@ -28,13 +28,13 @@ Quien entra a Celestica desde fuera ve primero una **carta de presentación**: q
 ## Contrato de API
 No aplica: la página es estática.
 
-## Textos (versión resumida, 2026-10-15)
+## Textos (aprobados por el usuario, 2026-10-30)
 Usa estos textos tal cual. Si alguno no calza con el diseño, propón el cambio en tu resumen en vez de inventar. **No agregues funciones que la plataforma aún no tiene.** Por ejemplo, NPS y preguntas cerradas todavía no existen.
 
-- **Frase principal:** "De la encuesta al informe, con evidencia en cada paso."
+- **Frase principal:** "De la encuesta al informe en minutos"
 - **Línea:** "Análisis de encuestas con IA y validación de tu equipo."
-- **Quiénes somos:** "Somos SoftInsight: análisis social, metodología y tecnología al servicio de las organizaciones que escuchan a su gente."
-- **Nuestro objetivo:** "Que pasar de las respuestas a las decisiones tome horas, no semanas, con cada hallazgo respaldado por evidencia."
+- **Quiénes somos:** "Somos Celestica: análisis social, metodología y tecnología al servicio de las organizaciones que escuchan a su gente."
+- **Nuestro objetivo:** "Que pasar de las respuestas a las decisiones tome minutos, no semanas, con cada objetivo respaldado por evidencia."
 - **Qué hace Celestica:** 4 tarjetas.
   - *Importa tus datos:* "CSV, Excel, Qualtrics o Google Forms."
   - *La IA propone, tu equipo decide:* "Temas sugeridos que tu equipo valida."
@@ -60,3 +60,11 @@ Usa estos textos tal cual. Si alguno no calza con el diseño, propón el cambio 
 ## Notas
 - La URL de la lista de proyectos cambia de `/` a `/proyectos`. Quien tenga marcada la URL vieja llegará a la presentación y desde ahí entra con un clic, así que es aceptable.
 - Diseño sobrio: aire generoso entre secciones, ancho máximo de contenido de unos 1100 px, una acción primaria por sección.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores; backend `pytest tests -q`: 18 pasan.
+- Rutas: `/` presentación pública, `/proyectos` protegida, `PublicOnly` y login/signup a `/proyectos`, `*` a `/`. Destinos actualizados en `App.tsx`, `LoginPage.tsx` (2), `NewProject.tsx`, `Header.tsx`, `Sidebar.tsx`; `grep` no muestra otros destinos a `/` dentro del área de trabajo.
+- Textos coinciden con la sección "Textos". Landmarks, un solo `h1` por página, foco visible heredado de T-014, sin librerías nuevas, CSS en la sección Landing con variables existentes.
+- Desviaciones aceptadas: "Crear cuenta" se oculta con sesión; el pie dice "Ir a mi espacio" con sesión; iconos `folder`/`sparkle`/`shield`/`file`.
+- No verificado: flujo con sesión real de punta a punta (sin backend corriendo); queda para la prueba manual del usuario.

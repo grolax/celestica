@@ -181,7 +181,7 @@ export default function NewProject() {
 
       <div style={{ display: "flex", gap: 10 }}>
         <Button type="submit" busy={busy} size="lg">Crear proyecto</Button>
-        <Button type="button" variant="secondary" size="lg" onClick={() => navigate("/")}>Cancelar</Button>
+        <Button type="button" variant="secondary" size="lg" onClick={() => navigate("/proyectos")}>Cancelar</Button>
       </div>
     </form>
   );

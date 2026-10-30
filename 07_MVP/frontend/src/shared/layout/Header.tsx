@@ -22,7 +22,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
       >
         <Icon name="menu" size={20} />
       </button>
-      <Link to="/" className="logo">
+      <Link to="/proyectos" className="logo">
         <span className="logo-mark">C</span>
         <span>Celestica</span>
       </Link>

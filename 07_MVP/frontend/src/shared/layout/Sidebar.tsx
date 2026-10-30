@@ -10,7 +10,7 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
       <button className="btn btn-primary" style={{ margin: "0 0 12px" }} onClick={() => navigate("/proyectos/nuevo")}>
         + Nuevo proyecto
       </button>
-      <NavLink to="/" end className={cls}><Icon name="folder" /> Mis proyectos</NavLink>
+      <NavLink to="/proyectos" end className={cls}><Icon name="folder" /> Mis proyectos</NavLink>
       <div className="sidebar-section">Recursos</div>
       <NavLink to="/documentacion" className={cls}><Icon name="book" /> Documentación</NavLink>
       <NavLink to="/configuracion" className={cls}><Icon name="settings" /> Configuración</NavLink>
