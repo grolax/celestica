@@ -34,15 +34,15 @@ def _desv(xs: list) -> float:
 
 def _escala(q: dict, vals: list[str]) -> dict:
     nps = q["tipo"] == "nps"
-    # shortcut: la escala no guarda su rango en la pregunta; se toma de los valores que llegaron, así que
-    # un extremo que nadie eligió no aparece. Guardar min/max al confirmar la vista previa si hace falta.
+    # shortcut: la escala no guarda su rango; el mínimo se asume 1 (0 si alguien respondió 0) y el máximo es el
+    # mayor valor respondido, así que un máximo que nadie eligió no aparece. Guardar min/max al confirmar la vista previa.
     enteros = [int(x) for x in map(_num, vals) if x is not None and x == int(x)]
     if nps:
         enteros = [x for x in enteros if 0 <= x <= 10]
     out = {"n_invalidas": len(vals) - len(enteros)}
     if not enteros:
         return {**out, "opciones": []}
-    lo, hi = (0, 10) if nps else (min(enteros), max(enteros))
+    lo, hi = (0, 10) if nps else (min(1, *enteros), max(enteros))
     c, base = Counter(enteros), len(enteros)
     out["opciones"] = [{"valor": str(k), "n": c[k], "pct": _pct(c[k], base)} for k in range(lo, hi + 1)]
     out["escala"] = {"min": lo, "max": hi, "promedio": round(statistics.mean(enteros), 2), "desviacion": _desv(enteros)}

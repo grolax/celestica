@@ -44,6 +44,15 @@ def test_escala_con_un_valor_sin_elegir_promedio_desviacion_y_top2_bottom2():
     assert e["bottom2"] == {"valores": [1, 2], "n": 3, "pct": 42.9}
 
 
+def test_escala_donde_nadie_eligio_el_minimo_igual_parte_de_1():
+    q = _calc("escala", ["2", "3", "4", "5", "5"])
+    assert [(o["valor"], o["n"]) for o in q["opciones"]] == [("1", 0), ("2", 1), ("3", 1), ("4", 1), ("5", 2)]
+    e = q["escala"]
+    assert (e["min"], e["max"]) == (1, 5)
+    assert e["bottom2"] == {"valores": [1, 2], "n": 1, "pct": 20.0}  # el 3 (neutral) no cuenta como bajo
+    assert _calc("escala", ["0", "3", "5"])["escala"]["min"] == 0
+
+
 def test_escala_con_una_sola_respuesta_tiene_desviacion_cero_y_sin_invalidas_no_trae_el_campo():
     q = _calc("escala", ["3"])
     assert q["escala"]["desviacion"] == 0.0 and "n_invalidas" not in q
