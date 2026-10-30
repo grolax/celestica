@@ -312,6 +312,33 @@ def log_event(project: dict, actor: str, action: str, detail: dict[str, Any]) ->
         pass  # el registro canónico vive en el documento del proyecto
 
 
+def log_org_event(org_id: str, user_id: str, action: str, detail: dict[str, Any]) -> None:
+    """Auditoría de organización (miembros, contraseña): solo inserción, sin proyecto."""
+    get_db().audit_events.insert_one({
+        "_id": new_id("evt"), "project_id": None, "org_id": org_id, "user_id": user_id,
+        "actor": "analista", "action": action, "timestamp": now_iso(), "detail": detail,
+    })
+
+
+# ---------- Miembros de la organización (RF-03) ----------
+
+def list_members(org_id: str) -> list[dict]:
+    return list(get_db().users.find({"org_id": org_id}).sort("created_at", 1))
+
+
+def get_member(org_id: str, user_id: str) -> Optional[dict]:
+    return get_db().users.find_one({"_id": user_id, "org_id": org_id})
+
+
+def update_member(org_id: str, user_id: str, fields: dict) -> None:
+    get_db().users.update_one({"_id": user_id, "org_id": org_id}, {"$set": fields})
+
+
+def count_active_admins(org_id: str, excluding: str = "") -> int:
+    return get_db().users.count_documents({"org_id": org_id, "rol": "admin", "activo": {"$ne": False},
+                                           "_id": {"$ne": excluding}})
+
+
 # ---------- Importación de proyectos antiguos ----------
 
 def import_legacy_projects(org_id: str, created_by: str) -> int:

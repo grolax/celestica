@@ -8,8 +8,10 @@ atributos (user.id, user.email, ...).
 
 Colecciones en Mongo:
 - `organizations`: {_id: "org_<10 hex>", nombre, created_at}
-- `users`:        {_id, email, password_hash, nombre, empresa, created_at, integrations, org_id, rol}
-                  (una sola organización por usuario; `rol`: admin | analista | lector, ver app/deps.py)
+- `users`:        {_id, email, password_hash, nombre, empresa, created_at, integrations, org_id, rol,
+                   activo, debe_cambiar_password}
+                  (una sola organización por usuario; `rol`: admin | analista | lector, ver app/deps.py;
+                   `activo`/`debe_cambiar_password` faltantes se leen como true/false, sin migración)
 - `projects`:     {_id, org_id, user_id, name, created_at, ...documento completo del proyecto}
                   `org_id` es el dueño y la clave de aislamiento; `user_id` significa
                   "creado por" y NO se usa para filtrar acceso.
@@ -33,6 +35,8 @@ class User:
     integrations: dict = field(default_factory=dict)  # credenciales cifradas (Qualtrics, etc.)
     org_id: str = ""
     rol: str = "admin"
+    activo: bool = True                  # False = desactivado: no entra, se conserva autoría y auditoría
+    debe_cambiar_password: bool = False  # True = contraseña temporal pendiente de cambio
 
 
 def user_from_doc(doc: Optional[dict]) -> Optional[User]:
@@ -48,6 +52,8 @@ def user_from_doc(doc: Optional[dict]) -> Optional[User]:
         integrations=doc.get("integrations", {}) or {},
         org_id=doc.get("org_id", ""),
         rol=doc.get("rol", "admin"),
+        activo=doc.get("activo", True),
+        debe_cambiar_password=doc.get("debe_cambiar_password", False),
     )
 
 
@@ -62,4 +68,6 @@ def user_to_doc(user: User) -> dict:
         "integrations": user.integrations,
         "org_id": user.org_id,
         "rol": user.rol,
+        "activo": user.activo,
+        "debe_cambiar_password": user.debe_cambiar_password,
     }
