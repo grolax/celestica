@@ -15,11 +15,12 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-016a Encabezados, menú agrupado y estado vacío | frontend | RNF-13, RNF-14, RNF-16 | 2026-10-30 | `tarea/T-016a-encabezados-y-navegacion` (fusionada, PR #6) |
 | T-016b Encabezados en pestañas del proyecto | frontend | RNF-13, RNF-16 | 2026-10-30 | `tarea/T-016b-encabezados-de-analisis` (fusionada, PR #7) |
 | T-002 Aislamiento multi-tenant en pytest | backend | RNF-01, RNF-18 | 2026-10-30 | `tarea/T-002-aislamiento-pytest` (fusionada, PR #8) |
-| T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (aprobada, pendiente de subir) |
+| T-003a Routers (1/2): base, proyectos, integraciones | backend | RNF-17 | 2026-10-30 | `tarea/T-003a-routers-base` (fusionada, PR #9) |
 
 ## En curso
 
-- En cola: T-003b routers (2/2) → RF-02 organizaciones → RF-03 roles.
+- T-003b routers (2/2): análisis, informes y exportaciones, admin (backend), rama `tarea/T-003b-routers-analisis`.
+- En cola: RF-02 organizaciones → RF-03 roles.
 
 ## Bloqueado / requiere decisión del usuario
 
