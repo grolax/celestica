@@ -56,3 +56,18 @@ Cada usuario pertenece a **una** organización y los proyectos pertenecen a la o
 - Riesgo principal: un `user.id` olvidado como filtro de aislamiento. El test de las 25 rutas lo detectaría solo si el olvido rompe el acceso del dueño; por eso el `grep` del criterio es obligatorio.
 - `test_report_endpoints_pytest.py` y otros pueden leer `project["user_id"]`; como se conserva, no deberían romperse.
 - El frontend no necesita cambios para seguir funcionando (campos nuevos, ninguno quitado). Mostrar la organización en la UI será una tarea de frontend aparte.
+
+## Revisión 1
+2026-10-30 — **Con cambios** (supervisor).
+
+Lo que está bien: 58 pruebas pasan; `store.py` ya no filtra proyectos por `user_id` (verificado con `grep`: solo quedan escrituras de "creado por", el `$project` del panel admin y la autoría del evento); los hilos de codificación e informe capturan `org_id`; signup sigue el contrato; la migración cumple las decisiones del usuario. Se acepta el `org_id: null` de los proyectos huérfanos (con el resguardo del punto 2).
+
+Cambios pedidos:
+
+1. **`tests/test_aislamiento_pytest.py` quedó debilitado** (líneas 101 y 112). `store.set_project_field(pid, users["a"][1], ...)` y `store.get_project(..., e["uid_a"])` reciben el **id de usuario** donde ahora va el `org_id`. Por eso el informe de A no se guarda y `_snapshot` compara `None == None`: la comprobación "el proyecto de A quedó intacto" ya no prueba nada. **Se autoriza modificar esa prueba solo en esto:** obtener el `org_id` de A (de la respuesta de signup, `user.organizacion.id`), usarlo en esas dos llamadas y agregar `assert before[0] is not None` en el test parametrizado para que no vuelva a pasar en silencio. No cambies nada más de esa prueba.
+
+2. **Resguardo contra `org_id` vacío o nulo** en `store._tenant_filter` (y en el `$match` de `list_projects`). Hoy un usuario con `org_id` `None` (por ejemplo, un documento mal escrito a mano o por otro script) coincidiría con los proyectos huérfanos, que tienen `org_id: null`. Si `org_id` es falsy, la función debe no encontrar nada: devolver un filtro imposible o lanzar `ValueError`, como prefieras, pero sin abrir acceso. Agrega una prueba: un usuario con `org_id: None` insertado a mano no ve ni abre el proyecto huérfano (404 y lista vacía).
+
+3. **`init_db()` no debe importar desde `scripts/`.** `from scripts.migrate_orgs import migrate` depende de que `backend/` esté en `sys.path` y de que `scripts` funcione como paquete implícito; en un despliegue con otro directorio de trabajo, el servidor no arrancaría. Mueve la lógica a `app/migrations.py` (función `migrate_orgs(db) -> dict`). `scripts/migrate_orgs.py` queda como envoltorio de línea de comandos que la importa desde `app` (RNF-21 pide el script en `scripts/`). Ajusta tus pruebas nuevas al nuevo lugar.
+
+Aceptado sin cambios: el orden usuario → organización en signup (la ventana de falla es mínima; queda como deuda) y que el panel admin siga mostrando `user_id`.
