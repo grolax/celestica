@@ -3,6 +3,7 @@ import { analysisApi } from "../api";
 import { LexicalResult } from "../types";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
+import PageHeader from "@/shared/components/PageHeader";
 import { useProject } from "@/features/projects/useProjectData";
 
 export default function LexicalAnalysis() {
@@ -33,9 +34,10 @@ export default function LexicalAnalysis() {
 
   return (
     <>
+      <PageHeader level={2} title="Análisis léxico" help="Las palabras y frases que más se repiten y el tono de las respuestas, calculados sin IA." />
       {error && <div className="alert alert-error">{error}</div>}
       {!result && (
-        <Card title="Capa 1 · Análisis léxico">
+        <Card>
           <p className="muted">
             Frecuencias, bigramas, co-ocurrencias y sentimiento por lexicón. Al finalizar, la IA genera
             una breve interpretación de los patrones. El análisis numérico es determinístico y se ejecuta en segundos.

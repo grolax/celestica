@@ -6,6 +6,7 @@ import Button from "@/shared/components/Button";
 import Card, { StatCard } from "@/shared/components/Card";
 import { useProject } from "./useProjectData";
 import Icon from "@/shared/components/Icon";
+import PageHeader from "@/shared/components/PageHeader";
 
 export default function ProjectDashboard() {
   const { project } = useProject();
@@ -34,6 +35,7 @@ export default function ProjectDashboard() {
 
   return (
     <>
+      <PageHeader level={2} title="Resumen del proyecto" help="Cómo va tu análisis y cuál es el siguiente paso." />
       <div className="stat-grid">
         <StatCard value={project.n_responses} label="Respuestas" accent />
         <StatCard value={validated} label="Categorías validadas" />
