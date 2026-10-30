@@ -47,7 +47,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | ✅ Incorporada a la versión oficial |
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
-| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🔨 T-010 incorporada; T-011a en desarrollo |
+| T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | 🟡 T-010 incorporada; T-011a aprobada por el supervisor, espera autorización; T-012 y T-013 en cola |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -450,6 +450,17 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Proyectos existentes:** se reacomodan solos y se verán igual que hoy.
 - **Para el usuario:** todavía no cambia nada visible. Las pantallas que aprovechan este orden vienen en T-012 (revisar las preguntas al crear el proyecto) y T-013 (elegir qué pregunta analizar).
 - **Estado:** T-011a en desarrollo.
+
+### 37. T-011a · Resultado y una revisión que evitó un problema grave
+
+- **Qué quedó hecho:** el proyecto guarda la encuesta completa y ordenada, con un análisis separado por cada pregunta abierta. A la IA solo le llega el texto de la pregunta y, como contexto, **edad y género**, incluso cuando la edad viene como número. Nombre, RUT y email nunca se envían.
+- **El problema que se encontró en la revisión:** las pruebas automáticas usan una base de datos simulada. El supervisor hizo **una copia de la base de datos real** del responsable, con 11 proyectos, entre ellos la encuesta de vivienda, y probó ahí. Descubrió que **la migración no se ejecutaba al iniciar el servidor**. Si se hubiera publicado así, los proyectos existentes no se habrían podido abrir.
+- **Correcciones:**
+  - La migración ahora se ejecuta al arrancar.
+  - Si un proyecto viejo tiene datos raros, ese se deja intacto y se avisa, sin tumbar el servidor.
+  - Se borró una copia antigua del informe profundo que ya no servía y guardaba columnas con posibles datos personales.
+- **Verificación final:** sobre una nueva copia de la base real, se arrancó la aplicación tal como lo haría el servidor. Los 11 proyectos se abren con los mismos datos de antes. La copia se borró y la base original quedó intacta. Hay **195 pruebas automáticas** y todas pasan.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

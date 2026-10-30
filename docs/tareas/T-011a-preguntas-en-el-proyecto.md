@@ -72,3 +72,10 @@ Cambios pedidos:
 4. **Caché v2 migrado.** Su huella ya no coincide con el `meta` nuevo (no ahorra nada) y su `metadata_snapshot` guarda las columnas antiguas, incluidos posibles identificadores. La migración debe **descartar** `v2_analyses_cache` en vez de moverlo a `analisis.q_1`. Ajusta la prueba de migración en consecuencia y `COMO_FUNCIONA.md`.
 
 Aceptado sin cambios: `apply-template` con `?pregunta` (el supervisor lo agrega al contrato); `set_project_field` con `pregunta_id` opcional para campos de la raíz; contexto N/A omitido; una fila por persona; `pregunta` en el detalle de auditoría. Deuda: ids de respuesta con puntos en `codings.<id>`; nombres de archivo de exportación sin la pregunta; `respondentes` en el mismo documento (RNF-11).
+
+## Revisión 2
+2026-10-30 — **Aprobada** (supervisor).
+- `pytest tests -q`: 195 pasan (3 nuevas: arranque con `init_db()`, proyecto malformado que no tumba la migración, edad numérica como contexto).
+- Verificación contra **MongoDB real** sobre una copia de la base local (11 proyectos, incluida la encuesta real): importar `app.main` (que ejecuta `init_db()`) deja 0 proyectos sin migrar; segunda corrida `{"proyectos": 0, "fallidos": 0}`; con un token de su dueño real, cada proyecto responde 200 en `GET /api/projects/{id}`, aparece en `GET /api/projects` y conserva `n_responses`, categorías, `n_coded`, léxico e informe. Copia borrada al terminar; base original sin cambios.
+- Caché v2 descartado al migrar; edad numérica o selección única con título de género/sexo/edad como contexto por defecto (nunca identificador).
+- Riesgos anotados: un proyecto que falla la migración se reintenta y se registra en cada arranque; "edad" en `seleccion_unica` es amplio ("¿Qué edad tienen tus hijos?"), el usuario lo desmarca en T-012.
