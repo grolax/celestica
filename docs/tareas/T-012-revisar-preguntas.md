@@ -48,3 +48,12 @@ Depende de: T-010 y T-011a (fusionadas)
 ## Notas
 - Boceto aprobado por el usuario (2026-10-30), resumido: indicador de 3 pasos; aviso amarillo de columnas ramificadas con botón; tabla "Preguntas abiertas" y luego "Otras preguntas" con Incluir · título · [Tipo ▾] · respuestas (y N/A) · Contexto para la IA; "▸ Ver opciones" en preguntas de selección; nota de contexto al pie; "← Volver" / "Continuar →".
 - El supervisor tomará capturas reales del resultado para mostrárselas al usuario: deja el flujo funcionando con backend y frontend locales.
+
+## Revisión 1
+2026-10-30 — **Con cambios** (supervisor).
+
+Revisado el código (`questionGroups.ts` replica el criterio de contexto del backend; unión con N/A = filas − suma; `aPreguntas` nunca manda contexto en tipos excluidos) y `npm run build` OK. El supervisor tomó capturas reales con la encuesta real de 500 respuestas y 47 columnas (paso 1, paso 2 antes y después de unir, opciones, paso 3). El flujo funciona: aviso de 16 columnas de comuna, unión con "Deshacer", abiertas primero, edad y género con contexto marcado, resumen del paso 3 correcto. Pendientes visuales:
+
+1. **Paso 3: el campo "Nombre del proyecto" aparece sin estilo** (borde y relleno nativos del navegador). Es la deuda conocida de `Input` sin `type`: pasa `type="text"` en ese campo y revisa los demás `Input` del asistente.
+2. **Fila unida: el `motivo` no corresponde a la unión.** Muestra el de la primera columna ("10 valores distintos en 24 respuestas…") junto a "500" respuestas. Para filas unidas, recalcular un motivo coherente con los números unidos, por ejemplo: "<k> valores distintos en <n> respuestas, unidas desde <m> columnas." (k = opciones distintas tras unir).
+3. **"Ver opciones": las opciones largas se cortan y ocultan su conteo** (por ejemplo, "Subsidios habitacionales (DS1, DS19, DS49) · …" sin el 264). Las opciones deben ajustarse en varias líneas (sin `text-overflow: ellipsis`) para que siempre se vea el número.
