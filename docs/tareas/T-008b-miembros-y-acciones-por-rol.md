@@ -44,3 +44,13 @@ El admin gestiona a su equipo desde una pantalla "Miembros". Cada persona ve sol
 - [ ] Accesible: tabla con encabezados, selector de rol con etiqueta, botones con texto claro, recorrible con Tab.
 - [ ] Diff de menos de unas 400 líneas; si se pasa, divide en commits lógicos y avísalo.
 - [ ] Commits con el formato `T-008b RF-03: ...`.
+
+## Revisión
+2026-10-30 — **Aprobada** (supervisor).
+- `npm run build` sin errores. Diff +275/-54 en 17 archivos, solo frontend, 2 commits; `client.ts` intacto.
+- `puede(user, minimo)` único (rol desconocido o usuario nulo = lector); `RequireRole` protege `/proyectos/nuevo` (analista) y `/miembros` (admin). Sin comparaciones de rol sueltas.
+- Grupo "Organización" con "Miembros" solo para admin. Pantalla con los textos de la orden; contraseña temporal solo en `useState`; confirmación al cambiar rol y desactivar; errores del backend tal cual.
+- Lector: acciones ocultas según la matriz (lista en el informe del programador); "Solo lectura" en `ProjectView`; borrar comentario solo si `author_id === user.id`.
+- Verificado por el programador con 3 cuentas `@prueba.cl` contra el backend local sin IA (66 comprobaciones del flujo completo).
+- Fuera de la orden, aceptado y señalado al usuario: avisos para el lector ("Un analista de tu organización puede…") en 4 pantallas; "Nombre" obligatorio en el alta (el contrato lo admite vacío, pero la alerta lo usa).
+- Deuda: `Input` sin `type` explícito pierde el estilo del campo; el rol en la UI se refresca solo al recargar (el backend valida siempre).
