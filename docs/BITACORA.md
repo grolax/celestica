@@ -44,7 +44,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-017 | Nombre y colores Celestica en los informes PDF y Word | ✅ Incorporada a la versión oficial |
 | T-002 | Hacer obligatorias las pruebas de seguridad entre clientes | ✅ Incorporada a la versión oficial |
 | T-003 | Ordenar el código del servidor en archivos por tema (en dos partes: T-003a y T-003b) | ✅ Incorporada a la versión oficial (T-003a y T-003b) |
-| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | 📝 Diseño listo, espera visto bueno del responsable |
+| T-004 | Organizaciones: los proyectos pasan a pertenecer a la organización | 🔨 En desarrollo |
 
 ---
 
@@ -275,7 +275,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   4. Para la etapa de roles: los nuevos miembros los crea el administrador con una contraseña temporal.
 - **Qué cambia:** los proyectos dejan de pertenecer a una persona y pasan a pertenecer a su organización. Cada proyecto recuerda además quién lo creó. Por ahora cada organización tiene un solo miembro, así que **para el usuario todo se ve igual**. El cambio prepara el terreno para los equipos y los permisos.
 - **Datos actuales:** un proceso de migración los reacomoda solo al iniciar el servidor. Está hecho para poder ejecutarse varias veces sin duplicar nada.
-- **Estado:** el contrato de API y la orden de trabajo están listos y esperan el visto bueno del responsable.
+- **Estado:** el responsable aprobó el contrato de API y que la migración se ejecute sola al iniciar el servidor. En desarrollo.
 
 ---
 

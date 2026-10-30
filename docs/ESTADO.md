@@ -20,7 +20,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## En curso
 
-- T-004 RF-02 organizaciones (backend), rama `tarea/T-004-organizaciones`; contrato en `docs/API_CONTRATOS.md`. Esperando visto bueno del usuario al contrato antes de delegar.
+- T-004 RF-02 organizaciones (backend), rama `tarea/T-004-organizaciones`; contrato en `docs/API_CONTRATOS.md`. Contrato y migración automática al arrancar aprobados por el usuario (2026-10-30); en desarrollo.
 - En cola: RF-03 roles y gestión de miembros (alta por el admin con contraseña temporal, decisión 2026-10-30).
 
 ## Bloqueado / requiere decisión del usuario

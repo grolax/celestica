@@ -11,7 +11,8 @@ Cada usuario pertenece a **una** organización y los proyectos pertenecen a la o
 1. Al registrarse se crea una organización nueva y el usuario queda como `admin`. Nombre: `empresa`, o `"Organización de <nombre>"` si viene vacío (o `"Organización de <email>"` si tampoco hay nombre).
 2. Migración: cada usuario existente → su propia organización con sus proyectos. **No** se unen usuarios por el texto `empresa`, aunque coincida.
 3. Las credenciales de Qualtrics siguen siendo **por usuario** (`users.integrations`), sin cambios.
-4. (Para RF-03, no en esta tarea) Los miembros nuevos los crea el admin con contraseña temporal.
+4. Contrato y migración automática en `init_db()` aprobados por el usuario.
+5. (Para RF-03, no en esta tarea) Los miembros nuevos los crea el admin con contraseña temporal.
 
 ## Alcance
 - SÍ, esquema:
