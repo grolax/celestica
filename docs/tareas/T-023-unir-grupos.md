@@ -36,3 +36,16 @@ Depende de: T-022 (fusionada, PR #27)
 ## Notas
 - `unir` llega como JSON codificado en la URL; FastAPI lo recibe como texto: parsealo con `json.loads` y valida la estructura antes de usarlo.
 - Al terminar, deja el backend (8000) corriendo con el código nuevo.
+
+## Revisión 1
+2026-10-31 — **Con cambios** (supervisor).
+
+Lo de T-023 está bien: `pytest tests -q` 243 en verde; `_unir` solo junta listas de personas; los 6 mensajes 400 son exactos (verificados por la API); con la encuesta real, por edad, 20-29 (216 personas, 4,09) y "50 o más" (151, 4,57) con `unidos`, sin problemas de codificación en la respuesta (la "á" llega bien; lo que se veía mal era la consola).
+
+Cambio pedido (error de T-022, ya en `main`, que salió al revisar esta tarea):
+
+1. **`services/quantitative.py`, `_categorica` en `seleccion_multiple` dentro de un grupo:** `separar_opciones` deduce el separador (umbral del 5 % de `;`) y reconstruye las opciones con comas **a partir del conjunto de valores que recibe**. En un grupo chico la deducción sale distinta que en el total, y algunas respuestas no se cuentan en la opción que corresponde. Con la encuesta real, por género (`por=q_3`) la suma de los grupos no da el total en 53 opciones de 10 preguntas de selección múltiple. Ejemplos: q_22 "Ubicación": total 368, suma de los grupos 366; q_21 "Encontrar una propiedad en una ubicación conv…" con `por=q_2`: total 65, suma 61. Se espera que **la separación de cada respuesta en opciones dependa solo del conjunto completo de respuestas de la pregunta**, la misma en el total y en todos los grupos: por ejemplo, separar una vez sobre todos los respondentes y contar en cada grupo con ese resultado. Así, para cualquier tipo de pregunta, incluida la selección múltiple, **la suma de `n` de una opción entre los grupos (más los sin grupo) es igual al `n` del total**.
+2. **Prueba nueva:** un caso de selección múltiple donde el grupo chico separaría distinto si se separara solo (por ejemplo, una opción con coma adentro que en el grupo aparece una sola vez, o un grupo donde el `;` no llega al 5 %), y que verifique que la suma de los grupos es igual al total. Además, una prueba general sobre los datos de alguna prueba existente: para todas las preguntas con `opciones`, la suma de los grupos más los sin grupo es igual al total.
+3. Verifica con la encuesta real que, con `por=q_3` y con `por=q_2` (con y sin `unir`), no queda ningún descuadre, e informa la cuenta.
+
+Commit `T-023 RF-31: ...` en la misma rama.
