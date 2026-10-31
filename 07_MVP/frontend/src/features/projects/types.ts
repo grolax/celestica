@@ -9,6 +9,8 @@ export interface ProjectSummary {
   n_categories: number;
   n_coded: number;
   has_report: boolean;
+  /** Número de preguntas abiertas; 0 = proyecto con solo preguntas cerradas (RF-24). */
+  n_abiertas: number;
 }
 
 export interface Project {
@@ -25,9 +27,12 @@ export interface Project {
   has_report: boolean;
   n_audit_events: number;
   preguntas: Pregunta[];
-  /** Id de la pregunta que se está mostrando. */
-  pregunta: string;
+  /** Id de la pregunta que se está mostrando; null si el proyecto no tiene preguntas abiertas (RF-24). */
+  pregunta: string | null;
 }
+
+/** Proyecto con una pregunta abierta activa: lo que ven las pestañas de análisis (ProjectView no las monta sin abiertas). */
+export type ProjectAbierta = Project & { pregunta: string };
 
 export interface FrameworkTemplate {
   key: string;

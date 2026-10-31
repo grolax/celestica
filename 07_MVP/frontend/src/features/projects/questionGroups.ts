@@ -67,7 +67,10 @@ export function unir(filas: Fila[], base: string, nFilas: number): Fila[] {
 export const deshacer = (filas: Fila[], unida: Fila): Fila[] =>
   filas.flatMap((f) => (f === unida ? unida.origen! : [f]));
 
+export const CERRADAS: TipoPregunta[] = ["escala", "nps", "si_no", "seleccion_unica", "seleccion_multiple", "segmento", "numerica"];
+
 export const hayAbierta = (filas: Fila[]) => filas.some((f) => f.incluir && f.tipo === "abierta");
+export const hayCerrada = (filas: Fila[]) => filas.some((f) => f.incluir && CERRADAS.includes(f.tipo));
 
 export const aPreguntas = (filas: Fila[]): PreguntaProyecto[] =>
   filas.filter((f) => f.incluir).map((f) => ({
