@@ -301,3 +301,50 @@ Decisiones del usuario (2026-10-30): porcentajes sobre quienes respondieron (sin
   - **`numerica`:** sin `opciones`; `numerica` con promedio, desviación muestral, mediana, mínimo y máximo de los valores numéricos (los no numéricos van a `n_invalidas`).
 - **Proyectos sin preguntas cerradas** (por ejemplo, los antiguos migrados): `200` con `"preguntas": []`.
 - **Errores:** 404 "Proyecto no encontrado" (incluye proyectos de otra organización); 401 sin sesión.
+
+## RF-31 · Cruces por grupo de las preguntas cerradas (T-022)
+
+Decisiones del usuario (2026-10-30): aviso de pocos datos con **menos de 10 personas** en el grupo (umbral fijo hasta la iteración 4); tramos de edad por defecto 18–24, 25–34, 35–44, 45–54, 55–64, 65+, **modificables por el cliente**. En T-022 los tramos llegan como parámetro y no se guardan; guardarlos por organización es de la iteración 4. **Sin IA.**
+
+### `GET /api/projects/{id}/closed-results?por=<pregunta_id>[&cortes=18,25,35,45,55,65]` (modificado)
+- **Roles:** lector, analista, admin (es "Ver").
+- **Sin `por`:** responde exactamente como en T-020 (compatibilidad).
+- **`por`:** id de una pregunta del proyecto de tipo `segmento`, `seleccion_unica`, `si_no` o `numerica`. Separa a las personas en grupos según su respuesta a esa pregunta.
+  - Categóricas: un grupo por opción, en el mismo orden de las opciones en T-020 (de más a menos personas, u orden natural en tramos).
+  - `numerica`: grupos por tramos según `cortes`, una lista de enteros crecientes separados por coma (por defecto `18,25,35,45,55,65`). Las etiquetas son `"18–24"`, …, `"55–64"` y `"65+"` (con guion largo `–`), más `"Menos de 18"` si hay valores bajo el primer corte, en orden de menor a mayor. Los valores no numéricos de la pregunta `por` quedan sin grupo.
+  - Las personas sin respuesta en `por` (N/A o no numérica) **no entran en ningún grupo** y se informan en `n_sin_grupo`.
+- **Respuesta 200:** el cuerpo de T-020, completo para el total, más:
+```json
+{
+  "n_personas": 500,
+  "por": { "id": "q_2", "titulo": "Género", "tipo": "segmento" },
+  "umbral_pocos_datos": 10,
+  "n_sin_grupo": 4,
+  "grupos": [
+    { "valor": "Mujer", "n_personas": 262, "pocos_datos": false },
+    { "valor": "Hombre", "n_personas": 228, "pocos_datos": false },
+    { "valor": "Otro", "n_personas": 6, "pocos_datos": true }
+  ],
+  "preguntas": [
+    { "id": "q_10", "titulo": "10. ¿Qué tan importante…?", "tipo": "escala", "n_respuestas": 500, "n_na": 0, "tasa_respuesta": 100.0,
+      "opciones": ["… igual que T-020 …"], "escala": { "…": "…" },
+      "por_grupo": [
+        { "valor": "Mujer", "n_respuestas": 262, "n_na": 0, "tasa_respuesta": 100.0,
+          "opciones": [ {"valor": "1", "n": 4, "pct": 1.5}, "…" ],
+          "escala": { "min": 1, "max": 5, "promedio": 4.4, "desviacion": 0.9, "top2": {"valores": [4, 5], "n": 215, "pct": 82.1}, "bottom2": {"valores": [1, 2], "n": 12, "pct": 4.6} } },
+        { "valor": "Hombre", "…": "…" },
+        { "valor": "Otro", "…": "…" }
+      ] }
+  ]
+}
+```
+- **Reglas:**
+  - `por_grupo` trae un elemento por cada grupo de `grupos`, en el mismo orden. Cada elemento se calcula con **las mismas reglas de T-020**, pero solo sobre las personas de ese grupo: `n_respuestas + n_na = n_personas del grupo`, y `pct` es sobre quienes respondieron en el grupo. Incluye `opciones`, `escala`, `nps`, `numerica`, `nota` y `n_invalidas` según el tipo, igual que en el total.
+  - En `escala`, el rango (`min`/`max`) de cada grupo es **el del total**, para que los grupos se comparen sobre las mismas opciones. En categóricas, `opciones` de cada grupo lista **las mismas opciones del total y en su orden**, con `n: 0` si nadie del grupo la eligió.
+  - `pocos_datos` = `n_personas` del grupo < `umbral_pocos_datos`. Los grupos con pocos datos **se calculan y se devuelven igual**; la pantalla muestra la advertencia.
+  - La pregunta usada en `por` **no aparece** en `preguntas`.
+  - Sin `por`, no vienen `por`, `umbral_pocos_datos`, `n_sin_grupo`, `grupos` ni `por_grupo`.
+- **Errores:**
+  - 404 "Proyecto no encontrado" (incluye proyectos de otra organización); 401 sin sesión.
+  - 400 "Esa pregunta no se puede usar para separar en grupos." si `por` no existe en el proyecto o es de otro tipo.
+  - 400 "Los tramos deben ser números enteros, separados por coma y de menor a mayor." si `cortes` no cumple; también si `cortes` viene sin `por` o con un `por` que no es `numerica`.
