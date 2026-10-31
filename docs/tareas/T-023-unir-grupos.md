@@ -49,3 +49,10 @@ Cambio pedido (error de T-022, ya en `main`, que salió al revisar esta tarea):
 3. Verifica con la encuesta real que, con `por=q_3` y con `por=q_2` (con y sin `unir`), no queda ningún descuadre, e informa la cuenta.
 
 Commit `T-023 RF-31: ...` en la misma rama.
+
+## Revisión 2
+2026-10-31 — **Aprobada** (supervisor).
+- `pytest tests -q`: 246 en verde. Corrección: +11/−8 en `quantitative.py`; la selección múltiple se separa una vez con todas las respuestas y el total y cada grupo usan ese resultado. Los totales no cambian (ya se separaban así).
+- Verificado por el supervisor con la encuesta real, para **todas** las preguntas con opciones: `por=q_3` (435 opciones), `por=q_2` (429) y `por=q_2` con `unir` (429): **0 descuadres**, 0 sin grupo, y los totales son idénticos a los de la consulta sin `por` (los que muestra la pantalla de T-021).
+- Las pruebas nuevas fallan con el código anterior (lo comprobó el programador) y exigen que la suma de los grupos sea igual al total para todo tipo de pregunta.
+- Lección: la comprobación de cuadratura de los cruces debe incluir todos los tipos de pregunta; la de T-022 excluyó la selección múltiple.

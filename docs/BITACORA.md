@@ -52,7 +52,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-020 | Números de las preguntas cerradas, calculados sin IA (servidor) | ✅ Incorporada a la versión oficial |
 | T-021 | Pantalla "Preguntas cerradas" | ✅ Incorporada a la versión oficial |
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
-| T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | 🔵 En curso |
+| T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | 🟡 Aprobada por el supervisor, pendiente del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -567,6 +567,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - cruzar los temas de las preguntas abiertas por grupo queda para más adelante.
 - **Algo a tener en cuenta:** en la encuesta de vivienda la edad ya viene en tramos (20-24, 25-29…). Ahí la plataforma usa esos tramos tal cual. Los tramos 18–24 … 65+ se aplican cuando la edad viene como número.
 - **Estado:** incorporada a la versión oficial (PR #27).
+
+### 48. T-023 · Juntar grupos, y un error de conteo que se corrigió
+
+- **Qué quedó:** el cliente puede juntar grupos que ya vienen hechos y darles un nombre, por ejemplo los tramos de edad "20-24" y "25-29" en "20-29", o comunas en zonas. Vale solo para ese análisis y no se guarda. El aviso de pocos datos se recalcula con los grupos juntados. La pantalla llega en T-024.
+- **Probado con la encuesta real:** "20-29" reúne a 216 personas, con un promedio de 4,09 en "importancia de ser propietario", y "50 o más" reúne a 151, con 4,57.
+- **Error encontrado en la revisión:** en las preguntas donde se pueden marcar varias opciones, los resultados por grupo de T-022 contaban 1 a 4 personas de menos en algunas opciones. Por ejemplo, 368 personas eligieron "Ubicación", pero los grupos sumaban 366.
+  - **Causa:** algunas opciones llevan comas adentro, y la plataforma deducía de nuevo dentro de cada grupo cómo separar las respuestas. En los grupos chicos, esa deducción salía distinta.
+  - **Corrección:** las respuestas se separan una sola vez, con todas las respuestas.
+- **Verificación:** en las 435 opciones de la encuesta, los grupos suman exactamente el total. Los totales que ya se veían en pantalla no cambiaron. Una prueba automática nueva vigila que esto se mantenga. Ningún usuario vio los números erróneos, porque la pantalla de cruces todavía no existe.
+- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
 
 ---
 
