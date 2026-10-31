@@ -54,7 +54,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
-| T-025 | Proyectos con solo preguntas cerradas (servidor) | 🟡 Aprobada por el supervisor, pendiente del responsable |
+| T-025 | Proyectos con solo preguntas cerradas (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #30) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -607,7 +607,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Corrección en la revisión:** la vista previa todavía decía que el análisis de cerradas "llegará pronto". Ahora explica que se analizarán solo las preguntas cerradas, sin IA.
 - **Decisión del responsable:** por ahora, estos proyectos entregan un **Excel con los resultados**. El informe que combina abiertas y cerradas llegará más adelante (RF-51).
 - **Siguiente:** T-026, para que la pantalla permita crear y abrir estos proyectos.
-- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
+- **Estado:** subida a GitHub (PR #30), esperando la aprobación del responsable.
 
 ---
 
