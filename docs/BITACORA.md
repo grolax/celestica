@@ -54,7 +54,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
-| T-025 | Proyectos con solo preguntas cerradas (servidor) | 🔵 En curso |
+| T-025 | Proyectos con solo preguntas cerradas (servidor) | 🟡 Aprobada por el supervisor, pendiente del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -596,6 +596,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Corrección en la revisión:** si al juntar grupos el nombre no servía, la pantalla mostraba el error, pero borraba las casillas marcadas y el nombre. Ahora se mantienen y solo hay que corregir el nombre.
 - **Chequeo final antes de subir:** se recorrieron automáticamente todas las pestañas de 9 proyectos y cada opción de "Ver por", sin errores. Casi todos los grupos cargan en menos de 1 segundo; la comuna, con 120 grupos, tarda 3,5 segundos.
 - **Estado:** incorporada a la versión oficial (PR #29).
+
+### 50. T-025 · Proyectos con solo preguntas cerradas (servidor)
+
+- **Qué quedó:** ahora se puede crear un proyecto aunque la encuesta no tenga preguntas abiertas, desde un archivo, Qualtrics o Google Forms. Solo se rechaza una encuesta que no tenga nada que analizar.
+  - El proyecto se abre normalmente y en "Mis proyectos" muestra su número de personas.
+  - El léxico, la codificación y el informe cualitativo no aplican a estos proyectos y responden "no disponible", sin usar la IA.
+  - Los resultados de cerradas y los cruces funcionan.
+- **Probado con la base de datos real local:** se creó un proyecto con solo las preguntas cerradas de la encuesta de vivienda. Quedó con 500 personas, sin afectar a los demás proyectos.
+- **Corrección en la revisión:** la vista previa todavía decía que el análisis de cerradas "llegará pronto". Ahora explica que se analizarán solo las preguntas cerradas, sin IA.
+- **Decisión del responsable:** por ahora, estos proyectos entregan un **Excel con los resultados**. El informe que combina abiertas y cerradas llegará más adelante (RF-51).
+- **Siguiente:** T-026, para que la pantalla permita crear y abrir estos proyectos.
+- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
 
 ---
 

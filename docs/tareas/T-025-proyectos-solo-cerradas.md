@@ -49,3 +49,8 @@ Cambio pedido (lo señaló el programador; el contrato ya está actualizado):
 1. **`services/question_types.py:227`** sigue avisando en la vista previa "Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto.", que ya no es cierto. Cámbialo por el texto nuevo del contrato (sección RF-22/RF-25, advertencias): **"Esta encuesta no tiene preguntas abiertas: se analizarán solo las preguntas cerradas, sin libro de códigos ni IA."** y actualiza la prueba `tests/test_tipos_pregunta_pytest.py:337`.
 
 Commit `T-025 RF-24: ...` en la misma rama; corre la suite completa y reinicia el backend (8000) con `SECRET_KEY=dev-local-secret-t021`.
+
+## Revisión 2
+2026-10-31 — **Aprobada** (supervisor).
+- Corrección de 1 línea + su prueba; `pytest tests -q` 254 en verde; backend reiniciado y respondiendo.
+- Deuda: el panel interno (`list_usage_all_projects`) sigue mostrando `n_responses` 0 en proyectos sin abiertas; el aviso de la pantalla "Revisa las preguntas" (`QuestionReview.tsx:114`, "llegará pronto") se corrige en T-026.
