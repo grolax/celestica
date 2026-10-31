@@ -33,7 +33,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-020 Resultados de preguntas cerradas | backend | RF-30, RNF-01, RNF-02 | 2026-10-30 | `tarea/T-020-resultados-cerradas` (fusionada, PR #24) |
 | T-021 Pantalla "Preguntas cerradas" | frontend | RF-30, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-021-pantalla-cerradas` (fusionada, PR #26) |
 | T-022 Cruces por grupo de las cerradas | backend | RF-31, RNF-01, RNF-02, RNF-10 | 2026-10-31 | `tarea/T-022-cruces-por-grupo` (fusionada, PR #27) |
-| T-023 Unir grupos en los cruces (+ arreglo de selección múltiple por grupo) | backend | RF-31, RNF-07 | 2026-10-31 | `tarea/T-023-unir-grupos` (aprobada, pendiente de subir) |
+| T-023 Unir grupos en los cruces (+ arreglo de selección múltiple por grupo) | backend | RF-31, RNF-07 | 2026-10-31 | `tarea/T-023-unir-grupos` (PR #28, esperando merge) |
 
 ## En curso
 - Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, aprobada) → **T-024 pantalla de cruces (frontend, siguiente)** → T-025/26 proyectos sin abiertas → RF-41, RF-43, RF-17.

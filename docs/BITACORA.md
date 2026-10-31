@@ -52,7 +52,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-020 | Números de las preguntas cerradas, calculados sin IA (servidor) | ✅ Incorporada a la versión oficial |
 | T-021 | Pantalla "Preguntas cerradas" | ✅ Incorporada a la versión oficial |
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
-| T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | 🟡 Aprobada por el supervisor, pendiente del responsable |
+| T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #28) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -576,7 +576,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - **Causa:** algunas opciones llevan comas adentro, y la plataforma deducía de nuevo dentro de cada grupo cómo separar las respuestas. En los grupos chicos, esa deducción salía distinta.
   - **Corrección:** las respuestas se separan una sola vez, con todas las respuestas.
 - **Verificación:** en las 435 opciones de la encuesta, los grupos suman exactamente el total. Los totales que ya se veían en pantalla no cambiaron. Una prueba automática nueva vigila que esto se mantenga. Ningún usuario vio los números erróneos, porque la pantalla de cruces todavía no existe.
-- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
+- **Estado:** subida a GitHub (PR #28), esperando la aprobación del responsable.
 
 ---
 
