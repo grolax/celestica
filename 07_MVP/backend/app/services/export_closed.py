@@ -95,7 +95,7 @@ def _bloque_totales(ws, p: dict, row: int) -> int:
         for i, o in enumerate(ops, 1):
             _fila(ws, row + i, (o["valor"], o["n"], o["pct"]))
         ref, fin = row + 1, row + len(ops)
-        if len(ops) > MAX_OPCIONES:  # datos del gráfico aparte: las 10 más frecuentes, en el orden de la tabla
+        if len(ops) > MAX_OPCIONES and p["tipo"] not in ("escala", "nps"):  # escalas y NPS muestran todos sus valores; datos del gráfico aparte: las 10 más frecuentes, en el orden de la tabla
             top = sorted(sorted(range(len(ops)), key=lambda i: -ops[i]["n"])[:MAX_OPCIONES])
             _fila(ws, ini, ("Datos del gráfico", "%"), col=15, cabecera=True)
             for j, i in enumerate(top, 1):

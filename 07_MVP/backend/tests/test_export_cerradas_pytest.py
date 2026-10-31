@@ -219,10 +219,20 @@ def test_mas_de_10_opciones_el_grafico_dice_las_10_mas_frecuentes(env):
     assert isinstance(ch, BarChart) and ch.type == "bar" and ch.dataLabels.showVal
     assert ch.x_axis.scaling.orientation == "maxMin"
     assert "Porcentaje por opción" in g  # las demás, con 10 opciones o menos, sin recorte
-    # el NPS tiene 11 opciones (0-10)
-    assert "10 opciones más frecuentes de 11" in g
+    assert "10 opciones más frecuentes de 11" not in g  # el NPS (0-10) y las escalas no se recortan
     datos = _tabla(wb["Totales"], _bloques(wb["Totales"])["Opción"] + 1, 15, 2)
     assert len(datos) == 10 and all(d[1] is not None for d in datos)
+
+
+def test_nps_grafica_sus_11_valores_sin_recorte(env):
+    _, wb = _xlsx(env)
+    ws = wb["Totales"]
+    n_cats = []
+    for ch in ws._charts:
+        ref = (ch.series[0].cat.strRef or ch.series[0].cat.numRef).f.split("!")[1].replace("$", "")
+        a, b = ref.split(":")
+        n_cats.append(int(b[1:]) - int(a[1:]) + 1)
+    assert 11 in n_cats and all(not t.startswith("10 opciones más frecuentes de 11") for t in _graficos(ws))
 
 
 # ---------- pocos datos, bordes y errores ----------
