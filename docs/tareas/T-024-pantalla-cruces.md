@@ -75,3 +75,10 @@ Commit `T-024 RF-31: ...` en la misma rama. Deja los servidores corriendo como a
 - Corrección +5/−6 en `ClosedResults.tsx` y `GroupControls.tsx`: `onUnir` devuelve si se aplicó y `juntar` solo limpia en ese caso. `npm run build` sin errores.
 - Verificado por el supervisor en el navegador (cuenta lectora): 30-34 + 35-39 con el nombre "40-44" → error del backend, las 2 casillas siguen marcadas y el nombre escrito, sin unión agregada; con el nombre "30-39" → se aplica y se limpia. Sin errores de JS.
 - Deuda: con un grupo elegido, las escalas muestran las tarjetas del total y además la fila "Todas las personas" en la tabla (redundante, pero da contexto); la lista de casillas no se probó con 120 comunas; sin suite Playwright.
+
+### Chequeo final antes de subir (2026-10-31, pedido por el usuario)
+- `npm run build` y `tsc --noEmit` sin errores; `pytest tests -q` 246 en verde; `main` remoto sin cambios; la rama solo toca `07_MVP/frontend/` y `docs/`.
+- Recorrido automático de **todas las pestañas** de los 9 proyectos de la cuenta de prueba, más **cada opción de "Ver por"** de cada proyecto con cerradas (16 en la encuesta real): sin errores de JS, sin errores 5xx, sin alertas de error y sin textos "NaN", "undefined" ni "Infinity".
+- Tiempos en la encuesta real (500 personas, 29 cerradas): la mayoría de los grupos carga en 0,25–0,7 s; nivel educacional 2,3 s; comuna (120 grupos) 3,5 s.
+- Comuna a 390 px: las 120 casillas en una lista con desplazamiento, sin desplazamiento horizontal de la página.
+- Deuda: con 120 grupos la pantalla tarda 3,5 s (la meta de RNF-10 es 2 s para páginas interactivas); si molesta, mostrar las tablas por partes o limitar los grupos visibles.

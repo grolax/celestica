@@ -61,7 +61,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
-- Pantalla de cruces (T-024): con un grupo elegido, las escalas repiten el total en tarjetas y en la fila "Todas las personas"; la lista de casillas para juntar no se probó con 120 opciones.
+- Pantalla de cruces (T-024): con un grupo elegido, las escalas repiten el total en tarjetas y en la fila "Todas las personas"; con 120 grupos (comuna) la pantalla tarda 3,5 s en la encuesta real (meta RNF-10: 2 s).
 - Lección (T-023): la cuadratura de los cruces (suma de grupos = total) se verifica con todos los tipos de pregunta; en T-022 se excluyó la selección múltiple y se escapó un descuadre (corregido en T-023, con prueba).
 - Cruces (T-022): la edad que llega en tramos ya hechos ("20-24") es `segmento` y no admite `cortes`; para cambiar esos tramos habría que unir opciones. Los tramos vacíos de `numerica` se devuelven con n 0. El router convierte cualquier `ValueError` del cálculo en un 400.
 - Pantalla de cerradas (T-021): sin índice para saltar entre muchas preguntas; barras cortas en móvil; en móvil el nombre de la organización se desborda en la barra superior (preexistente). Sin suite Playwright (RNF-18).
