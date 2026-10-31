@@ -5,6 +5,7 @@ Función pura y sin IA: recibe las preguntas y los respondentes del proyecto y d
 """
 from __future__ import annotations
 
+import json
 import math
 import re
 import statistics
@@ -20,6 +21,10 @@ UMBRAL_POCOS_DATOS = 10
 CORTES_DEFECTO = "18,25,35,45,55,65"
 ERR_POR = "Esa pregunta no se puede usar para separar en grupos."
 ERR_CORTES = "Los tramos deben ser números enteros, separados por coma y de menor a mayor."
+ERR_UNIR = "La forma de unir grupos no es válida."
+ERR_UNIR_POR = "Solo se pueden unir opciones de una pregunta de grupos."
+ERR_UNIR_MIN = "Un grupo unido necesita al menos dos opciones."
+ERR_UNIR_NOMBRE = "Cada grupo unido necesita un nombre distinto."
 
 
 def _pct(n: int, base: int) -> float:
@@ -73,10 +78,11 @@ def _primer_numero(v: str) -> int | None:
     return int(m.group().replace(".", "")) if m else None
 
 
-def _categorica(q: dict, vals: list[str], orden: list[str] | None = None) -> dict:
-    """`orden` = las opciones del total: en un grupo se listan todas, en ese orden, con n 0 si nadie la eligió."""
+def _categorica(q: dict, vals: list[str], orden: list[str] | None = None, split: dict | None = None) -> dict:
+    """`orden` = las opciones del total: en un grupo se listan todas, en ese orden, con n 0 si nadie la eligió.
+    `split` = respuesta -> opciones, separada una sola vez sobre todas las respuestas (así un grupo cuenta igual que el total)."""
     multiple = q["tipo"] == "seleccion_multiple"
-    c = Counter(o for fila in separar_opciones(vals) for o in dict.fromkeys(fila)) if multiple else Counter(vals)
+    c = Counter(o for v in vals for o in dict.fromkeys(split[v])) if multiple else Counter(vals)
     items = sorted(c.items(), key=lambda kv: (-kv[1], kv[0].casefold()))
     if not multiple:  # tramos ("Menos de $360.000", "20-24"): orden natural, las opciones sin número al final
         nums = {v: _primer_numero(v) for v, _ in items}
@@ -98,7 +104,7 @@ def _numerica(vals: list[str]) -> dict:
     return out
 
 
-def _pregunta(q: dict, resp: list[dict], ref: dict | None = None) -> dict:
+def _pregunta(q: dict, resp: list[dict], ref: dict | None = None, split: dict | None = None) -> dict:
     """Resultado de una pregunta sobre `resp` (sin id/título/tipo). `ref` = el resultado del total, al calcular un grupo."""
     vals = [v for r in resp if (v := r["valores"].get(q["id"])) is not None]
     if q["tipo"] in ("escala", "nps"):
@@ -106,7 +112,7 @@ def _pregunta(q: dict, resp: list[dict], ref: dict | None = None) -> dict:
     elif q["tipo"] == "numerica":
         detalle = _numerica(vals)
     else:
-        detalle = _categorica(q, vals, ref and [o["valor"] for o in ref["opciones"]])
+        detalle = _categorica(q, vals, ref and [o["valor"] for o in ref["opciones"]], split)
     if not detalle.get("n_invalidas"):
         detalle.pop("n_invalidas", None)
     return {"n_respuestas": len(vals), "n_na": len(resp) - len(vals), "tasa_respuesta": _pct(len(vals), len(resp)), **detalle}
@@ -142,8 +148,49 @@ def _grupos(q: dict, respondentes: list[dict], cortes: str | None) -> dict[str, 
     return {**grupos, **dict(zip(etiquetas, cubos[1:]))}
 
 
-def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = None, cortes: str | None = None) -> dict:
-    """Con `por` (RF-31) agrega `grupos` y, en cada pregunta, `por_grupo`. Errores de entrada: ValueError con el mensaje."""
+def _unir(grupos: dict[str, list[dict]], texto: str) -> tuple[dict[str, list[dict]], dict[str, list[str]]]:
+    """Junta opciones de `grupos` según `texto` (JSON). Devuelve los grupos nuevos y, por nombre, las opciones unidas en orden."""
+    try:
+        lista = json.loads(texto)
+    except ValueError:
+        raise ValueError(ERR_UNIR) from None
+    if not isinstance(lista, list) or not all(
+            isinstance(u, dict) and isinstance(u.get("nombre"), str) and isinstance(u.get("valores"), list)
+            and all(isinstance(v, str) for v in u["valores"]) for u in lista):
+        raise ValueError(ERR_UNIR)
+    en_grupo: dict[str, str] = {}  # opción -> nombre del grupo unido
+    for u in lista:
+        vals = set(u["valores"])
+        if len(vals) < 2:
+            raise ValueError(ERR_UNIR_MIN)
+        for v in u["valores"]:
+            if v not in grupos:
+                raise ValueError(f"La opción «{v}» no existe en esa pregunta.")
+        for v in vals:
+            if v in en_grupo:
+                raise ValueError(f"La opción «{v}» está en más de un grupo.")
+            en_grupo[v] = u["nombre"].strip()
+    nombres = [u["nombre"].strip() for u in lista]
+    if "" in nombres or len(set(nombres)) < len(nombres) or any(n in grupos and n not in en_grupo for n in nombres):
+        raise ValueError(ERR_UNIR_NOMBRE)
+    unidos: dict[str, list[str]] = {}
+    for g in grupos:  # el orden de T-022 define dónde queda cada grupo unido
+        if g in en_grupo:
+            unidos.setdefault(en_grupo[g], []).append(g)
+    nuevos = {}
+    for g, resp in grupos.items():
+        if g not in en_grupo:
+            nuevos[g] = resp
+        else:
+            n = en_grupo[g]
+            nuevos[n] = nuevos.get(n, []) + resp
+    return nuevos, unidos
+
+
+def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = None, cortes: str | None = None,
+             unir: str | None = None) -> dict:
+    """Con `por` (RF-31) agrega `grupos` y, en cada pregunta, `por_grupo`; `unir` (JSON) junta opciones de `por`.
+    Errores de entrada: ValueError con el mensaje."""
     porq = None
     if por is not None:
         porq = next((q for q in preguntas if q["id"] == por and q["tipo"] in POR_TIPOS), None)
@@ -151,21 +198,31 @@ def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = 
             raise ValueError(ERR_POR)
     if cortes is not None and (not porq or porq["tipo"] != "numerica"):
         raise ValueError(ERR_CORTES)
+    if unir is not None and (not porq or porq["tipo"] == "numerica"):
+        raise ValueError(ERR_UNIR_POR)
     grupos = _grupos(porq, respondentes, cortes) if porq else {}
+    unidos = {}
+    if unir is not None:
+        grupos, unidos = _unir(grupos, unir)
     out = []
     for q in preguntas:
         if q["tipo"] not in CERRADAS or q is porq:
             continue
-        total = _pregunta(q, respondentes)
+        split = None
+        if q["tipo"] == "seleccion_multiple":  # se separa una vez con todas las respuestas; el total y cada grupo usan ese resultado
+            todas = [v for r in respondentes if (v := r["valores"].get(q["id"])) is not None]
+            split = dict(zip(todas, separar_opciones(todas)))
+        total = _pregunta(q, respondentes, split=split)
         item = {"id": q["id"], "titulo": q["titulo"], "tipo": q["tipo"], **total}
         if porq:
-            item["por_grupo"] = [{"valor": g, **_pregunta(q, resp, total)} for g, resp in grupos.items()]
+            item["por_grupo"] = [{"valor": g, **_pregunta(q, resp, total, split)} for g, resp in grupos.items()]
         out.append(item)
     res = {"n_personas": len(respondentes), "preguntas": out}
     if porq:
         res.update(por={"id": porq["id"], "titulo": porq["titulo"], "tipo": porq["tipo"]},
                    umbral_pocos_datos=UMBRAL_POCOS_DATOS,
                    n_sin_grupo=len(respondentes) - sum(map(len, grupos.values())),
-                   grupos=[{"valor": g, "n_personas": len(r), "pocos_datos": len(r) < UMBRAL_POCOS_DATOS}
+                   grupos=[{"valor": g, "n_personas": len(r), "pocos_datos": len(r) < UMBRAL_POCOS_DATOS,
+                            **({"unidos": unidos[g]} if g in unidos else {})}
                            for g, r in grupos.items()])
     return res

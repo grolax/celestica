@@ -348,3 +348,36 @@ Decisiones del usuario (2026-10-30): aviso de pocos datos con **menos de 10 pers
   - 404 "Proyecto no encontrado" (incluye proyectos de otra organización); 401 sin sesión.
   - 400 "Esa pregunta no se puede usar para separar en grupos." si `por` no existe en el proyecto o es de otro tipo.
   - 400 "Los tramos deben ser números enteros, separados por coma y de menor a mayor." si `cortes` no cumple; también si `cortes` viene sin `por` o con un `por` que no es `numerica`.
+
+## RF-31 · Unir grupos en los cruces (T-023)
+
+Decisión del usuario (2026-10-31): el cliente puede juntar grupos que ya vienen hechos (por ejemplo, los tramos de edad "20-24" y "25-29" en "20-29", o comunas en zonas) **según su preferencia y solo para ese análisis**: no se guarda. **Sin IA.**
+
+### `GET /api/projects/{id}/closed-results?por=<pregunta_id>&unir=<json>` (modificado)
+- **Roles:** lector, analista, admin (es "Ver").
+- **`unir`:** solo junto con un `por` de tipo `segmento`, `seleccion_unica` o `si_no` (no `numerica`, que usa `cortes`). Es una lista JSON, codificada en la URL, de grupos unidos:
+```json
+[ { "nombre": "20-29", "valores": ["20-24", "25-29"] },
+  { "nombre": "50 o más", "valores": ["50-54", "55-59", "60-64", "Mayor a 65"] } ]
+```
+- **Reglas:**
+  - Cada grupo unido junta a las personas de todas sus `valores`, que son opciones de la pregunta `por` tal como aparecen en `grupos` sin unir. Las opciones que no se mencionan siguen como grupos propios.
+  - Orden: el grupo unido ocupa el lugar de la primera de sus opciones en el orden de T-022; las demás opciones unidas desaparecen de la lista.
+  - Los elementos de `grupos` que vienen de una unión llevan además `"unidos": ["20-24", "25-29"]`, en el orden de T-022. Los demás no traen ese campo.
+  - Todo lo demás (`pocos_datos`, `por_grupo`, `n_sin_grupo`, rangos y opciones del total) funciona igual que en T-022, ahora sobre los grupos unidos.
+  - Sin `unir`, la respuesta es igual a la de T-022.
+- **Ejemplo de `grupos` con la unión de arriba** (edad):
+```json
+[ { "valor": "20-29", "n_personas": 216, "pocos_datos": false, "unidos": ["20-24", "25-29"] },
+  { "valor": "30-34", "n_personas": 22, "pocos_datos": false },
+  "…",
+  { "valor": "50 o más", "n_personas": 151, "pocos_datos": false, "unidos": ["50-54", "55-59", "60-64", "Mayor a 65"] } ]
+```
+- **Errores 400** (mensaje exacto; `<x>` es el valor recibido):
+  - "La forma de unir grupos no es válida." si `unir` no es JSON, no es una lista, o un elemento no tiene `nombre` (texto) y `valores` (lista de textos).
+  - "Solo se pueden unir opciones de una pregunta de grupos." si `unir` viene sin `por` o con un `por` de tipo `numerica`.
+  - "Un grupo unido necesita al menos dos opciones." si `valores` tiene menos de 2 elementos distintos.
+  - "La opción «<x>» no existe en esa pregunta." si un valor no es una opción de `por`.
+  - "La opción «<x>» está en más de un grupo." si un valor se repite entre grupos.
+  - "Cada grupo unido necesita un nombre distinto." si un `nombre` está vacío (tras quitar espacios), se repite, o coincide con una opción que queda sin unir.
+  - Los errores de T-022 se mantienen (404 de otra organización, 401 sin sesión, `por` y `cortes` inválidos).
