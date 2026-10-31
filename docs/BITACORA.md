@@ -52,7 +52,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-020 | Números de las preguntas cerradas, calculados sin IA (servidor) | ✅ Incorporada a la versión oficial |
 | T-021 | Pantalla "Preguntas cerradas" | ✅ Incorporada a la versión oficial |
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
-| T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #28) |
+| T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
+| T-024 | Pantalla de resultados por grupo | 🟡 Aprobada; esperando la aprobación del responsable (PR #29) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -576,7 +577,24 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - **Causa:** algunas opciones llevan comas adentro, y la plataforma deducía de nuevo dentro de cada grupo cómo separar las respuestas. En los grupos chicos, esa deducción salía distinta.
   - **Corrección:** las respuestas se separan una sola vez, con todas las respuestas.
 - **Verificación:** en las 435 opciones de la encuesta, los grupos suman exactamente el total. Los totales que ya se veían en pantalla no cambiaron. Una prueba automática nueva vigila que esto se mantenga. Ningún usuario vio los números erróneos, porque la pantalla de cruces todavía no existe.
-- **Estado:** subida a GitHub (PR #28), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #28).
+
+### 49. T-024 · Pantalla de resultados por grupo
+
+- **Qué quedó:** en la pestaña "Preguntas cerradas" hay un selector, **"Ver por…"**, para separar los resultados por género, edad, comuna, nivel educacional…
+  - Cada pregunta muestra una tabla con una fila "Todas las personas" y una fila por grupo.
+  - Los grupos de menos de 10 personas llevan la etiqueta **"Pocos datos"**.
+  - Si la edad viene como número, se pueden editar los tramos.
+  - Si no, se pueden **juntar grupos** con un nombre propio, por ejemplo los tramos de 5 años en tramos de 10. Cada unión tiene su botón "Deshacer".
+  - Nada se guarda: vale solo para ese análisis. El lector también puede usarla.
+- **Verificado con capturas reales de la encuesta de vivienda:**
+  - Por género, "importancia de ser propietario" da 4,36 en mujeres y 4,24 en hombres.
+  - "Capacidad de ahorro" da Sí 61,1 % en mujeres y 50,9 % en hombres.
+  - Por edad, con los grupos juntados, las notas altas suben de 73,1 % (20-29) a 88,1 % (50 o más).
+  - En el celular, la tabla se desplaza dentro de su tarjeta.
+- **Corrección en la revisión:** si al juntar grupos el nombre no servía, la pantalla mostraba el error, pero borraba las casillas marcadas y el nombre. Ahora se mantienen y solo hay que corregir el nombre.
+- **Chequeo final antes de subir:** se recorrieron automáticamente todas las pestañas de 9 proyectos y cada opción de "Ver por", sin errores. Casi todos los grupos cargan en menos de 1 segundo; la comuna, con 120 grupos, tarda 3,5 segundos.
+- **Estado:** subida a GitHub (PR #29), esperando la aprobación del responsable.
 
 ---
 
