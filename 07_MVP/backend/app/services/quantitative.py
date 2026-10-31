@@ -8,12 +8,18 @@ from __future__ import annotations
 import math
 import re
 import statistics
+from bisect import bisect_right
 from collections import Counter
 
 from app.services.question_types import separar_opciones
 
 CERRADAS = {"escala", "nps", "si_no", "seleccion_unica", "seleccion_multiple", "segmento", "numerica"}
 NOTA_MULTIPLE = "Cada persona puede elegir varias opciones; los porcentajes pueden sumar más de 100 %."
+POR_TIPOS = {"segmento", "seleccion_unica", "si_no", "numerica"}
+UMBRAL_POCOS_DATOS = 10
+CORTES_DEFECTO = "18,25,35,45,55,65"
+ERR_POR = "Esa pregunta no se puede usar para separar en grupos."
+ERR_CORTES = "Los tramos deben ser números enteros, separados por coma y de menor a mayor."
 
 
 def _pct(n: int, base: int) -> float:
@@ -32,7 +38,8 @@ def _desv(xs: list) -> float:
     return round(statistics.stdev(xs), 2) if len(xs) > 1 else 0.0
 
 
-def _escala(q: dict, vals: list[str]) -> dict:
+def _escala(q: dict, vals: list[str], ref: dict | None = None) -> dict:
+    """`ref` = la `escala` del total: en un grupo se usa su rango para comparar sobre las mismas opciones."""
     nps = q["tipo"] == "nps"
     # shortcut: la escala no guarda su rango; el mínimo se asume 1 (0 si alguien respondió 0) y el máximo es el
     # mayor valor respondido, así que un máximo que nadie eligió no aparece. Guardar min/max al confirmar la vista previa.
@@ -40,11 +47,13 @@ def _escala(q: dict, vals: list[str]) -> dict:
     if nps:
         enteros = [x for x in enteros if 0 <= x <= 10]
     out = {"n_invalidas": len(vals) - len(enteros)}
-    if not enteros:
+    if not enteros and not ref:
         return {**out, "opciones": []}
-    lo, hi = (0, 10) if nps else (min(1, *enteros), max(enteros))
+    lo, hi = (ref["min"], ref["max"]) if ref else (0, 10) if nps else (min(1, *enteros), max(enteros))
     c, base = Counter(enteros), len(enteros)
     out["opciones"] = [{"valor": str(k), "n": c[k], "pct": _pct(c[k], base)} for k in range(lo, hi + 1)]
+    if not enteros:  # grupo sin respuestas válidas: opciones en 0, sin estadísticos
+        return out
     out["escala"] = {"min": lo, "max": hi, "promedio": round(statistics.mean(enteros), 2), "desviacion": _desv(enteros)}
     if nps:
         n_p, n_d = sum(c[k] for k in (9, 10)), sum(c[k] for k in range(7))
@@ -64,7 +73,8 @@ def _primer_numero(v: str) -> int | None:
     return int(m.group().replace(".", "")) if m else None
 
 
-def _categorica(q: dict, vals: list[str]) -> dict:
+def _categorica(q: dict, vals: list[str], orden: list[str] | None = None) -> dict:
+    """`orden` = las opciones del total: en un grupo se listan todas, en ese orden, con n 0 si nadie la eligió."""
     multiple = q["tipo"] == "seleccion_multiple"
     c = Counter(o for fila in separar_opciones(vals) for o in dict.fromkeys(fila)) if multiple else Counter(vals)
     items = sorted(c.items(), key=lambda kv: (-kv[1], kv[0].casefold()))
@@ -72,6 +82,8 @@ def _categorica(q: dict, vals: list[str]) -> dict:
         nums = {v: _primer_numero(v) for v, _ in items}
         if sum(x is None for x in nums.values()) <= 2:
             items.sort(key=lambda kv: (nums[kv[0]] is None, nums[kv[0]] or 0))  # estable: respeta el orden por n
+    if orden:
+        items = [(v, c[v]) for v in orden]
     out = {"opciones": [{"valor": v, "n": n, "pct": _pct(n, len(vals))} for v, n in items]}
     return {**out, "nota": NOTA_MULTIPLE} if multiple else out
 
@@ -86,21 +98,74 @@ def _numerica(vals: list[str]) -> dict:
     return out
 
 
-def calcular(preguntas: list[dict], respondentes: list[dict]) -> dict:
-    n = len(respondentes)
+def _pregunta(q: dict, resp: list[dict], ref: dict | None = None) -> dict:
+    """Resultado de una pregunta sobre `resp` (sin id/título/tipo). `ref` = el resultado del total, al calcular un grupo."""
+    vals = [v for r in resp if (v := r["valores"].get(q["id"])) is not None]
+    if q["tipo"] in ("escala", "nps"):
+        detalle = _escala(q, vals, ref and ref.get("escala"))
+    elif q["tipo"] == "numerica":
+        detalle = _numerica(vals)
+    else:
+        detalle = _categorica(q, vals, ref and [o["valor"] for o in ref["opciones"]])
+    if not detalle.get("n_invalidas"):
+        detalle.pop("n_invalidas", None)
+    return {"n_respuestas": len(vals), "n_na": len(resp) - len(vals), "tasa_respuesta": _pct(len(vals), len(resp)), **detalle}
+
+
+def _cortes(texto: str) -> list[int]:
+    try:
+        cs = [int(x) for x in texto.split(",")]
+    except ValueError:
+        raise ValueError(ERR_CORTES) from None
+    if any(a >= b for a, b in zip(cs, cs[1:])):
+        raise ValueError(ERR_CORTES)
+    return cs
+
+
+def _grupos(q: dict, respondentes: list[dict], cortes: str | None) -> dict[str, list[dict]]:
+    """Personas por grupo de la pregunta `q`, en orden; quien no tiene grupo no aparece."""
+    vals = [v for r in respondentes if (v := r["valores"].get(q["id"])) is not None]
+    if q["tipo"] != "numerica":
+        grupos = {o["valor"]: [] for o in _categorica(q, vals)["opciones"]}
+        for r in respondentes:
+            if (g := r["valores"].get(q["id"])) in grupos:
+                grupos[g].append(r)
+        return grupos
+    cs = _cortes(CORTES_DEFECTO if cortes is None else cortes)
+    etiquetas = [f"{a}–{b - 1}" for a, b in zip(cs, cs[1:])] + [f"{cs[-1]}+"]
+    cubos = [[] for _ in range(len(cs) + 1)]  # cubos[0] = bajo el primer corte
+    for r in respondentes:
+        x = _num(r["valores"].get(q["id"]) or "")
+        if x is not None:
+            cubos[bisect_right(cs, x)].append(r)
+    grupos = {f"Menos de {cs[0]}": cubos[0]} if cubos[0] else {}
+    return {**grupos, **dict(zip(etiquetas, cubos[1:]))}
+
+
+def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = None, cortes: str | None = None) -> dict:
+    """Con `por` (RF-31) agrega `grupos` y, en cada pregunta, `por_grupo`. Errores de entrada: ValueError con el mensaje."""
+    porq = None
+    if por is not None:
+        porq = next((q for q in preguntas if q["id"] == por and q["tipo"] in POR_TIPOS), None)
+        if not porq:
+            raise ValueError(ERR_POR)
+    if cortes is not None and (not porq or porq["tipo"] != "numerica"):
+        raise ValueError(ERR_CORTES)
+    grupos = _grupos(porq, respondentes, cortes) if porq else {}
     out = []
     for q in preguntas:
-        if q["tipo"] not in CERRADAS:
+        if q["tipo"] not in CERRADAS or q is porq:
             continue
-        vals = [v for r in respondentes if (v := r["valores"].get(q["id"])) is not None]
-        if q["tipo"] in ("escala", "nps"):
-            detalle = _escala(q, vals)
-        elif q["tipo"] == "numerica":
-            detalle = _numerica(vals)
-        else:
-            detalle = _categorica(q, vals)
-        if not detalle.get("n_invalidas"):
-            detalle.pop("n_invalidas", None)
-        out.append({"id": q["id"], "titulo": q["titulo"], "tipo": q["tipo"], "n_respuestas": len(vals),
-                    "n_na": n - len(vals), "tasa_respuesta": _pct(len(vals), n), **detalle})
-    return {"n_personas": n, "preguntas": out}
+        total = _pregunta(q, respondentes)
+        item = {"id": q["id"], "titulo": q["titulo"], "tipo": q["tipo"], **total}
+        if porq:
+            item["por_grupo"] = [{"valor": g, **_pregunta(q, resp, total)} for g, resp in grupos.items()]
+        out.append(item)
+    res = {"n_personas": len(respondentes), "preguntas": out}
+    if porq:
+        res.update(por={"id": porq["id"], "titulo": porq["titulo"], "tipo": porq["tipo"]},
+                   umbral_pocos_datos=UMBRAL_POCOS_DATOS,
+                   n_sin_grupo=len(respondentes) - sum(map(len, grupos.values())),
+                   grupos=[{"valor": g, "n_personas": len(r), "pocos_datos": len(r) < UMBRAL_POCOS_DATOS}
+                           for g, r in grupos.items()])
+    return res
