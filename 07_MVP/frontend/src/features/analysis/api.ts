@@ -1,6 +1,6 @@
 import { jsonBody, req } from "@/shared/api/client";
 import {
-  AuditEvent, Category, CategoryComment, CodifyProgress, Coding,
+  AuditEvent, Category, ClosedResultsData, CategoryComment, CodifyProgress, Coding,
   ClaudeUsage, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
 } from "./types";
 
@@ -48,6 +48,9 @@ export const analysisApi = {
   audit: (id: string) => req<AuditEvent[]>(`/projects/${id}/audit`),
   traceability: (id: string, pregunta: string) =>
     req<Record<string, unknown>[]>(`/projects/${id}/export/traceability?${qp(pregunta)}`),
+
+  // Preguntas cerradas (RF-30): no recibe `pregunta`
+  getClosedResults: (id: string) => req<ClosedResultsData>(`/projects/${id}/closed-results`),
 
   // Informe cualitativo
   /** forceFull: ignora el caché del análisis por respondente (Prompt 1) y

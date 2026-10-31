@@ -5,6 +5,7 @@ import { ProjectContext, useProjectData } from "./useProjectData";
 
 const TABS: [string, string][] = [
   ["", "Dashboard"],
+  ["cerradas", "Preguntas cerradas"],
   ["lexico", "Análisis léxico"],
   ["codigos", "Libro de códigos"],
   ["codificacion", "Codificación"],
@@ -13,6 +14,8 @@ const TABS: [string, string][] = [
   ["exportar", "Exportar"],
   ["auditoria", "Auditoría"],
 ];
+
+const CERRADAS = ["escala", "nps", "si_no", "seleccion_unica", "seleccion_multiple", "segmento", "numerica"];
 
 const corto = (t: string) => (t.length > 70 ? `${t.slice(0, 70)}…` : t);
 
@@ -60,7 +63,7 @@ export default function ProjectView() {
         </div>
       )}
       <div className="project-tabs">
-        {TABS.map(([path, label]) => (
+        {TABS.filter(([path]) => path !== "cerradas" || project.preguntas.some((q) => CERRADAS.includes(q.tipo))).map(([path, label]) => (
           <NavLink key={path} to={(path || ".") + search} end={path === ""}
                    className={({ isActive }) => `project-tab ${isActive ? "active" : ""}`}>
             {label}
