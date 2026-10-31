@@ -1,7 +1,7 @@
 import { jsonBody, req } from "@/shared/api/client";
 import {
   AuditEvent, Category, ClosedResultsData, CategoryComment, CodifyProgress, Coding,
-  ClaudeUsage, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
+  ClaudeUsage, ClosedOpciones, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
 } from "./types";
 
 /** Parámetro `?pregunta=` que el contrato RF-23 exige en toda operación de análisis. */
@@ -49,8 +49,13 @@ export const analysisApi = {
   traceability: (id: string, pregunta: string) =>
     req<Record<string, unknown>[]>(`/projects/${id}/export/traceability?${qp(pregunta)}`),
 
-  // Preguntas cerradas (RF-30): no recibe `pregunta`
-  getClosedResults: (id: string) => req<ClosedResultsData>(`/projects/${id}/closed-results`),
+  // Preguntas cerradas (RF-30): no recibe `pregunta`. RF-31: `por`, `cortes` y `unir` separan en grupos.
+  getClosedResults: (id: string, o?: ClosedOpciones) =>
+    req<ClosedResultsData>(`/projects/${id}/closed-results` + (o
+      ? `?por=${encodeURIComponent(o.por)}`
+        + (o.cortes !== undefined ? `&cortes=${encodeURIComponent(o.cortes)}` : "")
+        + (o.unir?.length ? `&unir=${encodeURIComponent(JSON.stringify(o.unir))}` : "")
+      : "")),
 
   // Informe cualitativo
   /** forceFull: ignora el caché del análisis por respondente (Prompt 1) y

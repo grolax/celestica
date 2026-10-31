@@ -95,10 +95,8 @@ export interface AuditEvent {
 
 /** RF-30: GET /projects/{id}/closed-results (contrato en docs/API_CONTRATOS.md). */
 export interface ClosedOpcion { valor: string; n: number; pct: number }
-export interface ClosedPregunta {
-  id: string;
-  titulo: string;
-  tipo: string;
+/** Cifras de una pregunta: las del total y las de cada grupo (RF-31) comparten forma. */
+export interface ClosedMetricas {
   n_respuestas: number;
   n_na: number;
   tasa_respuesta: number;
@@ -118,4 +116,21 @@ export interface ClosedPregunta {
   };
   numerica?: { promedio: number; desviacion: number; mediana: number; min: number; max: number };
 }
-export interface ClosedResultsData { n_personas: number; preguntas: ClosedPregunta[] }
+export interface ClosedPregunta extends ClosedMetricas {
+  id: string;
+  titulo: string;
+  tipo: string;
+  por_grupo?: (ClosedMetricas & { valor: string })[];
+}
+/** RF-31: grupo del cruce; `unidos` solo si viene de una unión (T-023). */
+export interface ClosedGrupo { valor: string; n_personas: number; pocos_datos: boolean; unidos?: string[] }
+export interface ClosedUnion { nombre: string; valores: string[] }
+export interface ClosedOpciones { por: string; cortes?: string; unir?: ClosedUnion[] }
+export interface ClosedResultsData {
+  n_personas: number;
+  preguntas: ClosedPregunta[];
+  por?: { id: string; titulo: string; tipo: string };
+  umbral_pocos_datos?: number;
+  n_sin_grupo?: number;
+  grupos?: ClosedGrupo[];
+}
