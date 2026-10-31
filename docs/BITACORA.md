@@ -51,6 +51,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-019 | Arreglo: el servidor no permite codificar dos veces a la vez la misma pregunta | ✅ Incorporada a la versión oficial |
 | T-020 | Números de las preguntas cerradas, calculados sin IA (servidor) | ✅ Incorporada a la versión oficial |
 | T-021 | Pantalla "Preguntas cerradas" | ✅ Incorporada a la versión oficial |
+| T-022 | Resultados de las cerradas separados por grupo (servidor) | 🟡 Aprobada por el supervisor, pendiente del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -552,6 +553,19 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cómo se verificó:** con capturas reales de la encuesta de vivienda. "Importancia de ser propietario" muestra 4,31 de 5 y 79,4 % de notas altas, los mismos números de T-020.
 - **Corrección en la revisión:** en el celular, los nombres de los tramos de ingreso se cortaban y no se distinguían entre sí. Ahora el nombre va completo en su propia línea, con la barra debajo.
 - **Estado:** incorporada a la versión oficial (PR #26).
+
+### 47. T-022 · Resultados separados por grupo
+
+- **Qué quedó:** el servidor ahora entrega los resultados de las preguntas cerradas separados por grupo: género, comuna, nivel educacional, tramo de edad… Cada grupo trae los mismos números que el total, calculados de la misma forma y sin IA. Los grupos de menos de 10 personas llevan un aviso de pocos datos. La pantalla llega en T-023.
+- **Probado con la encuesta real:**
+  - En "importancia de ser propietario", las mujeres dan un promedio de 4,36 (81,5 % de notas altas) y los hombres 4,24 (76,6 %).
+  - Por edad, la importancia sube de 4,06 entre los 20 y 24 años a 4,74 entre los 55 y 59.
+  - En todas las preguntas, la suma de los grupos da exactamente el total.
+- **Decisiones del responsable:**
+  - los tramos de edad que elige el cliente sirven solo para ese análisis y no se guardan;
+  - cruzar los temas de las preguntas abiertas por grupo queda para más adelante.
+- **Algo a tener en cuenta:** en la encuesta de vivienda la edad ya viene en tramos (20-24, 25-29…). Ahí la plataforma usa esos tramos tal cual. Los tramos 18–24 … 65+ se aplican cuando la edad viene como número.
+- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
 
 ---
 

@@ -46,3 +46,14 @@ Depende de: T-020 (fusionada)
 ## Notas
 - No hay cambio de esquema: no hace falta migración.
 - El supervisor revisará los números con la encuesta real.
+
+## Revisión
+2026-10-31 — **Aprobada** (supervisor).
+- `pytest tests -q`: 225 pruebas en verde. Diff de código: `quantitative.py` (+83/−20), endpoint (+6/−2), pruebas (+116), una línea en `COMO_FUNCIONA.md`. Sin cambios en el frontend ni en el esquema.
+- Diseño: `_pregunta` es la única función de cálculo para el total y para cada grupo; el grupo recibe el rango de la escala y las opciones del total por `ref`. No se duplican reglas.
+- Verificado por el supervisor contra la encuesta real, por la API: por género (lector, 200), "importancia de ser propietario": Femenino 276 personas, 4,36 y 81,5 %; Masculino 222, 4,24 y 76,6 %; 2 grupos de 1 persona con `pocos_datos`; los 4 grupos con opciones 1–5. **En todas las preguntas, la suma de los conteos de los grupos es igual al total.** La pregunta `por` no se repite en `preguntas`. Los 400 del contrato responden con el mensaje exacto. Sin `por`, la respuesta es igual a la de T-020. El caso de otra organización (404) está en las pruebas.
+- Rendimiento: 10.000 personas × 20 preguntas × 50 grupos en 0,94 s.
+- Observaciones (deuda, no bloquean):
+  - En la encuesta real la edad viene en tramos ya hechos ("20-24", …) y se detecta como `segmento`, así que `cortes` no se puede aplicar ahí. Cambiar esos tramos significaría unir opciones (por ejemplo, 20-24 y 25-29 en 20-29).
+  - Los tramos de `numerica` se devuelven aunque estén vacíos (`n_personas` 0); el contrato no lo precisaba y queda así.
+  - El router convierte cualquier `ValueError` del cálculo en un 400.
