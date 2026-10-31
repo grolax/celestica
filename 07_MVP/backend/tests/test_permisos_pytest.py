@@ -58,6 +58,7 @@ OPS = [
     ("GET", P + "/export/docx", "lector", dict),
     ("GET", P + "/export/csv", "lector", dict),
     ("GET", P + "/export/xlsx", "lector", dict),
+    ("GET", P + "/export/closed-xlsx", "lector", dict),
     ("POST", CAT + "/comments", "lector", lambda: {"json": {"text": "hola"}}),
     ("DELETE", CAT + "/comments/{comment_id}", "lector", dict),  # el lector solo borra los suyos
     ("POST", "/api/projects", "analista", _file),
