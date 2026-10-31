@@ -348,6 +348,46 @@ def test_endpoint_unir_lector_200_otra_organizacion_404_y_400(env):
     assert c.get(url, headers=hs["a"], params={"unir": unir}).json()["detail"] == "Solo se pueden unir opciones de una pregunta de grupos."
 
 
+# ---------- T-023 revisión 1: la separación de la selección múltiple no depende del grupo ----------
+
+def _sumas_cuadran(r):
+    """Para toda pregunta con opciones: la suma de `n` de cada opción entre los grupos es el `n` del total (sin personas sin grupo)."""
+    assert r["n_sin_grupo"] == 0
+    for p in r["preguntas"]:
+        for o in p.get("opciones", []):
+            assert sum(next(x["n"] for x in g["opciones"] if x["valor"] == o["valor"]) for g in p["por_grupo"]) == o["n"], (p["id"], o)
+
+
+def test_seleccion_multiple_el_grupo_cuenta_igual_que_el_total_aunque_solo_separaria_distinto():
+    # En el total "Ahorro" aparece solo y "Casa" también: son dos opciones. Solo con el grupo A, "Ahorro, Casa" iría siempre junto y se uniría.
+    gente = _gente([{"g": "A", "m": "Ahorro, Casa"}] * 2 + [{"g": "B", "m": "Ahorro"}, {"g": "B", "m": "Casa"}])
+    preg = [{"id": "g", "titulo": "G", "tipo": "segmento"}, {"id": "m", "titulo": "M", "tipo": "seleccion_multiple"}]
+    r = calcular(preg, gente, "g")
+    p = r["preguntas"][0]
+    assert {o["valor"]: o["n"] for o in p["opciones"]} == {"Ahorro": 3, "Casa": 3}
+    a = next(x for x in p["por_grupo"] if x["valor"] == "A")
+    assert {o["valor"]: o["n"] for o in a["opciones"]} == {"Ahorro": 2, "Casa": 2}
+    _sumas_cuadran(r)
+    # "," sin ";" en el total y un grupo donde el ";" sí llega al 5 %: sigue contando como el total
+    gente = _gente([{"g": "A", "m": "x; y"}] + [{"g": "B", "m": "x, y"}] * 30)
+    _sumas_cuadran(calcular(preg, gente, "g"))
+
+
+@pytest.mark.parametrize("unir", [None, [{"nombre": "AB", "valores": ["A", "B"]}]])
+def test_para_toda_pregunta_con_opciones_la_suma_de_los_grupos_es_el_total(unir):
+    filas = []
+    for i in range(40):
+        filas.append({"g": "ABC"[i % 3], "e": str(1 + i % 5), "s": "Sí" if i % 4 else "No",
+                      "m": "Ahorro, Casa" if i % 3 == 0 else ["Ahorro", "Casa", "Subsidios (DS1, DS19), Ahorro", "Subsidios (DS1, DS19)"][i % 4],
+                      "u": "xyz"[i % 2 + (i % 7 == 0)]})
+    preg = [{"id": "g", "titulo": "G", "tipo": "segmento"}, {"id": "e", "titulo": "E", "tipo": "escala"},
+            {"id": "s", "titulo": "S", "tipo": "si_no"}, {"id": "m", "titulo": "M", "tipo": "seleccion_multiple"},
+            {"id": "u", "titulo": "U", "tipo": "seleccion_unica"}]
+    r = calcular(preg, _gente(filas), "g", unir=json.dumps(unir) if unir else None)
+    assert len(r["preguntas"]) == 4
+    _sumas_cuadran(r)
+
+
 def test_rendimiento_10000_personas_20_cerradas_50_grupos():
     import time
     preg = [{"id": "por", "titulo": "P", "tipo": "seleccion_unica"}] + \

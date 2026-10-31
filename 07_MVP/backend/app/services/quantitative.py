@@ -78,10 +78,11 @@ def _primer_numero(v: str) -> int | None:
     return int(m.group().replace(".", "")) if m else None
 
 
-def _categorica(q: dict, vals: list[str], orden: list[str] | None = None) -> dict:
-    """`orden` = las opciones del total: en un grupo se listan todas, en ese orden, con n 0 si nadie la eligió."""
+def _categorica(q: dict, vals: list[str], orden: list[str] | None = None, split: dict | None = None) -> dict:
+    """`orden` = las opciones del total: en un grupo se listan todas, en ese orden, con n 0 si nadie la eligió.
+    `split` = respuesta -> opciones, separada una sola vez sobre todas las respuestas (así un grupo cuenta igual que el total)."""
     multiple = q["tipo"] == "seleccion_multiple"
-    c = Counter(o for fila in separar_opciones(vals) for o in dict.fromkeys(fila)) if multiple else Counter(vals)
+    c = Counter(o for v in vals for o in dict.fromkeys(split[v])) if multiple else Counter(vals)
     items = sorted(c.items(), key=lambda kv: (-kv[1], kv[0].casefold()))
     if not multiple:  # tramos ("Menos de $360.000", "20-24"): orden natural, las opciones sin número al final
         nums = {v: _primer_numero(v) for v, _ in items}
@@ -103,7 +104,7 @@ def _numerica(vals: list[str]) -> dict:
     return out
 
 
-def _pregunta(q: dict, resp: list[dict], ref: dict | None = None) -> dict:
+def _pregunta(q: dict, resp: list[dict], ref: dict | None = None, split: dict | None = None) -> dict:
     """Resultado de una pregunta sobre `resp` (sin id/título/tipo). `ref` = el resultado del total, al calcular un grupo."""
     vals = [v for r in resp if (v := r["valores"].get(q["id"])) is not None]
     if q["tipo"] in ("escala", "nps"):
@@ -111,7 +112,7 @@ def _pregunta(q: dict, resp: list[dict], ref: dict | None = None) -> dict:
     elif q["tipo"] == "numerica":
         detalle = _numerica(vals)
     else:
-        detalle = _categorica(q, vals, ref and [o["valor"] for o in ref["opciones"]])
+        detalle = _categorica(q, vals, ref and [o["valor"] for o in ref["opciones"]], split)
     if not detalle.get("n_invalidas"):
         detalle.pop("n_invalidas", None)
     return {"n_respuestas": len(vals), "n_na": len(resp) - len(vals), "tasa_respuesta": _pct(len(vals), len(resp)), **detalle}
@@ -207,10 +208,14 @@ def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = 
     for q in preguntas:
         if q["tipo"] not in CERRADAS or q is porq:
             continue
-        total = _pregunta(q, respondentes)
+        split = None
+        if q["tipo"] == "seleccion_multiple":  # se separa una vez con todas las respuestas; el total y cada grupo usan ese resultado
+            todas = [v for r in respondentes if (v := r["valores"].get(q["id"])) is not None]
+            split = dict(zip(todas, separar_opciones(todas)))
+        total = _pregunta(q, respondentes, split=split)
         item = {"id": q["id"], "titulo": q["titulo"], "tipo": q["tipo"], **total}
         if porq:
-            item["por_grupo"] = [{"valor": g, **_pregunta(q, resp, total)} for g, resp in grupos.items()]
+            item["por_grupo"] = [{"valor": g, **_pregunta(q, resp, total, split)} for g, resp in grupos.items()]
         out.append(item)
     res = {"n_personas": len(respondentes), "preguntas": out}
     if porq:
