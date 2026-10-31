@@ -230,6 +230,9 @@ Ajustes respecto de la regla sugerida en la orden: el "título corto" (solo para
 
 **Los pasos 1 a 6 se hacen por pregunta abierta** (RF-23): todas esas operaciones aceptan `?pregunta=<id>` (ver `docs/API_CONTRATOS.md`) y, sin él, trabajan sobre la primera abierta. Cada pregunta tiene su propio libro de códigos, codificación, léxico, informe y exportaciones.
 
+### Resultados de preguntas cerradas (RF-30, T-020)
+`GET /api/projects/{id}/closed-results` (cualquier rol) calcula en `app/services/quantitative.py`, sin IA, conteos y % por opción (sobre quienes respondieron; el N/A va aparte), promedio y desviación muestral de escalas, top-2/bottom-2, NPS y estadísticos de las numéricas. No se guarda nada: se recalcula en cada llamada. La selección múltiple reutiliza `separar_opciones` de `question_types.py` (mismo criterio que la detección); el rango de una escala se toma de los valores recibidos.
+
 ### Paso 1 — Análisis léxico (Capa 1, sin IA generativa)
 
 `services/lexical.py` calcula de forma **determinística**: frecuencias (sin stopwords), bigramas, co-ocurrencias, y sentimiento por lexicón con evidencia palabra por palabra. Corre en segundos y no consume API. Al final, una llamada opcional a Claude redacta una interpretación breve; sin API key, el análisis numérico queda igual.

@@ -91,6 +91,16 @@ def _reconstruir(vc: pd.Series, sep: str) -> tuple[list, Counter]:
         filas = nuevas
 
 
+def separar_opciones(valores: list[str]) -> list[list[str]]:
+    """Las opciones elegidas en cada respuesta de una selección múltiple (mismo criterio que `detectar`), en el orden de `valores`."""
+    vc = pd.Series(valores, dtype="object").value_counts()
+    # shortcut: la pregunta no guarda su separador; es ";" si al menos el 5 % de las respuestas lo trae y "," si no. Guardarlo al confirmar la vista previa si falla.
+    sep = ";" if sum(";" in v for v in valores) >= 0.05 * len(valores) else ","
+    filas, _ = _reconstruir(vc, sep)
+    por_valor = {v: ch for v, (ch, _) in zip(vc.index, filas)}
+    return [por_valor[v] for v in valores]
+
+
 def _recortar(v: str) -> str:
     return v if len(v) <= 120 else v[:120] + "…"
 

@@ -258,3 +258,46 @@ Si ya hay una codificación en curso para el mismo `(proyecto, pregunta)`, **no 
 La UI no necesita cambios: tras cualquiera de las dos respuestas empieza a consultar `codify/progress`, que mostrará el proceso en curso.
 
 Errores: sin cambios (400 sin categorías validadas, 403, 404).
+
+## RF-30 · Resultados de preguntas cerradas (T-020)
+
+Decisiones del usuario (2026-10-30): porcentajes sobre quienes respondieron (sin N/A, que se informan aparte); en selección múltiple el % es de personas (puede sumar más de 100 %); escalas con palabras quedan como selección única por ahora; opciones de más a menos respuestas, salvo escalas y tramos, que van en su orden natural. **Sin IA:** todo se calcula en el servidor.
+
+### `GET /api/projects/{id}/closed-results`
+- **Roles:** lector, analista, admin (es "Ver").
+- **Sin parámetros.** Devuelve todas las preguntas del proyecto de tipo `escala`, `nps`, `si_no`, `seleccion_unica`, `seleccion_multiple`, `segmento` y `numerica`, en el orden del proyecto. No incluye `abierta`, `identificador`, `fecha`, `constante` ni `sin_datos`.
+- **Respuesta 200:**
+```json
+{
+  "n_personas": 500,
+  "preguntas": [
+    { "id": "q_10", "titulo": "10. ¿Qué tan importante es para ti ser propietario/a…?", "tipo": "escala",
+      "n_respuestas": 498, "n_na": 2, "tasa_respuesta": 99.6,
+      "opciones": [ {"valor": "1", "n": 10, "pct": 2.0}, {"valor": "2", "n": 18, "pct": 3.6}, {"valor": "3", "n": 70, "pct": 14.1},
+                    {"valor": "4", "n": 150, "pct": 30.1}, {"valor": "5", "n": 250, "pct": 50.2} ],
+      "escala": { "min": 1, "max": 5, "promedio": 4.23, "desviacion": 0.98,
+                  "top2": {"valores": [4, 5], "n": 400, "pct": 80.3}, "bottom2": {"valores": [1, 2], "n": 28, "pct": 5.6} } },
+    { "id": "q_31", "titulo": "¿Qué tan probable es que nos recomiendes?", "tipo": "nps",
+      "n_respuestas": 240, "n_na": 0, "tasa_respuesta": 100.0,
+      "opciones": [ {"valor": "0", "n": 3, "pct": 1.3}, "… 0 a 10 …" ],
+      "escala": { "min": 0, "max": 10, "promedio": 7.9, "desviacion": 2.1 },
+      "nps": { "valor": 32.5, "promotores": {"n": 120, "pct": 50.0}, "pasivos": {"n": 82, "pct": 34.2}, "detractores": {"n": 38, "pct": 15.8} } },
+    { "id": "q_5", "titulo": "5. ¿Con quién vives actualmente?", "tipo": "seleccion_multiple",
+      "n_respuestas": 497, "n_na": 3, "tasa_respuesta": 99.4,
+      "opciones": [ {"valor": "Con mi pareja", "n": 210, "pct": 42.3}, {"valor": "Con mis padres", "n": 190, "pct": 38.2} ],
+      "nota": "Cada persona puede elegir varias opciones; los porcentajes pueden sumar más de 100 %." },
+    { "id": "q_40", "titulo": "Edad", "tipo": "numerica", "n_respuestas": 230, "n_na": 10, "tasa_respuesta": 95.8,
+      "numerica": { "promedio": 34.2, "desviacion": 9.8, "mediana": 33, "min": 18, "max": 71 } }
+  ]
+}
+```
+- **Reglas de cálculo:**
+  - `n_personas`: total de respondentes del proyecto. `n_respuestas` y `n_na` de esa pregunta (`n_respuestas + n_na = n_personas`). `tasa_respuesta` = `n_respuestas / n_personas × 100`.
+  - `pct` = `n / n_respuestas × 100`. Porcentajes con 1 decimal; promedio, desviación y NPS con 2 decimales como máximo (los ejemplos son ilustrativos).
+  - **`escala` y `nps`:** `opciones` con **todos** los valores enteros de `min` a `max`, en ese orden (con `n: 0` si nadie lo eligió). Rango: en `nps`, 0–10; en `escala` el proyecto no guarda el rango, así que `min` = 0 si alguien respondió 0 y 1 si no, y `max` = el mayor valor respondido. Valores no enteros o fuera de rango no entran en los cálculos y se cuentan en `n_invalidas` (campo presente solo si es > 0); en estas preguntas `pct`, top2/bottom2 y NPS se calculan sobre las respuestas válidas (`n_respuestas − n_invalidas`). Desviación **muestral** (n − 1; 0 si hay una sola respuesta). `top2`/`bottom2` solo en `escala`: los dos valores más altos y los dos más bajos del rango.
+  - **`nps`:** promotores 9–10, pasivos 7–8, detractores 0–6; `valor` = % promotores − % detractores.
+  - **`seleccion_multiple`:** cada respuesta se separa en opciones con el mismo criterio de la detección de T-010 (separador `;` o `,` y reconstrucción de opciones con el separador adentro); `n` = personas que eligieron la opción; incluye `nota`.
+  - **`si_no`, `seleccion_unica`, `segmento`:** todas las opciones (sin límite de 20), de más a menos `n`; empate por orden alfabético. **Orden natural (tramos):** si todas las opciones salvo como máximo 2 contienen un número, se ordenan por el primer número que aparece en el texto (sin puntos de miles: "Menos de $360.000" → 360000, "20-24" → 20) y las que no tienen número van al final por `n`.
+  - **`numerica`:** sin `opciones`; `numerica` con promedio, desviación muestral, mediana, mínimo y máximo de los valores numéricos (los no numéricos van a `n_invalidas`).
+- **Proyectos sin preguntas cerradas** (por ejemplo, los antiguos migrados): `200` con `"preguntas": []`.
+- **Errores:** 404 "Proyecto no encontrado" (incluye proyectos de otra organización); 401 sin sesión.

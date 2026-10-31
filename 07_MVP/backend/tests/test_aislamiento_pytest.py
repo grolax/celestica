@@ -57,6 +57,7 @@ ROUTES = [
     ("GET", "/api/projects/{project_id}/report/progress", {}),
     ("GET", "/api/projects/{project_id}/report", {}),
     ("GET", "/api/projects/{project_id}/usage", {}),
+    ("GET", "/api/projects/{project_id}/closed-results", {}),
 ]
 
 
