@@ -610,3 +610,15 @@ table.si input[type="checkbox"] { width: 18px; height: 18px; }
 table.si select { min-width: 140px; }
 table.si td input[type="text"] { min-width: 200px; }
 .main-content { min-width: 0; } /* sin esto, una tabla ancha estira la página en móvil en vez de desplazarse dentro de su tarjeta */
+
+/* ---------- Cruces por grupo (RF-31) ---------- */
+.group-controls { max-width: 640px; margin: 0 0 14px; }
+.group-controls summary { cursor: pointer; font-weight: 600; }
+.group-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.check-list { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; margin: 0 0 4px; background: var(--bg); }
+.check-list label { display: flex; gap: 8px; align-items: center; padding: 3px 0; font-size: 13px; }
+.check-list input { width: 16px; height: 16px; flex: none; }
+.unions { list-style: none; padding: 0; margin: 12px 0 0; }
+.unions li { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid var(--border-soft); font-size: 13px; }
+.group-table td:not(:first-child) { white-space: nowrap; }
+.group-table td:first-child { min-width: 150px; }
