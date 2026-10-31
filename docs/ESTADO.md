@@ -33,10 +33,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-020 Resultados de preguntas cerradas | backend | RF-30, RNF-01, RNF-02 | 2026-10-30 | `tarea/T-020-resultados-cerradas` (fusionada, PR #24) |
 | T-021 Pantalla "Preguntas cerradas" | frontend | RF-30, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-021-pantalla-cerradas` (fusionada, PR #26) |
 | T-022 Cruces por grupo de las cerradas | backend | RF-31, RNF-01, RNF-02, RNF-10 | 2026-10-31 | `tarea/T-022-cruces-por-grupo` (fusionada, PR #27) |
-| T-023 Unir grupos en los cruces (+ arreglo de selección múltiple por grupo) | backend | RF-31, RNF-07 | 2026-10-31 | `tarea/T-023-unir-grupos` (PR #28, esperando merge) |
+| T-023 Unir grupos en los cruces (+ arreglo de selección múltiple por grupo) | backend | RF-31, RNF-07 | 2026-10-31 | `tarea/T-023-unir-grupos` (fusionada, PR #28) |
 
 ## En curso
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, aprobada) → **T-024 pantalla de cruces (frontend, siguiente)** → T-025/26 proyectos sin abiertas → RF-41, RF-43, RF-17.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → **T-024 pantalla de cruces (frontend, en desarrollo; disposición aprobada por el usuario 2026-10-31)** → T-025/26 proyectos sin abiertas → RF-41, RF-43, RF-17.
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Decisiones T-022 (usuario, 2026-10-31): los tramos de edad que elige el cliente valen solo para ese análisis (no se guardan, ni por proyecto ni por organización); cruzar temas de preguntas abiertas por grupo queda para una tarea posterior.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
