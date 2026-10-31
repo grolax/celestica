@@ -38,3 +38,14 @@ Se puede crear un proyecto con solo preguntas cerradas, abrirlo (`GET /api/proje
 
 ## Notas
 - Al terminar, deja el backend (8000) corriendo con el código nuevo (usa `SECRET_KEY=dev-local-secret-t021` para que las cuentas de prueba sigan valiendo).
+
+## Revisión 1
+2026-10-31 — **Con cambios** (supervisor).
+
+Verificado: `pytest tests -q` 254 en verde. Diff mínimo: `_armar_preguntas`, `_create_project_from_df`, `get_project` y el pipeline de `list_projects`; las 14 operaciones de abiertas dan 404 por `_get_vista` sin código nuevo. **Con el MongoDB real local** (no solo mongomock), creando por la API un proyecto solo con cerradas desde la encuesta real: 200 con `n_responses` 500, `text_column` "" y `preguntas_abiertas` []; `GET` con `pregunta: null`; en la lista `n_abiertas` 0 y `n_responses` 500 (y los demás proyectos sin cambios: 484, 320, 120…); léxico, resumen, informe, exportación, respuestas y codificar → 404; `closed-results?por=` → 200.
+
+Cambio pedido (lo señaló el programador; el contrato ya está actualizado):
+
+1. **`services/question_types.py:227`** sigue avisando en la vista previa "Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto.", que ya no es cierto. Cámbialo por el texto nuevo del contrato (sección RF-22/RF-25, advertencias): **"Esta encuesta no tiene preguntas abiertas: se analizarán solo las preguntas cerradas, sin libro de códigos ni IA."** y actualiza la prueba `tests/test_tipos_pregunta_pytest.py:337`.
+
+Commit `T-025 RF-24: ...` en la misma rama; corre la suite completa y reinicia el backend (8000) con `SECRET_KEY=dev-local-secret-t021`.

@@ -191,7 +191,7 @@ Tres endpoints de **solo lectura**: leen los datos, detectan el tipo de cada col
 - **`escala`**: solo en `escala` y `nps`.
 - **`opciones`**: solo en `si_no`, `seleccion_unica`, `seleccion_multiple` y `segmento`; hasta 20 valores con su conteo, de mayor a menor (en `seleccion_multiple`, cada opción separada).
 - **`advertencias`** (frases para la UI):
-  - Sin columnas `abierta`: `"Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto."`
+  - Sin columnas `abierta`: `"Esta encuesta no tiene preguntas abiertas: se analizarán solo las preguntas cerradas, sin libro de códigos ni IA."` (texto actualizado en T-025; antes decía "…llegará pronto.")
   - `n_filas < 10`: `"La encuesta tiene muy pocas respuestas (N); los resultados serán poco representativos."`
   - Por cada columna con más de la mitad vacía: `"La columna «X» tiene más de la mitad de sus respuestas vacías."`
 - **Errores:**
@@ -230,7 +230,7 @@ Decisiones del usuario (2026-10-30): un análisis por pregunta abierta, la IA so
 ```
   `n_responses` y `text_column` corresponden a la **primera** pregunta abierta (la "pregunta por defecto").
 - **Errores nuevos:**
-  - 400 — "Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto." (ninguna pregunta `abierta`).
+  - ~~400 — "Esta encuesta no tiene preguntas abiertas…"~~ Reemplazado en T-025 (RF-24): ver "RF-24 · Proyectos sin preguntas abiertas".
   - 422 — "La columna «X» no existe en los datos." · "La columna «X» está en más de una pregunta." · "Tipo de pregunta no válido: X." · "Una columna de identificación no se puede enviar a la IA." (`tipo: identificador` con `contexto_ia: true`).
 
 ### Parámetro `pregunta` en las operaciones de análisis (nuevo, opcional)
