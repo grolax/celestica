@@ -99,8 +99,8 @@ def _armar_preguntas(df: pd.DataFrame, columns: list[str], text_column: str, pre
                 raise HTTPException(422, f"La columna «{c}» está en más de una pregunta.")
             usadas.add(c)
         out.append({"id": f"q_{i}", "titulo": titulo, "columnas": list(p["columnas"]), "tipo": tipo, "contexto_ia": bool(contexto)})
-    if not any(q["tipo"] == "abierta" for q in out):
-        raise HTTPException(400, "Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto.")
+    if not any(q["tipo"] == "abierta" or q["tipo"] in quantitative.CERRADAS for q in out):
+        raise HTTPException(400, "Esta encuesta no tiene preguntas que se puedan analizar: marca al menos una pregunta abierta o cerrada.")
     return out
 
 
@@ -129,10 +129,13 @@ def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
     ]
     abiertas = [q for q in preguntas if q["tipo"] == "abierta"]
     n_por_abierta = {q["id"]: sum(1 for r in respondentes if r["valores"][q["id"]] is not None) for q in abiertas}
-    por_defecto = abiertas[0]
-    if not n_por_abierta[por_defecto["id"]]:
-        raise HTTPException(400, f"La columna '{por_defecto['titulo']}' no contiene textos analizables")
-    text_column = por_defecto["titulo"]
+    if abiertas:
+        por_defecto = abiertas[0]
+        if not n_por_abierta[por_defecto["id"]]:
+            raise HTTPException(400, f"La columna '{por_defecto['titulo']}' no contiene textos analizables")
+        text_column, n_personas = por_defecto["titulo"], n_por_abierta[por_defecto["id"]]
+    else:  # RF-24: solo cerradas; sin pregunta de texto, "n_responses" son las personas
+        text_column, n_personas = "", len(respondentes)
 
     # Plantilla opcional: prefija el marco teórico
     tpl = templates.get_template(template) if template else None
@@ -142,12 +145,12 @@ def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
     project = store.create_project(user.org_id, user.id, name, marco_teorico, columns, text_column,
                                    preguntas, respondentes)
     store.log_event(project, "analista", "creacion_proyecto", {
-        **source_detail, "n_respuestas": n_por_abierta[por_defecto["id"]],
-        "columna_texto": text_column, "marco_teorico": marco_teorico,
+        **source_detail, "n_respuestas": n_personas,
+        "columna_texto": text_column or None, "marco_teorico": marco_teorico,
         "usuario": user.email, "plantilla": template or None,
         "preguntas_por_tipo": dict(Counter(q["tipo"] for q in preguntas)),  # solo conteos, nunca valores
     })
-    if tpl:
+    if tpl and abiertas:  # sin abiertas no hay libro de códigos: solo el marco teórico
         for c in tpl["categorias_default"]:
             project["analisis"][por_defecto["id"]]["categories"].append({
                 "id": store.new_id("cat"), "nombre": c["nombre"],
@@ -162,7 +165,7 @@ def _create_project_from_df(df: pd.DataFrame, name: str, marco_teorico: str,
             "n_categorias": len(tpl["categorias_default"]),
         })
     store.save_project(project)
-    return {"id": project["id"], "n_responses": n_por_abierta[por_defecto["id"]], "text_column": text_column,
+    return {"id": project["id"], "n_responses": n_personas, "text_column": text_column,
             "preguntas_abiertas": [{"id": q["id"], "titulo": q["titulo"], "n_respuestas": n_por_abierta[q["id"]]}
                                    for q in abiertas]}
 
@@ -218,7 +221,11 @@ async def create_project(
 @router.get("/api/projects/{project_id}")
 def get_project(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
     project = _get_or_404(project_id, user)
-    vista = _vista_or_404(project, pregunta)
+    if pregunta is None and store.pregunta_abierta(project) is None:  # RF-24: sin abiertas, la vista es el proyecto mismo
+        vista = {**project, "text_column": "", "categories": [], "responses": project.get("respondentes", []),
+                 "lexical": None, "codings": {}, "pregunta": None}
+    else:
+        vista = _vista_or_404(project, pregunta)
     return {
         **{k: vista[k] for k in ["id", "name", "marco_teorico", "created_at", "columns", "text_column", "categories"]},
         "n_responses": len(vista["responses"]),

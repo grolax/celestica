@@ -143,8 +143,8 @@ def test_auditoria_de_creacion_solo_lleva_conteos_por_tipo(env):
     ([{"titulo": "X", "columnas": [C_P28], "tipo": "abierta"},
       {"titulo": "Y", "columnas": [C_ID], "tipo": "identificador", "contexto_ia": True}],
      422, "Una columna de identificación no se puede enviar a la IA."),
-    ([{"titulo": "X", "columnas": [C_GEN], "tipo": "segmento"}], 400,
-     "Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto."),
+    ([{"titulo": "X", "columnas": [C_ID], "tipo": "identificador"}], 400,  # RF-24: solo cerradas ya se acepta
+     "Esta encuesta no tiene preguntas que se puedan analizar: marca al menos una pregunta abierta o cerrada."),
     ("esto no es json", 422, "Las preguntas enviadas no son un JSON válido."),
 ])
 def test_errores_del_contrato_y_no_se_guarda_nada(env, cambio, status, mensaje):

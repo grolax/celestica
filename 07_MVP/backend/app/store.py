@@ -179,7 +179,9 @@ def list_projects(org_id: str) -> list[dict]:
         {"$project": {
             "_id": 0,
             "id": 1, "name": 1, "created_at": 1,
-            "n_responses": _N_RESPONSES,
+            "n_abiertas": {"$size": {"$filter": {"input": {"$ifNull": ["$preguntas", []]}, "as": "p",
+                                                 "cond": {"$eq": ["$$p.tipo", "abierta"]}}}},
+            "n_responses": {"$cond": [{"$eq": [{"$ifNull": ["$_q", None]}, None]}, {"$size": {"$ifNull": ["$respondentes", []]}}, _N_RESPONSES]},
             "has_lexical": {"$ne": [{"$ifNull": ["$_a.lexical", None]}, None]},
             "n_categories": {"$size": {"$ifNull": ["$_a.categories", []]}},
             "n_coded": {"$size": {"$objectToArray": {"$ifNull": ["$_a.codings", {}]}}},
