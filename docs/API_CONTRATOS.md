@@ -416,3 +416,34 @@ Decisiones del usuario (2026-10-30): RF-24 va en la iteración 3 junto con RF-30
 ### Operaciones de análisis en un proyecto sin abiertas
 - Todas las que reciben `?pregunta` (léxico, categorías, codificación, informe, resumen, respuestas, exportaciones, `apply-template`): **404 "Pregunta no encontrada"**, con o sin `pregunta`. No se llama a la IA.
 - `closed-results` (con y sin `por`), auditoría y borrar el proyecto funcionan igual que en cualquier proyecto.
+
+## RF-30 / RF-31 · Excel de resultados de preguntas cerradas (T-027)
+
+Decisiones del usuario (2026-10-31): los proyectos (con o sin abiertas) descargan un **Excel con los resultados de las cerradas**, con los **grupos** elegidos en "Ver por…" (tramos y grupos juntados incluidos) y **gráficos que tengan sentido**. **Sin IA.** El informe integrado llega con RF-51.
+
+### `GET /api/projects/{id}/export/closed-xlsx[?por=<pregunta_id>&cortes=…&unir=<json>]`
+- **Roles:** lector, analista, admin (como las demás exportaciones).
+- **Parámetros:** los mismos de `closed-results` (T-020, T-022, T-023), con las mismas validaciones y **los mismos mensajes 400**. Las cifras del Excel son **exactamente** las que devuelve `closed-results` con esos parámetros (se calculan con la misma función).
+- **Respuesta 200:** archivo `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, nombre `resultados_cerradas_<slug del proyecto>.xlsx`; si viene `por`, se agrega `_por_<slug del título de por>` antes de `.xlsx`.
+- **Contenido:**
+  - Hoja **"Resumen"**: nombre del proyecto, fecha de descarga, número de personas y la nota **"Cifras calculadas por la plataforma directamente desde las respuestas, sin IA. Los porcentajes son sobre quienes respondieron cada pregunta; quienes no respondieron aparecen como N/A."** Con `por`, además:
+    - "Separado por: <título>" y la lista de grupos con su número de personas;
+    - los grupos unidos ("<nombre>: <opciones>") y los tramos usados si la pregunta es numérica;
+    - las personas sin grupo;
+    - si hay grupos con pocos datos: **"Los grupos marcados con «Pocos datos» tienen menos de <umbral> personas: tómalos con cautela."**
+  - Hoja **"Totales"**: un bloque por pregunta cerrada, en el orden del proyecto.
+    - Encabezado del bloque: título, tipo, respondieron, N/A y % de respuesta.
+    - Tabla de opciones (opción, personas, %).
+    - Según el tipo: promedio, desviación, notas altas y bajas (escala); NPS, promotores, pasivos y detractores (nps); promedio, mediana, mínimo y máximo (numérica); la nota de la selección múltiple.
+    - Gráfico: cada bloque con opciones lleva **barras horizontales** del % por opción, con el valor escrito en cada barra. Máximo 10 opciones en el gráfico; si hay más, el título lo dice: "10 opciones más frecuentes de <n>".
+  - Hoja **"Por grupo"** (solo con `por`): un bloque por pregunta.
+    - Filas: "Todas las personas" y una por grupo, en el orden de `grupos`.
+    - Columnas: "Respondieron", **"Pocos datos"** ("Sí" o vacía) y las que muestra la pantalla según el tipo: escala (promedio, notas altas, notas bajas); nps (NPS, promotores, detractores); numérica (promedio, mediana, mínimo, máximo); categóricas (% de cada opción, **todas** las opciones).
+    - Gráfico por bloque:
+      - Escala, NPS y numérica con grupos de **orden natural** (pregunta `por` numérica con tramos, o categórica ordenada por número según la regla de T-020): **líneas** del promedio (o del NPS) a lo largo de los grupos, para mostrar la **tendencia**.
+      - Escala, NPS y numérica con grupos sin orden (género, comuna…): **barras** del promedio (o NPS) por grupo.
+      - Categóricas: **barras agrupadas** del % de cada opción por grupo (máximo 6 opciones, las primeras del total).
+      - Con más de 15 grupos, sin gráfico; en su lugar, el texto "Hay demasiados grupos para un gráfico legible; revisa la tabla."
+      - Todos los gráficos muestran los valores escritos (no dependen solo del color). La fila "Todas las personas" no aparece como una barra más.
+- **Errores:** los de `closed-results`: 400 con sus mensajes; 404 "Proyecto no encontrado" (incluida otra organización); 401 sin sesión.
+- **Proyecto sin preguntas cerradas:** descarga un Excel con la hoja "Resumen" y la nota "Este proyecto no tiene preguntas cerradas."
