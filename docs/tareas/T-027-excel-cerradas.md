@@ -59,3 +59,9 @@ Cambio pedido (error del contrato, ya corregido en `docs/API_CONTRATOS.md`):
 1. **`export_closed.py`, `_bloque_totales` (líneas 98-105):** en `escala` y `nps` el gráfico de Totales debe mostrar **todos** los valores de la escala en su orden (el NPS de 0 a 10 tiene 11), sin el título "10 opciones más frecuentes de 11", que no tiene sentido en una escala. El límite de 10 opciones con ese título queda solo para las demás preguntas (categóricas). Actualiza la prueba correspondiente y agrega una que verifique que el gráfico del NPS tiene 11 categorías.
 
 Commit `T-027 RF-30: ...` en la misma rama. Regenera los 4 Excel reales en la misma carpeta y reinicia el backend como antes.
+
+## Revisión 2
+2026-10-31 — **Aprobada en lo técnico; falta la revisión visual del usuario** (supervisor).
+- Corrección de 1 línea + prueba nueva (NPS con 11 categorías); `pytest tests -q` 269 en verde.
+- Excel real por edad con tramos juntados: hojas Resumen, Totales y Por grupo; "importancia de ser propietario" con Todas 4,31 · 79,4 %, 20-29 4,09 · 73,1 % y 50 o más 4,57 · 88,1 % (igual que la pantalla); 3 gráficos de líneas "Promedio por grupo (tendencia)" en las escalas.
+- Sin Excel ni LibreOffice en el equipo: el aspecto de los gráficos lo revisa el usuario abriendo los archivos reales antes de subir.
