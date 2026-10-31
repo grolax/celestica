@@ -150,3 +150,119 @@ def test_endpoint_resultados_otra_organizacion_404_y_proyecto_sin_cerradas_vacio
     solo = _crear(c, hs["a"], "Comentario\n" + "\n".join(f"texto largo número {i}" for i in range(5)),
                   [{"titulo": "Comentario", "columnas": ["Comentario"], "tipo": "abierta"}])
     assert c.get(f"/api/projects/{solo}/closed-results", headers=hs["a"]).json() == {"n_personas": 5, "preguntas": []}
+
+
+# ---------- RF-31 (T-022): cruces por grupo ----------
+
+def _gente(filas):
+    """filas: lista de dicts {pregunta: valor}; devuelve respondentes."""
+    return [{"id": f"R{i}", "valores": f} for i, f in enumerate(filas)]
+
+
+PREG = [{"id": "g", "titulo": "Género", "tipo": "segmento"}, {"id": "e", "titulo": "Nota", "tipo": "escala"},
+        {"id": "s", "titulo": "Sí/No", "tipo": "si_no"}]
+
+
+def _cruce(genero_nota_si, **kw):
+    gente = _gente([{"g": g, "e": e, "s": s} for g, e, s in genero_nota_si])
+    return calcular(PREG, gente, "g", **kw)
+
+
+def test_grupos_en_orden_de_t020_sin_grupo_y_sumas():
+    datos = [("M", "5", "Sí")] * 3 + [("H", "4", "No")] * 2 + [("O", "1", None)] + [(None, "3", "Sí")] * 2
+    r = _cruce(datos)
+    assert r["por"] == {"id": "g", "titulo": "Género", "tipo": "segmento"} and r["umbral_pocos_datos"] == 10
+    assert [(g["valor"], g["n_personas"]) for g in r["grupos"]] == [("M", 3), ("H", 2), ("O", 1)]
+    assert r["n_sin_grupo"] == 2 and sum(g["n_personas"] for g in r["grupos"]) + r["n_sin_grupo"] == r["n_personas"] == 8
+    assert [p["id"] for p in r["preguntas"]] == ["e", "s"]  # la pregunta `por` no aparece
+    for p in r["preguntas"]:
+        assert [x["valor"] for x in p["por_grupo"]] == ["M", "H", "O"]
+        for x, g in zip(p["por_grupo"], r["grupos"]):
+            assert x["n_respuestas"] + x["n_na"] == g["n_personas"]
+
+
+def test_grupo_con_numeros_conocidos_y_rango_y_opciones_del_total():
+    # Mujer: 5,4,4 -> promedio 4,33, top2 100 %. Hombre: 1,2 -> promedio 1,5. El total usa 1..5.
+    datos = [("M", "5", "Sí"), ("M", "4", "Sí"), ("M", "4", "Sí"), ("H", "1", "No"), ("H", "2", "No")]
+    r = _cruce(datos)
+    nota, si = r["preguntas"]
+    m = nota["por_grupo"][0]
+    assert m["escala"] == {"min": 1, "max": 5, "promedio": 4.33, "desviacion": 0.58,
+                           "top2": {"valores": [4, 5], "n": 3, "pct": 100.0}, "bottom2": {"valores": [1, 2], "n": 0, "pct": 0.0}}
+    assert [(o["valor"], o["n"]) for o in m["opciones"]] == [("1", 0), ("2", 0), ("3", 0), ("4", 2), ("5", 1)]
+    h = nota["por_grupo"][1]
+    assert h["escala"]["max"] == 5 and h["escala"]["promedio"] == 1.5  # el grupo no usa el 5 y aun así el rango es el del total
+    assert h["escala"]["bottom2"] == {"valores": [1, 2], "n": 2, "pct": 100.0}
+    # categórica: mismas opciones y orden del total, con n 0
+    assert [o["valor"] for o in si["opciones"]] == ["Sí", "No"]
+    assert [(o["valor"], o["n"], o["pct"]) for o in si["por_grupo"][0]["opciones"]] == [("Sí", 3, 100.0), ("No", 0, 0.0)]
+
+
+def test_grupo_sin_respuestas_validas_y_pocos_datos_en_9_y_10():
+    r = _cruce([("M", None, "Sí")] * 9 + [("H", "3", "Sí"), ("H", "5", "No")] * 5)
+    assert [(g["valor"], g["n_personas"], g["pocos_datos"]) for g in r["grupos"]] == [("H", 10, False), ("M", 9, True)]
+    m = r["preguntas"][0]["por_grupo"][1]
+    assert m["n_respuestas"] == 0 and m["n_na"] == 9 and len(m["opciones"]) == 5 and "escala" not in m
+
+
+def test_numerica_como_por_tramos_por_defecto_y_cortes():
+    preg = [{"id": "ed", "titulo": "Edad", "tipo": "numerica"}, {"id": "s", "titulo": "S", "tipo": "si_no"}]
+    edades = ["17", "18", "24", "24.5", "25", "40", "64", "65", "90", "abc", None, ""]
+    gente = _gente([{"ed": e, "s": "Sí"} for e in edades])
+    r = calcular(preg, gente, "ed")
+    assert [(g["valor"], g["n_personas"]) for g in r["grupos"]] == [
+        ("Menos de 18", 1), ("18–24", 3), ("25–34", 1), ("35–44", 1), ("45–54", 0), ("55–64", 1), ("65+", 2)]
+    assert r["n_sin_grupo"] == 3  # "abc", N/A y vacío
+    assert [g["valor"] for g in calcular(preg, gente[1:], "ed")["grupos"]][0] == "18–24"  # sin menores de 18 no hay "Menos de"
+    r = calcular(preg, gente, "ed", "30,50")
+    assert [(g["valor"], g["n_personas"]) for g in r["grupos"]] == [("Menos de 30", 5), ("30–49", 1), ("50+", 3)]
+
+
+@pytest.mark.parametrize("por,cortes", [("zz", None), ("a", None), ("m", None), ("ed", "30,x"), ("ed", "50,30"), ("ed", "30,30"),
+                                        ("ed", ""), ("g", "30,50"), (None, "30,50")])
+def test_errores_de_por_y_cortes(por, cortes):
+    preg = [{"id": "a", "titulo": "A", "tipo": "abierta"}, {"id": "m", "titulo": "M", "tipo": "seleccion_multiple"},
+            {"id": "ed", "titulo": "Edad", "tipo": "numerica"}, {"id": "g", "titulo": "G", "tipo": "segmento"}]
+    esperado = "Esa pregunta no se puede usar para separar en grupos." if por in ("zz", "a", "m") else \
+        "Los tramos deben ser números enteros, separados por coma y de menor a mayor."
+    with pytest.raises(ValueError, match=esperado):
+        calcular(preg, [], por, cortes)
+
+
+def test_endpoint_cruce_lector_otra_organizacion_y_errores_400(env):
+    from app import store as st
+    from app.auth import create_token, hash_password
+    from app.database import get_db
+    from app.models import User, user_to_doc
+    c, hs = env
+    csv = "Comentario,Género,Edad\n" + "\n".join(f"texto largo número {i},{'M' if i % 2 else 'H'},{20 + i}" for i in range(10))
+    pid = _crear(c, hs["a"], csv, [{"titulo": "Comentario", "columnas": ["Comentario"], "tipo": "abierta"},
+                                   {"titulo": "Género", "columnas": ["Género"], "tipo": "segmento"},
+                                   {"titulo": "Edad", "columnas": ["Edad"], "tipo": "numerica"}])
+    org = c.post("/auth/login", json={"email": "quant-a@x.cl", "password": "clave12345"}).json()["user"]["organizacion"]["id"]
+    u = User(id="usr_lectorq", email="quant-lector@x.cl", password_hash=hash_password("clave12345"), nombre="L", empresa="",
+             created_at=st.now_iso(), org_id=org, rol="lector")
+    get_db().users.insert_one(user_to_doc(u))
+    hl = {"Authorization": f"Bearer {create_token(u.id)}"}
+    url = f"/api/projects/{pid}/closed-results"
+    r = c.get(url, headers=hl, params={"por": "q_2"})
+    assert r.status_code == 200 and [g["valor"] for g in r.json()["grupos"]] == ["H", "M"]
+    assert [p["id"] for p in r.json()["preguntas"]] == ["q_3"]
+    r = c.get(url, headers=hl, params={"por": "q_3", "cortes": "25"})
+    assert [(g["valor"], g["n_personas"]) for g in r.json()["grupos"]] == [("Menos de 25", 5), ("25+", 5)]
+    assert c.get(url, headers=hs["b"], params={"por": "q_2"}).status_code == 404
+    assert c.get(url, headers=hs["a"]).json().keys() == {"n_personas", "preguntas"}  # sin `por`, como en T-020
+    for params in ({"por": "q_1"}, {"por": "q_9"}, {"por": "q_3", "cortes": "b"}, {"cortes": "30"}):
+        r = c.get(url, headers=hs["a"], params=params)
+        assert r.status_code == 400 and r.json()["detail"].startswith(("Esa pregunta", "Los tramos")), params
+
+
+def test_rendimiento_10000_personas_20_cerradas_50_grupos():
+    import time
+    preg = [{"id": "por", "titulo": "P", "tipo": "seleccion_unica"}] + \
+           [{"id": f"q{i}", "titulo": f"Q{i}", "tipo": "escala"} for i in range(20)]
+    gente = _gente([{"por": f"G{i % 50}", **{f"q{k}": str((i + k) % 5 + 1) for k in range(20)}} for i in range(10000)])
+    t = time.perf_counter()
+    r = calcular(preg, gente, "por")
+    assert len(r["grupos"]) == 50 and len(r["preguntas"]) == 20
+    assert time.perf_counter() - t < 10
