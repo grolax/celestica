@@ -435,7 +435,7 @@ Decisiones del usuario (2026-10-31): los proyectos (con o sin abiertas) descarga
     - Encabezado del bloque: título, tipo, respondieron, N/A y % de respuesta.
     - Tabla de opciones (opción, personas, %).
     - Según el tipo: promedio, desviación, notas altas y bajas (escala); NPS, promotores, pasivos y detractores (nps); promedio, mediana, mínimo y máximo (numérica); la nota de la selección múltiple.
-    - Gráfico: cada bloque con opciones lleva **barras horizontales** del % por opción, con el valor escrito en cada barra. Máximo 10 opciones en el gráfico; si hay más, el título lo dice: "10 opciones más frecuentes de <n>".
+    - Gráfico: cada bloque con opciones lleva **barras horizontales** del % por opción, con el valor escrito en cada barra. En `escala` y `nps`, **todos** los valores en su orden (por ejemplo, 0 a 10), sin límite. En las demás, máximo 10 opciones; si hay más, el gráfico muestra las 10 con más personas (en el orden de la tabla) y el título lo dice: "10 opciones más frecuentes de <n>". (Precisado en la revisión 1 de T-027.)
   - Hoja **"Por grupo"** (solo con `por`): un bloque por pregunta.
     - Filas: "Todas las personas" y una por grupo, en el orden de `grupos`.
     - Columnas: "Respondieron", **"Pocos datos"** ("Sí" o vacía) y las que muestra la pantalla según el tipo: escala (promedio, notas altas, notas bajas); nps (NPS, promotores, detractores); numérica (promedio, mediana, mínimo, máximo); categóricas (% de cada opción, **todas** las opciones).

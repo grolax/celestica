@@ -48,3 +48,14 @@ Depende de: T-020 a T-026 (fusionadas)
 
 ## Notas
 - Al terminar, deja el backend (8000) corriendo con el código nuevo (`SECRET_KEY=dev-local-secret-t021`).
+
+## Revisión 1
+2026-10-31 — **Con cambios** (supervisor).
+
+Verificado: `pytest tests -q` 268 en verde; las cifras salen de `quantitative.calcular` (el Excel no recalcula); las pruebas comparan las celdas contra `closed-results` en los 6 tipos, con y sin `por`, `unir` y `cortes`; `_natural` no cambia ningún cálculo de T-020 (Sí/No ya quedaba en orden por frecuencia). En los archivos reales, ningún gráfico se superpone con otro: la separación mínima es de 19 filas en Totales y de 29 en Por grupo, para gráficos de unas 15 filas. Tiempos de 0,2 a 0,9 s (comuna).
+
+Cambio pedido (error del contrato, ya corregido en `docs/API_CONTRATOS.md`):
+
+1. **`export_closed.py`, `_bloque_totales` (líneas 98-105):** en `escala` y `nps` el gráfico de Totales debe mostrar **todos** los valores de la escala en su orden (el NPS de 0 a 10 tiene 11), sin el título "10 opciones más frecuentes de 11", que no tiene sentido en una escala. El límite de 10 opciones con ese título queda solo para las demás preguntas (categóricas). Actualiza la prueba correspondiente y agrega una que verifique que el gráfico del NPS tiene 11 categorías.
+
+Commit `T-027 RF-30: ...` en la misma rama. Regenera los 4 Excel reales en la misma carpeta y reinicia el backend como antes.
