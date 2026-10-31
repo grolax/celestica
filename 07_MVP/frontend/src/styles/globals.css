@@ -364,7 +364,11 @@ table.si tbody tr:hover { background: var(--primary-soft); }
 }
 .bar-row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bar-row.closed { grid-template-columns: minmax(90px, 220px) 1fr 100px; }
-@media (max-width: 640px) { .bar-row.closed { grid-template-columns: 120px 1fr 84px; } }
+/* En móvil la etiqueta ocupa su propia línea (varias si hace falta); barra y valor van debajo. */
+@media (max-width: 640px) {
+  .bar-row.closed { grid-template-columns: 1fr auto; row-gap: 3px; margin-bottom: 12px; }
+  .bar-row.closed > span:first-child { grid-column: 1 / -1; white-space: normal; overflow: visible; }
+}
 .bar {
   height: 16px;
   border-radius: 5px;
