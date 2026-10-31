@@ -49,3 +49,13 @@ Una pestaña nueva del proyecto, **"Preguntas cerradas"**, muestra los resultado
 ## Notas
 - El supervisor tomará capturas reales para el usuario: al terminar deja backend (8000) y frontend (5173) corriendo con ese proyecto creado, e indica su id en el resumen.
 - NPS: la encuesta real puede no tener NPS; verifica ese bloque con la respuesta simulada en el navegador (interceptando la petición, como en T-013) o con un CSV sintético pequeño con una columna 0–10.
+
+## Revisión 1
+2026-10-31 — **Con cambios** (supervisor).
+
+Verificado y correcto: `npm run build` sin errores; diff solo frontend (6 archivos, ~150 líneas); tipos y `getClosedResults` según el contrato; pestaña visible solo con cerradas (el demo sin cerradas no la muestra, `/cerradas` a mano da el mensaje de vacío); lector la ve; en escritorio, "importancia de ser propietario" 4,31 de 5 · 79,4 % · 5,6 %, "capacidad de ahorro" Sí 56,5 %, comuna con "Ver todas (120)"; NPS con signo "−4" y nota de `n_invalidas` (respuesta simulada); el frontend no calcula nada salvo el ancho de la barra. El orden de los tramos de ingreso ("Menos de $500.000" en medio) es el que manda el backend según el contrato: no se toca aquí.
+
+Cambio pedido (RNF-15, el panel de resultados debe leerse en móvil):
+
+1. **`globals.css`, regla `@media (max-width: 640px) { .bar-row.closed … }` (línea ~367):** a 390 px de ancho las etiquetas quedan recortadas a ~120 px y los tramos no se distinguen entre sí ("$361.000 – $640…", "$1.500.001 – $1.8…"); en un teléfono el `title` no se puede ver. Además, en las escalas ("1"…"5") la barra queda de ~50 px. Lo que se espera: en móvil, **la etiqueta ocupa su propia línea completa y puede ocupar varias líneas** (sin recorte), y debajo van la barra y el valor en una fila (por ejemplo, `grid-template-columns: 1fr auto` con la etiqueta en `grid-column: 1 / -1` y `white-space: normal`). Solo CSS; en escritorio queda como está.
+2. Verifícalo a 390 px con la tarjeta de ingreso (12.) y la de comuna, y deja los servidores corriendo como antes.
