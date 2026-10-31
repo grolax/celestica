@@ -53,7 +53,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-021 | Pantalla "Preguntas cerradas" | ✅ Incorporada a la versión oficial |
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
-| T-024 | Pantalla de resultados por grupo | 🟡 Aprobada por el supervisor, pendiente del responsable |
+| T-024 | Pantalla de resultados por grupo | 🟡 Aprobada; esperando la aprobación del responsable (PR #29) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -593,7 +593,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Por edad, con los grupos juntados, las notas altas suben de 73,1 % (20-29) a 88,1 % (50 o más).
   - En el celular, la tabla se desplaza dentro de su tarjeta.
 - **Corrección en la revisión:** si al juntar grupos el nombre no servía, la pantalla mostraba el error, pero borraba las casillas marcadas y el nombre. Ahora se mantienen y solo hay que corregir el nombre.
-- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
+- **Chequeo final antes de subir:** se recorrieron automáticamente todas las pestañas de 9 proyectos y cada opción de "Ver por", sin errores. Casi todos los grupos cargan en menos de 1 segundo; la comuna, con 120 grupos, tarda 3,5 segundos.
+- **Estado:** subida a GitHub (PR #29), esperando la aprobación del responsable.
 
 ---
 
