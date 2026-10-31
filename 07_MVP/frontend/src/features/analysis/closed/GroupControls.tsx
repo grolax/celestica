@@ -13,7 +13,7 @@ interface Props {
   error: string;
   busy: boolean;
   onCortes: (cortes?: string) => void;
-  onUnir: (unir: ClosedUnion[]) => void;
+  onUnir: (unir: ClosedUnion[]) => Promise<boolean>; // false si el backend la rechazó
 }
 
 /** Tramos (grupo numérico) o uniones de grupos; solo valen para este análisis, no se guardan. */
@@ -39,10 +39,9 @@ export default function GroupControls({ numerica, originales, unir, error, busy,
     );
   }
 
-  const juntar = () => {
-    onUnir([...unir, { nombre: nombre.trim(), valores: marcados }]);
-    setMarcados([]);
-    setNombre("");
+  const juntar = async () => {
+    // Solo se limpia si se aplicó: ante un error la persona corrige lo que falló sin volver a empezar.
+    if (await onUnir([...unir, { nombre: nombre.trim(), valores: marcados }])) { setMarcados([]); setNombre(""); }
   };
   return (
     <details className="group-controls">

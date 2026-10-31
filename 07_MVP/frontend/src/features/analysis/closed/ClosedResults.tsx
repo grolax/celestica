@@ -122,7 +122,7 @@ export default function ClosedResults() {
 
   const cambiarPor = (p: string) => { setError(""); cargar(p).catch((e) => setError(e.message)); };
   const cambiarControl = (cortes: string | undefined, u: ClosedUnion[]) =>
-    cargar(por, cortes, u).catch((e) => setErrorControl(e.message));
+    cargar(por, cortes, u).then(() => true, (e) => { setErrorControl(e.message); return false; }); // true = se aplicó
   const separables = project.preguntas.filter((q) => TIPOS_GRUPO.includes(q.tipo));
   const pocos = data?.grupos?.some((g) => g.pocos_datos);
 
