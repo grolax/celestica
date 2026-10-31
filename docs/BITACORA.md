@@ -51,7 +51,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-019 | Arreglo: el servidor no permite codificar dos veces a la vez la misma pregunta | ✅ Incorporada a la versión oficial |
 | T-020 | Números de las preguntas cerradas, calculados sin IA (servidor) | ✅ Incorporada a la versión oficial |
 | T-021 | Pantalla "Preguntas cerradas" | ✅ Incorporada a la versión oficial |
-| T-022 | Resultados de las cerradas separados por grupo (servidor) | 🟡 Aprobada por el supervisor, pendiente del responsable |
+| T-022 | Resultados de las cerradas separados por grupo (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #27) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -565,7 +565,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - los tramos de edad que elige el cliente sirven solo para ese análisis y no se guardan;
   - cruzar los temas de las preguntas abiertas por grupo queda para más adelante.
 - **Algo a tener en cuenta:** en la encuesta de vivienda la edad ya viene en tramos (20-24, 25-29…). Ahí la plataforma usa esos tramos tal cual. Los tramos 18–24 … 65+ se aplican cuando la edad viene como número.
-- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
+- **Estado:** subida a GitHub (PR #27), esperando la aprobación del responsable.
 
 ---
 

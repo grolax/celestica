@@ -32,7 +32,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-019 Una sola codificación a la vez por pregunta | backend | RF-23, RNF-08 | 2026-10-30 | `tarea/T-019-bloqueo-codificacion-doble` (fusionada, PR #23) |
 | T-020 Resultados de preguntas cerradas | backend | RF-30, RNF-01, RNF-02 | 2026-10-30 | `tarea/T-020-resultados-cerradas` (fusionada, PR #24) |
 | T-021 Pantalla "Preguntas cerradas" | frontend | RF-30, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-021-pantalla-cerradas` (fusionada, PR #26) |
-| T-022 Cruces por grupo de las cerradas | backend | RF-31, RNF-01, RNF-02, RNF-10 | 2026-10-31 | `tarea/T-022-cruces-por-grupo` (aprobada, pendiente de subir) |
+| T-022 Cruces por grupo de las cerradas | backend | RF-31, RNF-01, RNF-02, RNF-10 | 2026-10-31 | `tarea/T-022-cruces-por-grupo` (PR #27, esperando merge) |
 
 ## En curso
 - Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, aprobada) → **T-023 cruces (pantalla, siguiente)** → T-024/25 proyectos sin abiertas → RF-41, RF-43, RF-17.
