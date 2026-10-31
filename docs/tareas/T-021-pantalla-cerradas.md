@@ -59,3 +59,9 @@ Cambio pedido (RNF-15, el panel de resultados debe leerse en móvil):
 
 1. **`globals.css`, regla `@media (max-width: 640px) { .bar-row.closed … }` (línea ~367):** a 390 px de ancho las etiquetas quedan recortadas a ~120 px y los tramos no se distinguen entre sí ("$361.000 – $640…", "$1.500.001 – $1.8…"); en un teléfono el `title` no se puede ver. Además, en las escalas ("1"…"5") la barra queda de ~50 px. Lo que se espera: en móvil, **la etiqueta ocupa su propia línea completa y puede ocupar varias líneas** (sin recorte), y debajo van la barra y el valor en una fila (por ejemplo, `grid-template-columns: 1fr auto` con la etiqueta en `grid-column: 1 / -1` y `white-space: normal`). Solo CSS; en escritorio queda como está.
 2. Verifícalo a 390 px con la tarjeta de ingreso (12.) y la de comuna, y deja los servidores corriendo como antes.
+
+## Revisión 2
+2026-10-31 — **Aprobada** (supervisor).
+- Cambio solo CSS (`globals.css`, media query de `.bar-row.closed`, +5/−1). `npm run build` sin errores.
+- Capturas del supervisor a 390 px (cuenta lectora): tramos de ingreso completos ("$361.000 – $640.000", "$1.500.001 – $1.800.000"), barra y valor debajo; escala y NPS (simulado) correctos; `scrollWidth` = 390 (sin scroll horizontal). Escritorio sin cambios.
+- Deuda: en móvil el nombre de la organización se desborda en la barra superior (preexistente); con 29 preguntas la página es larga y no hay índice; las barras en móvil son cortas (el valor en texto siempre está visible).

@@ -31,9 +31,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-013 Selector de pregunta abierta | frontend | RF-23, RNF-08, RNF-13 | 2026-10-30 | `tarea/T-013-selector-de-pregunta` (fusionada, PR #22) |
 | T-019 Una sola codificación a la vez por pregunta | backend | RF-23, RNF-08 | 2026-10-30 | `tarea/T-019-bloqueo-codificacion-doble` (fusionada, PR #23) |
 | T-020 Resultados de preguntas cerradas | backend | RF-30, RNF-01, RNF-02 | 2026-10-30 | `tarea/T-020-resultados-cerradas` (fusionada, PR #24) |
+| T-021 Pantalla "Preguntas cerradas" | frontend | RF-30, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-021-pantalla-cerradas` (aprobada, pendiente de subir) |
 
 ## En curso
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → **T-021 pantalla "Preguntas cerradas" (en desarrollo, frontend; con capturas reales para el usuario)** → T-022 cruces (backend) → T-023 cruces (pantalla) → T-024/25 proyectos sin abiertas → RF-41, RF-43, RF-17.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (aprobada) → **T-022 cruces (backend, siguiente)** → T-023 cruces (pantalla) → T-024/25 proyectos sin abiertas → RF-41, RF-43, RF-17.
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Pendiente posterior (usuario): convertir escalas con palabras a 1–5 (el usuario ordena las etiquetas en "Revisa las preguntas").
 
@@ -55,6 +56,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Pantalla de cerradas (T-021): sin índice para saltar entre muchas preguntas; barras cortas en móvil; en móvil el nombre de la organización se desborda en la barra superior (preexistente). Sin suite Playwright (RNF-18).
 - Resultados de cerradas (T-020): el rango de la escala (máximo = mayor valor respondido) y el separador de la selección múltiple se deducen; guardarlos al confirmar "Revisa las preguntas". Cálculo sin caché.
 - El progreso de codificación/informe y su lock viven en memoria de un solo proceso: no sirven con varios workers ni sobreviven a un reinicio (T-019).
 

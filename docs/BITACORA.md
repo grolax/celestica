@@ -4,7 +4,7 @@
 
 **Quién lo actualiza:** el supervisor técnico (Claude), cada vez que se hace un cambio. El responsable del proyecto (Israel) aprueba qué se publica.
 
-**Última actualización:** 30 de octubre de 2026
+**Última actualización:** 31 de octubre de 2026
 
 ---
 
@@ -48,7 +48,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-005 | Mostrar la organización y el rol en pantalla | ✅ Incorporada a la versión oficial |
 | T-006 a T-008 | Roles y gestión de miembros | ✅ Incorporadas a la versión oficial (T-006, T-007, T-008a y T-008b) |
 | T-010 a T-013 | Encuestas completas: tipos de pregunta y varias preguntas abiertas | ✅ Incorporadas a la versión oficial (T-010, T-011a, T-012 y T-013) |
-| T-019 | Arreglo: el servidor no permite codificar dos veces a la vez la misma pregunta | 🔵 En curso |
+| T-019 | Arreglo: el servidor no permite codificar dos veces a la vez la misma pregunta | ✅ Incorporada a la versión oficial |
+| T-020 | Números de las preguntas cerradas, calculados sin IA (servidor) | ✅ Incorporada a la versión oficial |
+| T-021 | Pantalla "Preguntas cerradas" | 🟡 Aprobada por el supervisor, pendiente del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -537,6 +539,19 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Error encontrado y corregido:** en una escala de 1 a 5 donde nadie eligió el 1, la plataforma creía que la escala empezaba en 2 y contaba el 3 (neutral) entre las notas bajas. Ahora la escala empieza siempre en 1, o en 0 si alguien respondió 0.
 - **Pendiente:** si nadie elige la nota máxima, la escala se acorta. Se resolverá cuando el usuario confirme el rango al revisar las preguntas.
 - **Estado:** incorporada a la versión oficial (PR #24).
+
+### 46. T-021 · Pantalla "Preguntas cerradas"
+
+- **Qué quedó:** una pestaña nueva, **"Preguntas cerradas"**, muestra los resultados de cada pregunta cerrada en una tarjeta:
+  - barras con el % y el número de personas escritos;
+  - las personas que no respondieron (N/A), aparte;
+  - en las escalas, el promedio y el % de notas altas y bajas;
+  - en NPS, los promotores, pasivos y detractores, con una explicación simple;
+  - en las preguntas numéricas, el promedio, la mediana, el mínimo y el máximo.
+- **Quién la ve:** aparece solo en los proyectos con preguntas cerradas. La ven todos los roles, también el lector. Los números los calcula el servidor, sin IA.
+- **Cómo se verificó:** con capturas reales de la encuesta de vivienda. "Importancia de ser propietario" muestra 4,31 de 5 y 79,4 % de notas altas, los mismos números de T-020.
+- **Corrección en la revisión:** en el celular, los nombres de los tramos de ingreso se cortaban y no se distinguían entre sí. Ahora el nombre va completo en su propia línea, con la barra debajo.
+- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
 
 ---
 
