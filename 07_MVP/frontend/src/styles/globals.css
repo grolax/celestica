@@ -363,6 +363,8 @@ table.si tbody tr:hover { background: var(--primary-soft); }
   font-size: 13px;
 }
 .bar-row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row.closed { grid-template-columns: minmax(90px, 220px) 1fr 100px; }
+@media (max-width: 640px) { .bar-row.closed { grid-template-columns: 90px 1fr 88px; } }
 .bar {
   height: 16px;
   border-radius: 5px;

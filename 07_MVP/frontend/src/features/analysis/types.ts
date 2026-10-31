@@ -92,3 +92,30 @@ export interface AuditEvent {
   action: string;
   detail: unknown;
 }
+
+/** RF-30: GET /projects/{id}/closed-results (contrato en docs/API_CONTRATOS.md). */
+export interface ClosedOpcion { valor: string; n: number; pct: number }
+export interface ClosedPregunta {
+  id: string;
+  titulo: string;
+  tipo: string;
+  n_respuestas: number;
+  n_na: number;
+  tasa_respuesta: number;
+  n_invalidas?: number;
+  opciones?: ClosedOpcion[];
+  nota?: string;
+  escala?: {
+    min: number; max: number; promedio: number; desviacion: number;
+    top2?: { valores: number[]; n: number; pct: number };
+    bottom2?: { valores: number[]; n: number; pct: number };
+  };
+  nps?: {
+    valor: number;
+    promotores: { n: number; pct: number };
+    pasivos: { n: number; pct: number };
+    detractores: { n: number; pct: number };
+  };
+  numerica?: { promedio: number; desviacion: number; mediana: number; min: number; max: number };
+}
+export interface ClosedResultsData { n_personas: number; preguntas: ClosedPregunta[] }
