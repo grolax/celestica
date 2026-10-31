@@ -3,7 +3,7 @@ import Button from "@/shared/components/Button";
 import Table from "@/shared/components/Table";
 import { TipoPregunta } from "./types";
 import {
-  baseTitulo, contextoPorDefecto, deshacer, Fila, gruposPendientes, hayAbierta,
+  baseTitulo, contextoPorDefecto, deshacer, Fila, gruposPendientes, hayAbierta, hayCerrada,
   incluirPorDefecto, SIN_CONTEXTO, TIPOS, unir,
 } from "./questionGroups";
 
@@ -109,11 +109,15 @@ export default function QuestionReview({ filas, setFilas, nFilas, nColumnas, adv
           </Button>
         </div>
       ))}
-      {!hayAbierta(filas) && (
-        <div className="alert alert-warning" role="status">
-          Necesitas al menos una pregunta abierta para analizar. El análisis de preguntas cerradas llegará pronto.
+      {!hayAbierta(filas) && (hayCerrada(filas) ? (
+        <div className="alert alert-info" role="status">
+          Esta encuesta no tiene preguntas abiertas: se analizarán solo las preguntas cerradas, sin libro de códigos ni IA.
         </div>
-      )}
+      ) : (
+        <div className="alert alert-warning" role="status">
+          Marca al menos una pregunta abierta o cerrada para analizar.
+        </div>
+      ))}
       {seccion("Preguntas abiertas", "Se analizan con IA, una por una, cuando tú lo pidas.", filas.filter((f) => f.tipo === "abierta"))}
       {seccion("Otras preguntas", null, filas.filter((f) => f.tipo !== "abierta"))}
       <p className="small muted" style={{ marginTop: 14 }}>

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { projectsApi } from "./api";
-import { Project } from "./types";
+import { Project, ProjectAbierta } from "./types";
 
 /**
  * Carga y refresco del proyecto activo + contexto para las pestañas.
@@ -9,7 +9,7 @@ import { Project } from "./types";
  */
 
 interface ProjectCtx {
-  project: Project;
+  project: ProjectAbierta;
   refresh: () => void;
 }
 

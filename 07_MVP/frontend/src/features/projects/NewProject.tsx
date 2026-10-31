@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { projectsApi } from "./api";
 import { FrameworkTemplate, VistaPrevia } from "./types";
 import QuestionReview from "./QuestionReview";
-import { aPreguntas, Fila, filasIniciales, hayAbierta, SIN_CONTEXTO } from "./questionGroups";
+import { aPreguntas, Fila, filasIniciales, CERRADAS, hayAbierta, hayCerrada, SIN_CONTEXTO } from "./questionGroups";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import PageHeader from "@/shared/components/PageHeader";
@@ -96,7 +96,9 @@ export default function NewProject() {
     setError("");
     try {
       const preguntas = aPreguntas(filas);
-      const common = { name: name.trim(), marco_teorico: marco, template: templateKey, preguntas };
+      // Sin abiertas no hay análisis con IA: el marco teórico y la plantilla no se envían.
+      const ia = hayAbierta(filas);
+      const common = { name: name.trim(), marco_teorico: ia ? marco : "", template: ia ? templateKey : "", preguntas };
       let id: string;
       if (origin === "qualtrics") {
         ({ id } = await integrationsApi.createFromQualtrics({ ...common, survey_id: surveyId, survey_name: surveyName }));
@@ -108,7 +110,7 @@ export default function NewProject() {
         form.append("name", common.name);
         form.append("marco_teorico", common.marco_teorico);
         form.append("preguntas", JSON.stringify(preguntas));
-        if (templateKey) form.append("template", templateKey);
+        if (common.template) form.append("template", common.template);
         ({ id } = await projectsApi.createProject(form));
       }
       navigate(`/proyectos/${id}`);
@@ -121,6 +123,8 @@ export default function NewProject() {
 
   const incluidas = filas.filter((f) => f.incluir);
   const nAbiertas = incluidas.filter((f) => f.tipo === "abierta").length;
+  const nCerradas = incluidas.filter((f) => CERRADAS.includes(f.tipo)).length;
+  const cuenta = (n: number, uno: string, varias: string) => (n === 1 ? `1 ${uno}` : `${n} ${varias}`);
   const contexto = incluidas.filter((f) => f.contexto && !SIN_CONTEXTO.includes(f.tipo)).map((f) => `«${f.titulo}»`);
   const errorDePreguntas = step === 3 && /pregunta|columna|identificaci/i.test(error);
 
@@ -205,7 +209,7 @@ export default function NewProject() {
                           nColumnas={preview.preguntas.length} advertencias={preview.advertencias} />
           <div className="qr-nav">
             <Button type="button" variant="secondary" size="lg" onClick={() => setStep(1)}>← Volver</Button>
-            <Button type="button" size="lg" disabled={!hayAbierta(filas)} onClick={() => { setError(""); setStep(3); }}>
+            <Button type="button" size="lg" disabled={!hayAbierta(filas) && !hayCerrada(filas)} onClick={() => { setError(""); setStep(3); }}>
               Continuar →
             </Button>
           </div>
@@ -218,12 +222,16 @@ export default function NewProject() {
         <Input label="Nombre del proyecto" type="text" value={name} onChange={(e) => setName(e.target.value)}
                placeholder="Ej: Evaluación Docente 2026-1" required autoFocus />
         <p className="small muted" style={{ marginTop: 10 }}>
-          Se {nAbiertas === 1 ? "analizará 1 pregunta abierta" : `analizarán ${nAbiertas} preguntas abiertas`};{" "}
-          {contexto.length === 0 ? "ninguna pregunta irá como contexto a la IA."
-            : `${contexto.length === 1 ? "1 pregunta irá" : `${contexto.length} preguntas irán`} como contexto a la IA: ${contexto.join(", ")}.`}
+          {nAbiertas + nCerradas === 1 ? "Se analizará " : "Se analizarán "}
+          {[nAbiertas > 0 && cuenta(nAbiertas, "pregunta abierta", "preguntas abiertas"),
+            nCerradas > 0 && cuenta(nCerradas, "pregunta cerrada", "preguntas cerradas")].filter(Boolean).join(" y ")}
+          {nAbiertas === 0 ? ", sin IA." : <>;{" "}
+            {contexto.length === 0 ? "ninguna pregunta irá como contexto a la IA."
+              : `${contexto.length === 1 ? "1 pregunta irá" : `${contexto.length} preguntas irán`} como contexto a la IA: ${contexto.join(", ")}.`}</>}
         </p>
       </Card>
 
+      {nAbiertas > 0 && (
       <Card title="Marco teórico"
             actions={<span className="pill claude">ancla el análisis temático</span>}>
         {templates.length > 0 && (
@@ -253,6 +261,7 @@ export default function NewProject() {
                   onChange={(e) => setMarco(e.target.value)}
                   placeholder="Ej: Modelo de competencias docentes — dominio disciplinar, metodología, evaluación de aprendizajes, relación pedagógica. Las categorías propuestas por la IA se anclarán a este marco." />
       </Card>
+      )}
 
       <div className="qr-nav">
         <Button type="button" variant="secondary" size="lg" onClick={() => setStep(2)}>← Volver</Button>

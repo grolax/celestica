@@ -54,7 +54,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-022 | Resultados de las cerradas separados por grupo (servidor) | ✅ Incorporada a la versión oficial |
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
-| T-025 | Proyectos con solo preguntas cerradas (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #30) |
+| T-025 | Proyectos con solo preguntas cerradas (servidor) | ✅ Incorporada a la versión oficial |
+| T-026 | Proyectos con solo preguntas cerradas (pantalla) | 🟡 Aprobada; esperando la aprobación del responsable (PR #31) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -607,7 +608,21 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Corrección en la revisión:** la vista previa todavía decía que el análisis de cerradas "llegará pronto". Ahora explica que se analizarán solo las preguntas cerradas, sin IA.
 - **Decisión del responsable:** por ahora, estos proyectos entregan un **Excel con los resultados**. El informe que combina abiertas y cerradas llegará más adelante (RF-51).
 - **Siguiente:** T-026, para que la pantalla permita crear y abrir estos proyectos.
-- **Estado:** subida a GitHub (PR #30), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #30).
+
+### 51. T-026 · Proyectos con solo preguntas cerradas (pantalla)
+
+- **Qué quedó:** el asistente "Nuevo proyecto" permite crear un proyecto sin preguntas abiertas.
+  - **Revisa las preguntas:** si se desmarcan las abiertas, avisa que se analizarán solo las cerradas, sin IA, y deja continuar. Solo se bloquea si no queda ninguna pregunta para analizar.
+  - **Datos del proyecto:** resume "Se analizarán 44 preguntas cerradas, sin IA." y oculta el marco teórico, que solo sirve para la IA.
+  - **El proyecto:** se abre directamente en "Preguntas cerradas", con solo esa pestaña y "Auditoría".
+  - **Mis proyectos:** lo muestra con sus 500 personas y la etiqueta "Solo cerradas".
+- **Verificado con capturas reales de la encuesta de vivienda:**
+  - las direcciones de otras pestañas llevan a "Preguntas cerradas" sin errores;
+  - la pantalla nunca pide análisis de preguntas abiertas en estos proyectos;
+  - los proyectos con preguntas abiertas se ven igual que antes.
+- **Siguiente:** T-027, el Excel con los resultados de las preguntas cerradas.
+- **Estado:** subida a GitHub (PR #31), esperando la aprobación del responsable.
 
 ---
 

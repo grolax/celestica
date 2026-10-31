@@ -64,15 +64,16 @@ export default function ProjectList() {
                   <br />
                   <span className="muted small">{new Date(p.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}</span>
                 </td>
-                <td>{p.n_responses}</td>
+                <td>{p.n_responses}{p.n_abiertas === 0 && <span className="sr-only"> personas</span>}</td>
                 <td>
+                  {p.n_abiertas === 0 ? <span className="pill">Solo cerradas</span> : <>
                   <span className={`pill ${p.has_lexical ? "ok" : ""}`}>Léxico {p.has_lexical ? <><Icon name="check" size={12} /><span className="sr-only">listo</span></> : "—"}</span>{" "}
                   <span className={`pill ${p.n_coded > 0 ? "ok" : ""}`}>
                     {p.n_coded > 0 ? `${p.n_coded} codificadas` : "sin codificar"}
-                  </span>
+                  </span></>}
                 </td>
                 <td>
-                  {p.n_categories} categorías
+                  {p.n_abiertas === 0 ? "—" : `${p.n_categories} categorías`}
                   {p.has_report && <span className="pill claude" style={{ marginLeft: 6 }}>informe <Icon name="check" size={12} /><span className="sr-only">listo</span></span>}
                 </td>
                 <td onClick={(e) => e.stopPropagation()}>
