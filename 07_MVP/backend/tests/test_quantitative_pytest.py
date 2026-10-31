@@ -257,6 +257,97 @@ def test_endpoint_cruce_lector_otra_organizacion_y_errores_400(env):
         assert r.status_code == 400 and r.json()["detail"].startswith(("Esa pregunta", "Los tramos")), params
 
 
+# ---------- RF-31 (T-023): unir grupos ----------
+
+TRAMOS = [{"id": "ed", "titulo": "Edad", "tipo": "segmento"}, {"id": "n", "titulo": "Nota", "tipo": "escala"}]
+
+
+def _tramos(unir, **conteos):
+    """conteos: tramo -> lista de notas; devuelve el cruce por edad con `unir` (lista Python)."""
+    gente = _gente([{"ed": t, "n": n} for t, notas in conteos.items() for n in notas] + [{"ed": None, "n": "3"}])
+    return calcular(TRAMOS, gente, "ed", unir=json.dumps(unir))
+
+
+def test_unir_suma_personas_calcula_a_mano_deja_intactos_los_otros_y_pocos_datos_se_recalcula():
+    r = _tramos([{"nombre": "20-29", "valores": ["20-24", "25-29"]}],
+                **{"20-24": ["1", "2"] * 3, "25-29": ["4", "5"] * 3, "30-34": ["3"] * 12, "35-39": ["5"] * 2})
+    # orden natural de T-022: 20-24, 25-29, 30-34, 35-39 -> el unido ocupa el lugar de "20-24"
+    assert [(g["valor"], g["n_personas"], g["pocos_datos"], g.get("unidos")) for g in r["grupos"]] == [
+        ("20-29", 12, False, ["20-24", "25-29"]), ("30-34", 12, False, None), ("35-39", 2, True, None)]
+    assert "unidos" not in r["grupos"][1]
+    assert sum(g["n_personas"] for g in r["grupos"]) + r["n_sin_grupo"] == r["n_personas"] == 27 and r["n_sin_grupo"] == 1
+    por_grupo = r["preguntas"][0]["por_grupo"]
+    assert [x["valor"] for x in por_grupo] == ["20-29", "30-34", "35-39"]
+    # a mano: notas 1,2 (x3) y 4,5 (x3) -> promedio (1+2+4+5)*3/12 = 3
+    assert por_grupo[0]["n_respuestas"] == 12 and por_grupo[0]["escala"]["promedio"] == 3.0
+    assert [(o["valor"], o["n"]) for o in por_grupo[0]["opciones"]] == [("1", 3), ("2", 3), ("3", 0), ("4", 3), ("5", 3)]
+    assert por_grupo[1]["escala"]["promedio"] == 3.0 and por_grupo[2]["escala"]["promedio"] == 5.0
+
+
+def test_unir_sin_unir_igual_que_t022_y_varios_grupos_con_posicion_de_la_primera_opcion():
+    datos = {"A": ["1"] * 2, "B": ["2"] * 3, "C": ["3"] * 4, "D": ["4"] * 5}
+    gente = _gente([{"ed": t, "n": n} for t, notas in datos.items() for n in notas])
+    base = calcular(TRAMOS, gente, "ed")
+    assert calcular(TRAMOS, gente, "ed", unir=None) == base
+    assert [g["valor"] for g in base["grupos"]] == ["D", "C", "B", "A"]  # de más a menos personas
+    r = calcular(TRAMOS, gente, "ed", unir=json.dumps([{"nombre": " Z ", "valores": ["B", "D"]}]))
+    assert [(g["valor"], g["n_personas"], g.get("unidos")) for g in r["grupos"]] == [
+        ("Z", 8, ["D", "B"]), ("C", 4, None), ("A", 2, None)]  # lugar de la primera opción, unidos en el orden de T-022
+    # el nombre puede repetir una de las opciones que se unen
+    r = calcular(TRAMOS, gente, "ed", unir=json.dumps([{"nombre": "A", "valores": ["A", "C"]}]))
+    assert [(g["valor"], g["n_personas"]) for g in r["grupos"]] == [("D", 5), ("A", 6), ("B", 3)]
+
+
+@pytest.mark.parametrize("por,unir,mensaje", [
+    ("ed", "no json", "La forma de unir grupos no es válida."),
+    ("ed", '{"nombre": "x"}', "La forma de unir grupos no es válida."),
+    ("ed", '[{"nombre": "x"}]', "La forma de unir grupos no es válida."),
+    ("ed", '[{"nombre": 1, "valores": ["a", "b"]}]', "La forma de unir grupos no es válida."),
+    ("ed", '[{"nombre": "x", "valores": ["a", 2]}]', "La forma de unir grupos no es válida."),
+    ("ed", '["a"]', "La forma de unir grupos no es válida."),
+    (None, '[{"nombre": "x", "valores": ["a", "b"]}]', "Solo se pueden unir opciones de una pregunta de grupos."),
+    ("num", '[{"nombre": "x", "valores": ["a", "b"]}]', "Solo se pueden unir opciones de una pregunta de grupos."),
+    ("ed", '[{"nombre": "x", "valores": ["a"]}]', "Un grupo unido necesita al menos dos opciones."),
+    ("ed", '[{"nombre": "x", "valores": ["a", "a"]}]', "Un grupo unido necesita al menos dos opciones."),
+    ("ed", '[{"nombre": "x", "valores": ["a", "zz"]}]', "La opción «zz» no existe en esa pregunta."),
+    ("ed", '[{"nombre": "x", "valores": ["a", "b"]}, {"nombre": "y", "valores": ["b", "c"]}]', "La opción «b» está en más de un grupo."),
+    ("ed", '[{"nombre": "  ", "valores": ["a", "b"]}]', "Cada grupo unido necesita un nombre distinto."),
+    ("ed", '[{"nombre": "x", "valores": ["a", "b"]}, {"nombre": "x ", "valores": ["c", "d"]}]', "Cada grupo unido necesita un nombre distinto."),
+    ("ed", '[{"nombre": "e", "valores": ["a", "b"]}]', "Cada grupo unido necesita un nombre distinto."),  # "e" queda sin unir
+])
+def test_unir_errores_con_su_mensaje_exacto(por, unir, mensaje):
+    preg = TRAMOS + [{"id": "num", "titulo": "N", "tipo": "numerica"}]
+    gente = _gente([{"ed": t, "num": "30"} for t in "abcde"])
+    with pytest.raises(ValueError) as e:
+        calcular(preg, gente, por, unir=unir)
+    assert str(e.value) == mensaje
+
+
+def test_endpoint_unir_lector_200_otra_organizacion_404_y_400(env):
+    from app import store as st
+    from app.auth import create_token, hash_password
+    from app.database import get_db
+    from app.models import User, user_to_doc
+    c, hs = env
+    csv = "Comentario,Tramo\n" + "\n".join(f"texto largo número {i},{'abc'[i % 3]}" for i in range(9))
+    pid = _crear(c, hs["a"], csv, [{"titulo": "Comentario", "columnas": ["Comentario"], "tipo": "abierta"},
+                                   {"titulo": "Tramo", "columnas": ["Tramo"], "tipo": "segmento"}])
+    org = c.post("/auth/login", json={"email": "quant-a@x.cl", "password": "clave12345"}).json()["user"]["organizacion"]["id"]
+    u = User(id="usr_lectoru", email="quant-lectoru@x.cl", password_hash=hash_password("clave12345"), nombre="L", empresa="",
+             created_at=st.now_iso(), org_id=org, rol="lector")
+    get_db().users.insert_one(user_to_doc(u))
+    hl = {"Authorization": f"Bearer {create_token(u.id)}"}
+    url = f"/api/projects/{pid}/closed-results"
+    unir = json.dumps([{"nombre": "a o b", "valores": ["a", "b"]}])
+    r = c.get(url, headers=hl, params={"por": "q_2", "unir": unir})
+    assert r.status_code == 200
+    assert [(g["valor"], g["n_personas"], g.get("unidos")) for g in r.json()["grupos"]] == [("a o b", 6, ["a", "b"]), ("c", 3, None)]
+    assert c.get(url, headers=hs["b"], params={"por": "q_2", "unir": unir}).status_code == 404
+    r = c.get(url, headers=hs["a"], params={"por": "q_2", "unir": json.dumps([{"nombre": "x", "valores": ["a", "q"]}])})
+    assert r.status_code == 400 and r.json()["detail"] == "La opción «q» no existe en esa pregunta."
+    assert c.get(url, headers=hs["a"], params={"unir": unir}).json()["detail"] == "Solo se pueden unir opciones de una pregunta de grupos."
+
+
 def test_rendimiento_10000_personas_20_cerradas_50_grupos():
     import time
     preg = [{"id": "por", "titulo": "P", "tipo": "seleccion_unica"}] + \
