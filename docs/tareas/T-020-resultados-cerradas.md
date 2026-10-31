@@ -54,3 +54,9 @@ Bien: servicio puro y legible, `separar_opciones` reutiliza `_reconstruir` sin t
 Un cambio:
 
 1. **`quantitative.py` `_escala`: el mínimo de la escala no puede salir del menor valor respondido.** Con una escala 1–5 donde nadie eligió 1 (frecuente en muestras chicas y satisfechas), hoy queda `min: 2` y `bottom2: [2, 3]`, que mete a los neutrales (3) en "las dos notas más bajas": un error metodológico que el usuario vería como dato. Esperado (contrato actualizado): `min` = 0 si alguien respondió 0, y 1 si no; `max` = el mayor valor respondido (sin cambio). Ajusta el `shortcut:` del comentario y agrega una prueba: escala con valores 2–5 → `opciones` desde "1" (n: 0), `bottom2.valores == [1, 2]`.
+
+## Revisión 2
+2026-10-30 — **Aprobada** (supervisor).
+- `python -m pytest tests -q`: 210 passed. La corrección es una línea (`min(1, *enteros)`) más una prueba con valores 2–5 y otra con un 0.
+- Verificado por el supervisor: valores 2–5 → rango 1–5 y bottom2 [1, 2]; con un 0 → rango 0–5. Encuesta real (solo local): P10 promedio 4,31 (1–5: 2,0 / 3,6 / 15,0 / 20,4 / 59,0 %), P21 promedio 2,67 y P12 (ingresos) en orden natural de tramos, de "Menos de $360.000" hacia arriba.
+- Deuda: el máximo de la escala sale del mayor valor respondido (si nadie eligió el 5, la escala termina en 4) y el separador de la selección múltiple se deduce. La solución definitiva es guardar rango y separador al confirmar "Revisa las preguntas". Negativos en una escala no tienen tratamiento aparte. El cálculo corre en cada llamada (sin caché).

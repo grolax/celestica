@@ -528,7 +528,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - el aviso de pocos datos aparece con menos de 10 personas por grupo;
   - la edad se agrupa en tramos de 18–24 a 65+, que el cliente podrá cambiar;
   - las escalas con palabras ("Muy de acuerdo…") se convertirán a 1–5 más adelante.
-- **Estado:** T-020 en curso (programador de backend).
+- **Estado:** T-020 aprobada (ver entrada 45).
+
+### 45. T-020 · Resultado: los números de las preguntas cerradas
+
+- **Qué quedó:** el servidor calcula, sin IA, los resultados de todas las preguntas cerradas: conteos y %, promedio y desviación en escalas, % de notas altas y bajas, NPS y cuántos respondieron. La pantalla llega en T-021.
+- **Probado con la encuesta real:** "importancia de ser propietario" tiene promedio 4,31 y 79,4 % de notas 4 o 5. "Capacidad de ahorro": Sí 56,5 %. Los tramos de ingreso salen en su orden natural, de menor a mayor.
+- **Error encontrado y corregido:** en una escala de 1 a 5 donde nadie eligió el 1, la plataforma creía que la escala empezaba en 2 y contaba el 3 (neutral) entre las notas bajas. Ahora la escala empieza siempre en 1, o en 0 si alguien respondió 0.
+- **Pendiente:** si nadie elige la nota máxima, la escala se acorta. Se resolverá cuando el usuario confirme el rango al revisar las preguntas.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
