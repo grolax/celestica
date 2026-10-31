@@ -69,3 +69,9 @@ Cambio pedido (RNF-13, los errores deben dejar claro qué hacer sin perder lo he
 2. Verifícalo: marcar 30-34 y 35-39 con el nombre "40-44" → aparece el error, las dos casillas siguen marcadas y el nombre sigue escrito; cambiar el nombre a "30-39" y "Juntar" → se aplica y se limpia.
 
 Commit `T-024 RF-31: ...` en la misma rama. Deja los servidores corriendo como antes.
+
+## Revisión 2
+2026-10-31 — **Aprobada** (supervisor).
+- Corrección +5/−6 en `ClosedResults.tsx` y `GroupControls.tsx`: `onUnir` devuelve si se aplicó y `juntar` solo limpia en ese caso. `npm run build` sin errores.
+- Verificado por el supervisor en el navegador (cuenta lectora): 30-34 + 35-39 con el nombre "40-44" → error del backend, las 2 casillas siguen marcadas y el nombre escrito, sin unión agregada; con el nombre "30-39" → se aplica y se limpia. Sin errores de JS.
+- Deuda: con un grupo elegido, las escalas muestran las tarjetas del total y además la fila "Todas las personas" en la tabla (redundante, pero da contexto); la lista de casillas no se probó con 120 comunas; sin suite Playwright.
