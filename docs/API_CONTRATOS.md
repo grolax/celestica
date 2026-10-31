@@ -381,3 +381,38 @@ Decisión del usuario (2026-10-31): el cliente puede juntar grupos que ya vienen
   - "La opción «<x>» está en más de un grupo." si un valor se repite entre grupos.
   - "Cada grupo unido necesita un nombre distinto." si un `nombre` está vacío (tras quitar espacios), se repite, o coincide con una opción que queda sin unir.
   - Los errores de T-022 se mantienen (404 de otra organización, 401 sin sesión, `por` y `cortes` inválidos).
+
+## RF-24 · Proyectos sin preguntas abiertas (T-025)
+
+Decisiones del usuario (2026-10-30): RF-24 va en la iteración 3 junto con RF-30. Un proyecto que solo tiene preguntas cerradas omite léxico, libro de códigos, codificación, informe cualitativo y sus exportaciones, y entrega los resultados de las cerradas y sus cruces. **Sin IA.**
+
+### `POST /api/projects`, `/api/projects/from-qualtrics`, `/api/projects/from-google-forms` (modificados)
+- Se acepta un proyecto **sin ninguna pregunta `abierta`** si tiene al menos una pregunta cerrada (`escala`, `nps`, `si_no`, `seleccion_unica`, `seleccion_multiple`, `segmento` o `numerica`).
+- **Respuesta 200 sin abiertas:**
+```json
+{ "id": "proj_ab12cd34ef", "n_responses": 500, "text_column": "", "preguntas_abiertas": [] }
+```
+  `n_responses` = número de personas del proyecto. Con abiertas, la respuesta no cambia.
+- Si viene `template` y no hay abiertas: el marco teórico de la plantilla se guarda como hoy, pero **no se agregan categorías** ni se registra `aplicacion_plantilla` (no hay libro de códigos).
+- Evento de auditoría `creacion_proyecto` sin abiertas: `n_respuestas` = número de personas y `columna_texto` = `null`.
+- **Error que reemplaza al anterior** ("Esta encuesta no tiene preguntas abiertas…" deja de existir):
+  - 400 — "Esta encuesta no tiene preguntas que se puedan analizar: marca al menos una pregunta abierta o cerrada." (ni abiertas ni cerradas).
+- El camino de compatibilidad (sin `preguntas`) **no cambia**: sigue forzando `text_column` (o la detectada) a `abierta`.
+
+### `GET /api/projects/{id}` (modificado)
+- En un proyecto sin abiertas y **sin** `?pregunta`: `200` con
+```json
+{ "id": "proj_ab12cd34ef", "name": "Encuesta solo cerradas", "marco_teorico": "", "created_at": "…", "columns": ["…"],
+  "text_column": "", "categories": [], "n_responses": 500, "has_lexical": false, "n_coded": 0, "has_report": false,
+  "n_audit_events": 1, "preguntas": ["<pregunta>", "…"], "pregunta": null }
+```
+  `n_responses` = número de personas. Con `?pregunta=<id>`: 404 "Pregunta no encontrada" (como hoy).
+- Proyectos con abiertas: sin cambios.
+
+### `GET /api/projects` (modificado)
+- Cada proyecto agrega `n_abiertas` (número de preguntas `abierta`; los proyectos antiguos migrados tienen 1).
+- En un proyecto sin abiertas, `n_responses` = número de personas (hoy saldría 0); `has_lexical`, `n_categories`, `n_coded` y `has_report` quedan en `false`/`0`.
+
+### Operaciones de análisis en un proyecto sin abiertas
+- Todas las que reciben `?pregunta` (léxico, categorías, codificación, informe, resumen, respuestas, exportaciones, `apply-template`): **404 "Pregunta no encontrada"**, con o sin `pregunta`. No se llama a la IA.
+- `closed-results` (con y sin `por`), auditoría y borrar el proyecto funcionan igual que en cualquier proyecto.
