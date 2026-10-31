@@ -55,7 +55,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
 | T-025 | Proyectos con solo preguntas cerradas (servidor) | ✅ Incorporada a la versión oficial |
-| T-026 | Proyectos con solo preguntas cerradas (pantalla) | 🟡 Aprobada; esperando la aprobación del responsable (PR #31) |
+| T-026 | Proyectos con solo preguntas cerradas (pantalla) | ✅ Incorporada a la versión oficial |
+| T-027 | Excel con los resultados de las preguntas cerradas, grupos y gráficos (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #32) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -622,7 +623,23 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - la pantalla nunca pide análisis de preguntas abiertas en estos proyectos;
   - los proyectos con preguntas abiertas se ven igual que antes.
 - **Siguiente:** T-027, el Excel con los resultados de las preguntas cerradas.
-- **Estado:** subida a GitHub (PR #31), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #31).
+
+### 52. T-027 · Excel con los resultados de las preguntas cerradas
+
+- **Qué quedó:** el servidor genera un Excel con tres hojas:
+  - **Resumen:** proyecto, fecha, número de personas, los grupos y la nota de que las cifras se calculan sin IA.
+  - **Totales:** cada pregunta cerrada con su tabla y un gráfico de barras.
+  - **Por grupo:** si se elige "Ver por…", una tabla por pregunta con cada grupo y la columna "Pocos datos".
+- **Gráficos:** dependen del tipo de grupo.
+  - **Grupos con orden**, como los tramos de edad: **líneas de tendencia**. Por ejemplo, la importancia de ser propietario sube de 4,09 entre los 20 y 29 años a 4,57 desde los 50.
+  - **Grupos sin orden**, como el género: barras.
+  - **Muchos grupos**, como las 120 comunas: solo la tabla, porque el gráfico sería ilegible.
+  - Una tendencia en el tiempo necesitará varias mediciones de la encuesta (olas), que llegarán más adelante.
+- **Cifras:** son exactamente las mismas que muestra la pantalla, y una prueba automática lo vigila. El Excel se genera en menos de 1 segundo.
+- **Corrección en la revisión:** el gráfico del NPS mostraba solo "las 10 opciones más frecuentes". Ahora muestra todos los valores en orden, de 0 a 10.
+- **Pendiente:** el responsable revisará cómo se ven los gráficos al abrir los archivos en Excel. Si hay ajustes, irán en una tarea aparte.
+- **Estado:** subida a GitHub (PR #32), esperando la aprobación del responsable. El botón para descargarlo llega en T-028.
 
 ---
 

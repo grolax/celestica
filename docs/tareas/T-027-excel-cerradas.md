@@ -1,0 +1,67 @@
+# T-027: Excel de resultados de preguntas cerradas (con grupos y gráficos)
+Lado: backend
+Requerimientos: RF-30, RF-31, RF-24 (entrega), RF-52, RNF-07, RNF-14, RNF-01
+Rama: tarea/T-027-excel-cerradas
+Depende de: T-020 a T-026 (fusionadas)
+
+## Objetivo
+`GET /api/projects/{id}/export/closed-xlsx` descarga un Excel con los resultados de las preguntas cerradas (totales y, si se pide, por grupo) con gráficos nativos de Excel que tengan sentido: barras para comparar opciones o grupos sin orden, y líneas de tendencia cuando los grupos tienen un orden natural (tramos de edad, de ingreso…). Cifras idénticas a la pantalla. Sin IA.
+
+## Decisiones del usuario (2026-10-31)
+- Excel para los proyectos con solo cerradas (y disponible en todos), con los grupos de "Ver por…" y gráficos "que hagan sentido, de tendencia".
+- Nota del supervisor: una tendencia en el tiempo necesita varias mediciones (olas, RF-27/RF-37, aún no existen). Por eso, la línea de tendencia se usa a lo largo de grupos **ordenados** (tramos), y las barras en grupos sin orden.
+
+## Alcance
+- SÍ: implementar el contrato **RF-30 / RF-31 · Excel de resultados de preguntas cerradas (T-027)** de `docs/API_CONTRATOS.md`, al pie de la letra.
+- SÍ: las cifras salen de `quantitative.calcular(...)` con los mismos parámetros (una sola fuente de verdad); el Excel solo las ordena y grafica. Nada se recalcula aparte.
+- SÍ: gráficos nativos con `openpyxl.chart` (`BarChart`, `LineChart`), con etiquetas de datos visibles, colores de la marca Celestica que ya usa `services/export.py` (sin inventar colores nuevos) y textos en español.
+- SÍ: la regla de "orden natural" de los grupos se reutiliza de `quantitative.py` (no duplicarla): expón lo mínimo necesario para saber si los grupos de `por` quedaron en orden natural.
+- NO: cambios en el frontend (el botón llega en T-028); informe con IA; guardar nada; dependencias nuevas.
+
+## Contrato de API
+`docs/API_CONTRATOS.md`, sección **RF-30 / RF-31 · Excel de resultados de preguntas cerradas (T-027)**.
+
+## Archivos probables
+- Tocar: `app/services/export.py` (o un módulo nuevo `app/services/export_closed.py` si `export.py` crece mucho); `app/services/quantitative.py` (solo para exponer el orden natural, sin cambiar cálculos); `app/routers/reports.py` (endpoint nuevo, junto a las demás exportaciones); pruebas nuevas en `tests/`; una línea en `07_MVP/COMO_FUNCIONA.md`.
+- No tocar: `07_MVP/frontend/**`, `docs/**`, `services/thematic.py`.
+
+## Criterios de aceptación
+- [ ] `pytest tests -q` en verde.
+- [ ] Pruebas nuevas (mongomock, sin IA), abriendo el archivo con `openpyxl.load_workbook`:
+  - hojas "Resumen" y "Totales" sin `por`, y además "Por grupo" con `por`;
+  - **las cifras de las celdas coinciden con `closed-results`** con los mismos parámetros, con y sin `por`, y con `unir` y `cortes`. Cubrir al menos una escala, una selección única, una selección múltiple, un sí/no, un NPS y una numérica;
+  - tipos de gráfico:
+    - líneas en una escala con `por` numérica (tramos);
+    - barras con `por` sin orden (por ejemplo, género);
+    - barras agrupadas en una categórica por grupo;
+    - ningún gráfico, y el texto del contrato, con más de 15 grupos;
+    - "10 opciones más frecuentes de <n>" con más de 10 opciones;
+  - columna "Pocos datos" = "Sí" en un grupo de menos de 10 personas, y la nota en "Resumen";
+  - casos de borde:
+    - los 400 de `closed-results` (por ejemplo, `por` inválido y `unir` inválido) con el mismo mensaje;
+    - lector → 200; otra organización → 404;
+    - proyecto sin cerradas → Excel con la nota;
+  - nombre del archivo según el contrato (encabezado `Content-Disposition`).
+- [ ] Contra la encuesta real local (proyecto `proj_4df733d1c3`, cuenta `t012@prueba.cl` / `Prueba-T012-clave`), descarga tres archivos: sin `por`; por género; y por edad uniendo "20-24" + "25-29" y "50-54" + "55-59" + "60-64" + "Mayor a 65". Guárdalos **en la carpeta temporal de la sesión** (nunca en el repo: tienen datos de la encuesta) e indica las rutas en el resumen, para que el supervisor los revise.
+- [ ] Informa el tiempo de generación con la encuesta real por comuna (120 grupos).
+- [ ] Commits con el formato `T-027 RF-30: ...` o `T-027 RF-31: ...`.
+
+## Notas
+- Al terminar, deja el backend (8000) corriendo con el código nuevo (`SECRET_KEY=dev-local-secret-t021`).
+
+## Revisión 1
+2026-10-31 — **Con cambios** (supervisor).
+
+Verificado: `pytest tests -q` 268 en verde; las cifras salen de `quantitative.calcular` (el Excel no recalcula); las pruebas comparan las celdas contra `closed-results` en los 6 tipos, con y sin `por`, `unir` y `cortes`; `_natural` no cambia ningún cálculo de T-020 (Sí/No ya quedaba en orden por frecuencia). En los archivos reales, ningún gráfico se superpone con otro: la separación mínima es de 19 filas en Totales y de 29 en Por grupo, para gráficos de unas 15 filas. Tiempos de 0,2 a 0,9 s (comuna).
+
+Cambio pedido (error del contrato, ya corregido en `docs/API_CONTRATOS.md`):
+
+1. **`export_closed.py`, `_bloque_totales` (líneas 98-105):** en `escala` y `nps` el gráfico de Totales debe mostrar **todos** los valores de la escala en su orden (el NPS de 0 a 10 tiene 11), sin el título "10 opciones más frecuentes de 11", que no tiene sentido en una escala. El límite de 10 opciones con ese título queda solo para las demás preguntas (categóricas). Actualiza la prueba correspondiente y agrega una que verifique que el gráfico del NPS tiene 11 categorías.
+
+Commit `T-027 RF-30: ...` en la misma rama. Regenera los 4 Excel reales en la misma carpeta y reinicia el backend como antes.
+
+## Revisión 2
+2026-10-31 — **Aprobada en lo técnico; falta la revisión visual del usuario** (supervisor).
+- Corrección de 1 línea + prueba nueva (NPS con 11 categorías); `pytest tests -q` 269 en verde.
+- Excel real por edad con tramos juntados: hojas Resumen, Totales y Por grupo; "importancia de ser propietario" con Todas 4,31 · 79,4 %, 20-29 4,09 · 73,1 % y 50 o más 4,57 · 88,1 % (igual que la pantalla); 3 gráficos de líneas "Promedio por grupo (tendencia)" en las escalas.
+- Sin Excel ni LibreOffice en el equipo: el aspecto de los gráficos lo revisa el usuario abriendo los archivos reales antes de subir.

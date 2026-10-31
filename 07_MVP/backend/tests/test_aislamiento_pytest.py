@@ -52,6 +52,7 @@ ROUTES = [
     ("GET", "/api/projects/{project_id}/export/docx", {}),
     ("GET", "/api/projects/{project_id}/export/csv", {}),
     ("GET", "/api/projects/{project_id}/export/xlsx", {}),
+    ("GET", "/api/projects/{project_id}/export/closed-xlsx", {}),
     ("POST", "/api/projects/{project_id}/report", {}),
     ("POST", "/api/projects/{project_id}/report", {"params": {"mode": "v1"}}),
     ("GET", "/api/projects/{project_id}/report/progress", {}),

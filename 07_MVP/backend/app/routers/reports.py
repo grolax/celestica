@@ -9,9 +9,9 @@ from fastapi.responses import Response
 
 from app import store
 from app.auth import get_current_user
-from app.deps import _REPORT_EXPECTED_CHARS, _get_vista, _progress_lock, _report_progress, _slug, require_role
+from app.deps import _REPORT_EXPECTED_CHARS, _get_or_404, _get_vista, _progress_lock, _report_progress, _slug, require_role
 from app.models import User
-from app.services import claude_log, thematic
+from app.services import claude_log, export_closed, quantitative, thematic
 from app.services import export as export_svc
 
 router = APIRouter()
@@ -76,6 +76,19 @@ def export_xlsx(project_id: str, pregunta: Optional[str] = None, user: User = De
         f"trazabilidad_{_slug(vista['name'])}.xlsx",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+
+
+@router.get("/api/projects/{project_id}/export/closed-xlsx")
+def export_closed_xlsx(project_id: str, por: Optional[str] = None, cortes: Optional[str] = None,
+                       unir: Optional[str] = None, user: User = Depends(get_current_user)):
+    project = _get_or_404(project_id, user)
+    try:
+        res = quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []), por, cortes, unir)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    nombre = f"resultados_cerradas_{_slug(project['name'])}" + (f"_por_{_slug(res['por']['titulo'])}" if por else "")
+    return _download(export_closed.generate_closed_xlsx(project, res, cortes), f"{nombre}.xlsx",
+                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
 # ---------- Fase 2: informe cualitativo ----------

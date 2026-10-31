@@ -78,6 +78,19 @@ def _primer_numero(v: str) -> int | None:
     return int(m.group().replace(".", "")) if m else None
 
 
+def _natural(nums) -> bool:
+    """Las opciones con número ("20-24", "Menos de $360.000") van en orden natural; vale con a lo más 2 sin número."""
+    nums = list(nums)
+    return any(x is not None for x in nums) and sum(x is None for x in nums) <= 2
+
+
+def orden_natural(res: dict) -> bool:
+    """¿Los grupos de `por` en un resultado de `calcular` quedaron en orden natural (tramos)? Con `unir` se juzgan las opciones originales."""
+    if res["por"]["tipo"] == "numerica":
+        return True
+    return _natural(_primer_numero(v) for g in res["grupos"] for v in g.get("unidos", [g["valor"]]))
+
+
 def _categorica(q: dict, vals: list[str], orden: list[str] | None = None, split: dict | None = None) -> dict:
     """`orden` = las opciones del total: en un grupo se listan todas, en ese orden, con n 0 si nadie la eligió.
     `split` = respuesta -> opciones, separada una sola vez sobre todas las respuestas (así un grupo cuenta igual que el total)."""
@@ -86,7 +99,7 @@ def _categorica(q: dict, vals: list[str], orden: list[str] | None = None, split:
     items = sorted(c.items(), key=lambda kv: (-kv[1], kv[0].casefold()))
     if not multiple:  # tramos ("Menos de $360.000", "20-24"): orden natural, las opciones sin número al final
         nums = {v: _primer_numero(v) for v, _ in items}
-        if sum(x is None for x in nums.values()) <= 2:
+        if _natural(nums.values()):
             items.sort(key=lambda kv: (nums[kv[0]] is None, nums[kv[0]] or 0))  # estable: respeta el orden por n
     if orden:
         items = [(v, c[v]) for v in orden]
