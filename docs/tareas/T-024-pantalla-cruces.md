@@ -57,3 +57,15 @@ En la pestaña "Preguntas cerradas", el usuario elige **"Ver por…"** un grupo 
 ## Notas
 - El supervisor tomará capturas reales: al terminar, deja el backend (8000) y el frontend (5173) corriendo, e indica en el resumen el id del proyecto sintético con edad numérica.
 - Las cifras de referencia de arriba son las que el supervisor verificó en el backend (T-022 y T-023).
+
+## Revisión 1
+2026-10-31 — **Con cambios** (supervisor).
+
+Verificado con capturas propias (cuenta lectora y analista): `npm run build` sin errores; sin grupo la pantalla es igual que en T-021; por género "importancia de ser propietario" 4,31 · 79,4 % / Femenino 4,36 · 81,5 % / Masculino 4,24 · 76,6 %, con "Pocos datos" en los dos grupos de 1 persona; por edad con uniones, 20-29 (216, 4,09, "Junta: 20-24, 25-29") y 50 o más (151, 4,57); tramos por defecto 18–24 … 65+, con `30, 50` → Menos de 30 / 30–49 / 50+, y el 400 junto al campo; a 390 px la tabla se desplaza dentro de la tarjeta (`scrollWidth` 390); sin errores de JS; el frontend no calcula cifras.
+
+Cambio pedido (RNF-13, los errores deben dejar claro qué hacer sin perder lo hecho):
+
+1. **`GroupControls.tsx`, `juntar` (líneas 42-46):** limpia `marcados` y `nombre` **antes** de saber si el backend aceptó la unión. Si responde 400 (por ejemplo, "Cada grupo unido necesita un nombre distinto."), el mensaje aparece pero las casillas y el nombre quedan vacíos, y la persona tiene que volver a marcar y escribir todo. Se espera que **solo se limpien si la unión se aplicó**, y que ante un error queden marcadas las casillas y escrito el nombre, para corregir solo lo que falló. Por ejemplo, `onUnir` puede devolver una promesa que indique si se aplicó; `cambiarControl` en `ClosedResults.tsx` ya distingue el éxito del error.
+2. Verifícalo: marcar 30-34 y 35-39 con el nombre "40-44" → aparece el error, las dos casillas siguen marcadas y el nombre sigue escrito; cambiar el nombre a "30-39" y "Juntar" → se aplica y se limpia.
+
+Commit `T-024 RF-31: ...` en la misma rama. Deja los servidores corriendo como antes.
