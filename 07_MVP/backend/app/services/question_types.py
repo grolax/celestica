@@ -224,7 +224,7 @@ def detectar(df: pd.DataFrame) -> dict:
 
     advertencias = []
     if not any(p["tipo"] == "abierta" for p in preguntas):
-        advertencias.append("Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto.")
+        advertencias.append("Esta encuesta no tiene preguntas abiertas: se analizarán solo las preguntas cerradas, sin libro de códigos ni IA.")
     if n < 10:
         advertencias.append(f"La encuesta tiene muy pocas respuestas ({n}); los resultados serán poco representativos.")
     advertencias += [f"La columna «{p['columna']}» tiene más de la mitad de sus respuestas vacías."

@@ -334,7 +334,7 @@ def test_dataset_demo():
 
 def test_advertencias():
     sin_abiertas = detectar(pd.DataFrame({"sede": ["N", "S"] * 20, "nota": [1, 2, 3, 4] * 10}))
-    assert sin_abiertas["advertencias"] == ["Esta encuesta no tiene preguntas abiertas. El análisis de preguntas cerradas llegará pronto."]
+    assert sin_abiertas["advertencias"] == ["Esta encuesta no tiene preguntas abiertas: se analizarán solo las preguntas cerradas, sin libro de códigos ni IA."]
     pocas = detectar(pd.DataFrame({"c": [f"un comentario largo número {i}" for i in range(5)]}))
     assert pocas["advertencias"] == ["La encuesta tiene muy pocas respuestas (5); los resultados serán poco representativos."]
     vacia = detectar(pd.DataFrame({"c": ABIERTAS, "opcional": [None] * 30 + ["x"] * 10}))

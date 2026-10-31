@@ -34,13 +34,15 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-021 Pantalla "Preguntas cerradas" | frontend | RF-30, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-021-pantalla-cerradas` (fusionada, PR #26) |
 | T-022 Cruces por grupo de las cerradas | backend | RF-31, RNF-01, RNF-02, RNF-10 | 2026-10-31 | `tarea/T-022-cruces-por-grupo` (fusionada, PR #27) |
 | T-023 Unir grupos en los cruces (+ arreglo de selección múltiple por grupo) | backend | RF-31, RNF-07 | 2026-10-31 | `tarea/T-023-unir-grupos` (fusionada, PR #28) |
-| T-024 Pantalla de cruces por grupo | frontend | RF-31, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-024-pantalla-cruces` (PR #29, esperando merge) |
+| T-024 Pantalla de cruces por grupo | frontend | RF-31, RNF-13, RNF-14, RNF-15 | 2026-10-31 | `tarea/T-024-pantalla-cruces` (fusionada, PR #29) |
+| T-025 Proyectos sin preguntas abiertas (servidor) | backend | RF-24, RNF-01, RNF-02 | 2026-10-31 | `tarea/T-025-proyectos-solo-cerradas` (PR #30, esperando merge) |
 
 ## En curso
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, aprobada) → **T-025/26 proyectos sin abiertas (siguiente)** → RF-41, RF-43, RF-17.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, aprobada) → **T-026 proyectos sin abiertas (pantalla, siguiente)** → T-027 Excel de resultados de cerradas (backend) → T-028 botón de descarga (pantalla) → RF-41, RF-43, RF-17.
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Decisiones T-022 (usuario, 2026-10-31): los tramos de edad que elige el cliente valen solo para ese análisis (no se guardan, ni por proyecto ni por organización); cruzar temas de preguntas abiertas por grupo queda para una tarea posterior.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
+- Decisión (usuario, 2026-10-31): los proyectos con solo cerradas entregan, por ahora, un **Excel con los resultados de las cerradas** (sin IA); el informe integrado llega con RF-51 (iteración 5).
 - Pendiente posterior (usuario): convertir escalas con palabras a 1–5 (el usuario ordena las etiquetas en "Revisa las preguntas").
 
 - Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (aprobada) → T-013 selector de pregunta (aprobada). **Iteración 2 completa.**
@@ -61,6 +63,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Panel interno (`list_usage_all_projects`) muestra `n_responses` 0 en proyectos sin abiertas (T-025).
 - Pantalla de cruces (T-024): con un grupo elegido, las escalas repiten el total en tarjetas y en la fila "Todas las personas"; con 120 grupos (comuna) la pantalla tarda 3,5 s en la encuesta real (meta RNF-10: 2 s).
 - Lección (T-023): la cuadratura de los cruces (suma de grupos = total) se verifica con todos los tipos de pregunta; en T-022 se excluyó la selección múltiple y se escapó un descuadre (corregido en T-023, con prueba).
 - Cruces (T-022): la edad que llega en tramos ya hechos ("20-24") es `segmento` y no admite `cortes`; para cambiar esos tramos habría que unir opciones. Los tramos vacíos de `numerica` se devuelven con n 0. El router convierte cualquier `ValueError` del cálculo en un 400.
