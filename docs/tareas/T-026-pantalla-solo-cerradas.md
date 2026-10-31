@@ -61,3 +61,7 @@ El asistente "Nuevo proyecto" permite crear un proyecto con solo preguntas cerra
   - "Mis proyectos": 500 y "Solo cerradas" con "—"; los demás proyectos igual.
   - Lector: llega a `/cerradas` con las mismas 2 pestañas. Proyecto con abiertas: 9 pestañas y "484 respuestas · Pregunta: …", como antes. Sin errores de JS.
 - Deuda: el contexto de las pestañas se tipa como `ProjectAbierta` con un cast en `ProjectView` (una pestaña nueva que use `pregunta` en un proyecto sin abiertas no avisaría en TypeScript); un enlace viejo con `?pregunta=` a un proyecto sin abiertas muestra el error 404 con "Volver al proyecto".
+
+### Chequeo final antes de subir (2026-10-31)
+- `npm run build` y `tsc --noEmit` sin errores; `pytest tests -q` 254 en verde; `main` remoto sin cambios; solo `07_MVP/frontend/` y `docs/`.
+- Recorrido automático de todas las rutas de los proyectos de prueba (incluidas las pestañas ocultas de los 3 proyectos solo con cerradas, que redirigen): sin errores de JS; 2 pestañas sin abiertas, 8–9 con abiertas.

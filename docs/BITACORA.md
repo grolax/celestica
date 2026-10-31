@@ -55,7 +55,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
 | T-025 | Proyectos con solo preguntas cerradas (servidor) | ✅ Incorporada a la versión oficial |
-| T-026 | Proyectos con solo preguntas cerradas (pantalla) | 🟡 Aprobada por el supervisor, pendiente del responsable |
+| T-026 | Proyectos con solo preguntas cerradas (pantalla) | 🟡 Aprobada; esperando la aprobación del responsable (PR #31) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -622,7 +622,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - la pantalla nunca pide análisis de preguntas abiertas en estos proyectos;
   - los proyectos con preguntas abiertas se ven igual que antes.
 - **Siguiente:** T-027, el Excel con los resultados de las preguntas cerradas.
-- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
+- **Estado:** subida a GitHub (PR #31), esperando la aprobación del responsable.
 
 ---
 
