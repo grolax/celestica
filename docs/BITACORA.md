@@ -55,7 +55,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-023 | Juntar grupos ya hechos según la preferencia del cliente (servidor) | ✅ Incorporada a la versión oficial |
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
 | T-025 | Proyectos con solo preguntas cerradas (servidor) | ✅ Incorporada a la versión oficial |
-| T-026 | Proyectos con solo preguntas cerradas (pantalla) | 🔵 En curso |
+| T-026 | Proyectos con solo preguntas cerradas (pantalla) | 🟡 Aprobada por el supervisor, pendiente del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -609,6 +609,20 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Decisión del responsable:** por ahora, estos proyectos entregan un **Excel con los resultados**. El informe que combina abiertas y cerradas llegará más adelante (RF-51).
 - **Siguiente:** T-026, para que la pantalla permita crear y abrir estos proyectos.
 - **Estado:** incorporada a la versión oficial (PR #30).
+
+### 51. T-026 · Proyectos con solo preguntas cerradas (pantalla)
+
+- **Qué quedó:** el asistente "Nuevo proyecto" permite crear un proyecto sin preguntas abiertas.
+  - **Revisa las preguntas:** si se desmarcan las abiertas, avisa que se analizarán solo las cerradas, sin IA, y deja continuar. Solo se bloquea si no queda ninguna pregunta para analizar.
+  - **Datos del proyecto:** resume "Se analizarán 44 preguntas cerradas, sin IA." y oculta el marco teórico, que solo sirve para la IA.
+  - **El proyecto:** se abre directamente en "Preguntas cerradas", con solo esa pestaña y "Auditoría".
+  - **Mis proyectos:** lo muestra con sus 500 personas y la etiqueta "Solo cerradas".
+- **Verificado con capturas reales de la encuesta de vivienda:**
+  - las direcciones de otras pestañas llevan a "Preguntas cerradas" sin errores;
+  - la pantalla nunca pide análisis de preguntas abiertas en estos proyectos;
+  - los proyectos con preguntas abiertas se ven igual que antes.
+- **Siguiente:** T-027, el Excel con los resultados de las preguntas cerradas.
+- **Estado:** aprobada por el supervisor; falta que el responsable la incorpore a la versión oficial.
 
 ---
 
