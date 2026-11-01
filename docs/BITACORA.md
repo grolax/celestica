@@ -678,7 +678,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Aparecen solas en "Nuevo proyecto" y en "Libro de códigos", agrupadas por rubro.
 - **Calidad:** una prueba automática revisa ahora que **todas** las plantillas (19) tengan definición, criterios de qué entra y qué no, y nombres sin repetir.
 - **Para afinar:** el contenido es un primer borrador. Conviene revisarlo con encuestas reales de Retail y de municipios.
-- **Estado:** subida a GitHub (PR #36), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #36).
 
 ### 57. T-032 · Recomendaciones automáticas (servidor)
 
@@ -694,7 +694,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Avisa que una pregunta abierta quedó sin responder por más de la mitad de las personas y que sus respuestas son muy cortas.
   - Sugiere cruzar por edad, género e ingreso, y la plantilla de Percepción de Marca.
 - **Para afinar:** algunas palabras clave son muy generales y podrían sugerir una plantilla equivocada. Se ajustarán con encuestas reales.
-- **Estado:** aprobada; pendiente de subir a GitHub. La tarjeta en la pantalla llega en T-033.
+- **Estado:** subida a GitHub (PR #37), esperando la aprobación del responsable. La tarjeta en la pantalla llega en T-033.
+
+### 58. T-033 · Tarjeta "Recomendaciones" en la pantalla
+
+- **Qué quedó:** el "Resumen del proyecto" muestra una tarjeta **"Recomendaciones"**, calculada sin IA:
+  - **avisos de calidad**, en rojo los importantes y en amarillo los demás;
+  - **cruces sugeridos**, cada uno con un botón "Ver por este grupo" que abre "Preguntas cerradas" ya separada;
+  - **plantilla sugerida**, con su motivo y un botón a "Libro de códigos", donde se aplica y luego se modifica. Solo la ven analistas y administradores.
+  - En los proyectos con solo preguntas cerradas, la tarjeta aparece en "Preguntas cerradas".
+- **Corrección en la revisión:** en los proyectos con solo cerradas, "Ver por este grupo" llevaba a la página de inicio. Ahora separa en la misma pantalla.
+- **Probado con la encuesta de vivienda:** 2 avisos, cruces por edad, género e ingreso, y la plantilla Percepción de Marca. "Ver por este grupo" en edad abre la pantalla separada por edad.
+- **Estado:** aprobada; pendiente de subir a GitHub.
 
 ---
 

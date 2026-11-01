@@ -1,7 +1,7 @@
 import { jsonBody, req } from "@/shared/api/client";
 import { qp } from "@/features/analysis/api";
 import { Category } from "@/features/analysis/types";
-import { FrameworkTemplate, Project, ProjectSummary, VistaPrevia } from "./types";
+import { FrameworkTemplate, Project, ProjectSummary, Recomendaciones, VistaPrevia } from "./types";
 
 export const projectsApi = {
   listProjects: () => req<ProjectSummary[]>("/projects"),
@@ -19,6 +19,7 @@ export const projectsApi = {
   // Sin `pregunta`, el backend devuelve la primera pregunta abierta.
   getProject: (id: string, pregunta?: string) =>
     req<Project>(`/projects/${id}${pregunta ? `?${qp(pregunta)}` : ""}`),
+  getRecommendations: (id: string) => req<Recomendaciones>(`/projects/${id}/recommendations`),
   deleteProject: (id: string) => req<{ deleted: string }>(`/projects/${id}`, { method: "DELETE" }),
   importLegacy: () => req<{ imported: number }>("/projects/import-legacy", { method: "POST" }),
 

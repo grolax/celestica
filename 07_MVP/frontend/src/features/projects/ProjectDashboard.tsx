@@ -9,6 +9,7 @@ import Card, { StatCard } from "@/shared/components/Card";
 import { useProject } from "./useProjectData";
 import Icon from "@/shared/components/Icon";
 import PageHeader from "@/shared/components/PageHeader";
+import Recommendations from "./Recommendations";
 
 export default function ProjectDashboard() {
   const { project } = useProject();
@@ -46,6 +47,8 @@ export default function ProjectDashboard() {
         <StatCard value={`${pctCoded}%`} label="Corpus codificado" />
         <StatCard value={project.n_audit_events} label="Eventos de auditoría" />
       </div>
+
+      <Recommendations />
 
       <div className="grid-2">
         <Card title="Estado del análisis"
