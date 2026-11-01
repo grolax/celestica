@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { analysisApi } from "../api";
 import { ClosedGrupo, ClosedOpcion, ClosedPregunta, ClosedResultsData, ClosedUnion } from "../types";
 import GroupControls from "./GroupControls";
@@ -12,6 +13,7 @@ import { exportApi } from "@/features/export/api";
 import PageHeader from "@/shared/components/PageHeader";
 import { useProject } from "@/features/projects/useProjectData";
 import { TIPOS } from "@/features/projects/questionGroups";
+import Recommendations from "@/features/projects/Recommendations";
 
 const MAX_VISIBLES = 10;
 const TIPOS_GRUPO = ["segmento", "seleccion_unica", "si_no", "numerica"];
@@ -105,6 +107,8 @@ export default function ClosedResults() {
   const descarga = useDownload();
   const [originales, setOriginales] = useState<ClosedGrupo[]>([]); // grupos sin unir, para las casillas
   const ultima = useRef(0);
+  // Grupo pedido en la dirección: solo vale para el proyecto con que se montó la pantalla (y sobrevive al doble efecto de StrictMode).
+  const porUrl = useRef({ id: project.id, por: useSearchParams()[0].get("por") ?? "" });
 
   /** Pide los resultados; si falla, no cambia nada de lo que se ve y deja el error a quien llama. */
   const cargar = async (p: string, c?: string, u: ClosedUnion[] = []) => {
@@ -122,7 +126,9 @@ export default function ClosedResults() {
 
   useEffect(() => {
     setData(null);
-    cargar("").catch((e) => setError(e.message));
+    const { id, por: pedido } = porUrl.current;
+    const inicial = id === project.id && TIPOS_GRUPO.includes(project.preguntas.find((q) => q.id === pedido)?.tipo ?? "") ? pedido : "";
+    cargar(inicial).catch((e) => setError(e.message));
   }, [project.id]);
 
   const cambiarPor = (p: string) => { setError(""); cargar(p).catch((e) => setError(e.message)); };
@@ -146,6 +152,7 @@ export default function ClosedResults() {
       {data && (
         <>
           <p className="muted">{num(data.n_personas, 0)} personas respondieron la encuesta</p>
+          {project.pregunta == null && <Recommendations />}
           {separables.length > 0 && (
             <div className="pregunta-selector">
               <label className="field-label" htmlFor="ver_por">Ver por…</label>

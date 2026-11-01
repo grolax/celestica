@@ -79,3 +79,10 @@ export interface Pregunta extends PreguntaProyecto {
   n_respuestas: number;
   n_na: number;
 }
+
+/** RF-41: GET /projects/{id}/recommendations (reglas fijas, sin IA). */
+export interface Recomendaciones {
+  alertas: { id: string; nivel: "importante" | "aviso"; pregunta_id: string | null; mensaje: string }[];
+  segmentos: { pregunta_id: string; titulo: string; n_grupos: number; motivo: string }[];
+  plantilla: { key: string; nombre: string; industria: string; motivo: string } | null;
+}
