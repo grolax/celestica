@@ -638,8 +638,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Una tendencia en el tiempo necesitará varias mediciones de la encuesta (olas), que llegarán más adelante.
 - **Cifras:** son exactamente las mismas que muestra la pantalla, y una prueba automática lo vigila. El Excel se genera en menos de 1 segundo.
 - **Corrección en la revisión:** el gráfico del NPS mostraba solo "las 10 opciones más frecuentes". Ahora muestra todos los valores en orden, de 0 a 10.
-- **Pendiente:** el responsable revisará cómo se ven los gráficos al abrir los archivos en Excel. Si hay ajustes, irán en una tarea aparte.
-- **Estado:** subida a GitHub (PR #32), esperando la aprobación del responsable. El botón para descargarlo llega en T-028.
+- **Revisión visual:** el responsable abrió los cuatro Excel de prueba (sin grupos, por género, por edad y por comuna) y los aprobó (2026-11-01).
+- **Estado:** incorporada a la versión oficial (PR #32). El botón para descargarlo llega en T-028.
 
 ---
 
