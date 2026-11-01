@@ -6,6 +6,9 @@ import GroupTable from "./GroupTable";
 import { conN, num, pct, valores } from "./format";
 import Button from "@/shared/components/Button";
 import Card, { StatCard } from "@/shared/components/Card";
+import Icon from "@/shared/components/Icon";
+import { useDownload } from "@/shared/hooks/useDownload";
+import { exportApi } from "@/features/export/api";
 import PageHeader from "@/shared/components/PageHeader";
 import { useProject } from "@/features/projects/useProjectData";
 import { TIPOS } from "@/features/projects/questionGroups";
@@ -97,18 +100,20 @@ export default function ClosedResults() {
   const [errorControl, setErrorControl] = useState(""); // 400 de tramos o uniones: se muestra junto al campo
   const [busy, setBusy] = useState(false);
   const [por, setPor] = useState("");
+  const [cortes, setCortes] = useState<string | undefined>(); // tramos aplicados (lo que se ve), para el Excel
   const [unir, setUnir] = useState<ClosedUnion[]>([]);
+  const descarga = useDownload();
   const [originales, setOriginales] = useState<ClosedGrupo[]>([]); // grupos sin unir, para las casillas
   const ultima = useRef(0);
 
   /** Pide los resultados; si falla, no cambia nada de lo que se ve y deja el error a quien llama. */
-  const cargar = async (p: string, cortes?: string, u: ClosedUnion[] = []) => {
+  const cargar = async (p: string, c?: string, u: ClosedUnion[] = []) => {
     const n = ++ultima.current;
     setBusy(true);
     try {
-      const d = await analysisApi.getClosedResults(project.id, p ? { por: p, cortes, unir: u } : undefined);
+      const d = await analysisApi.getClosedResults(project.id, p ? { por: p, cortes: c, unir: u } : undefined);
       if (n !== ultima.current) return;
-      setData(d); setPor(p); setUnir(u); setError(""); setErrorControl("");
+      setData(d); setPor(p); setCortes(c); setUnir(u); setError(""); setErrorControl("");
       if (!u.length) setOriginales(d.grupos ?? []);
     } finally {
       if (n === ultima.current) setBusy(false);
@@ -121,16 +126,22 @@ export default function ClosedResults() {
   }, [project.id]);
 
   const cambiarPor = (p: string) => { setError(""); cargar(p).catch((e) => setError(e.message)); };
-  const cambiarControl = (cortes: string | undefined, u: ClosedUnion[]) =>
-    cargar(por, cortes, u).then(() => true, (e) => { setErrorControl(e.message); return false; }); // true = se aplicó
+  const cambiarControl = (c: string | undefined, u: ClosedUnion[]) =>
+    cargar(por, c, u).then(() => true, (e) => { setErrorControl(e.message); return false; }); // true = se aplicó
   const separables = project.preguntas.filter((q) => TIPOS_GRUPO.includes(q.tipo));
   const pocos = data?.grupos?.some((g) => g.pocos_datos);
 
   return (
     <>
       <PageHeader level={2} title="Preguntas cerradas"
-        help="Estos números los calcula la plataforma directamente desde las respuestas, sin IA. Los porcentajes son sobre quienes respondieron cada pregunta; quienes no respondieron aparecen como N/A." />
-      {error && <div className="alert alert-error">{error}</div>}
+        help="Estos números los calcula la plataforma directamente desde las respuestas, sin IA. Los porcentajes son sobre quienes respondieron cada pregunta; quienes no respondieron aparecen como N/A.">
+        <Button variant="secondary" busy={descarga.busyKey === "closed-xlsx"} disabled={!data || busy}
+                onClick={() => descarga.download("closed-xlsx", () =>
+                  exportApi.downloadClosedXlsx(project.id, por ? { por, cortes, unir } : undefined))}>
+          <Icon name="download" /> Descargar Excel
+        </Button>
+      </PageHeader>
+      {(error || descarga.error) && <div className="alert alert-error">{error || descarga.error}</div>}
       {!data && !error && <p className="muted">Calculando resultados…</p>}
       {data && (
         <>
