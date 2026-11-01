@@ -44,6 +44,12 @@ export interface LexicalResult {
   interpretation?: string;
 }
 
+/** GET analysis-status (T-029): qué análisis siguen corriendo en el servidor. */
+export interface AnalysisStatus {
+  lexical: "running" | "idle";
+  propose: "running" | "idle";
+}
+
 export interface CodifyProgress {
   status: "idle" | "running" | "done" | "error";
   done?: number;

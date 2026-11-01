@@ -4,6 +4,8 @@ import { puede } from "@/features/auth/api";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import PageHeader from "@/shared/components/PageHeader";
+import { ApiError } from "@/shared/api/client";
+import { usePolling } from "@/shared/hooks/usePolling";
 import { useAsync } from "@/shared/hooks/useAsync";
 import { projectsApi } from "@/features/projects/api";
 import { FrameworkTemplate } from "@/features/projects/types";
@@ -17,6 +19,33 @@ export default function Codebook() {
   const { busy, error, setError, run } = useAsync();
   const canEdit = puede(useAuth().user, "analista");
   const [templates, setTemplates] = useState<FrameworkTemplate[]>([]);
+  const [waiting, setWaiting] = useState(false); // el servidor sigue proponiendo (otra visita a la pestaña o 409)
+  const { start, stop } = usePolling(2000);
+
+  // Al entrar o cambiar de pregunta: retoma una propuesta que siga en curso.
+  useEffect(() => {
+    let off = false;
+    analysisApi.getAnalysisStatus(project.id, project.pregunta)
+      .then((s) => { if (!off && s.propose === "running") setWaiting(true); }).catch(() => {});
+    return () => { off = true; setWaiting(false); };
+  }, [project.id, project.pregunta]);
+
+  // Mientras espera, consulta cada 2 s; al quedar libre trae las categorías nuevas sin recargar la página.
+  useEffect(() => {
+    if (!waiting) return;
+    let off = false;
+    start(async () => {
+      try {
+        const s = await analysisApi.getAnalysisStatus(project.id, project.pregunta);
+        if (off || s.propose !== "idle") return;
+        off = true;
+        stop();
+        setWaiting(false);
+        refresh();
+      } catch { /* se reintenta en el próximo ciclo */ }
+    });
+    return () => { off = true; stop(); };
+  }, [waiting, project.id, project.pregunta]);
 
   useEffect(() => {
     if (canEdit && project.categories.length === 0) {
@@ -25,7 +54,15 @@ export default function Codebook() {
   }, [canEdit, project.categories.length]);
 
   async function propose() {
-    const ok = await run(() => analysisApi.proposeCategories(project.id, project.pregunta));
+    const ok = await run(async () => {
+      try {
+        return await analysisApi.proposeCategories(project.id, project.pregunta);
+      } catch (e) {
+        if (!(e instanceof ApiError && e.status === 409)) throw e;
+        setWaiting(true); // ya se está proponiendo: no es un error, se espera
+        return null;
+      }
+    });
     if (ok) refresh();
   }
 
@@ -53,11 +90,11 @@ export default function Codebook() {
       {error && <div className="alert alert-error">{error}</div>}
       {canEdit && <Card>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <Button onClick={propose} busy={busy}>
-            {busy ? "Claude está analizando la muestra…" : "Proponer categorías con IA"}
+          <Button onClick={propose} busy={busy || waiting}>
+            {busy || waiting ? "Claude está analizando la muestra…" : "Proponer categorías con IA"}
           </Button>
           {templates.length > 0 && (
-            <select style={{ width: "auto" }} disabled={busy} value=""
+            <select style={{ width: "auto" }} disabled={busy || waiting} value=""
                     onChange={(e) => e.target.value && applyTemplate(e.target.value)}>
               <option value="">Aplicar plantilla…</option>
               {industries.map(([industria, group]) => (
