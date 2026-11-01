@@ -477,3 +477,60 @@ Problema: si el usuario sale de la pestaña mientras corre el léxico o la propu
 - Al entrar a "Análisis léxico" o "Libro de códigos", consultar `analysis-status`.
 - Si la operación está `running`, mostrar el estado ocupado y consultar cada 2 s hasta `idle`; entonces recargar el resultado.
 - Un 409 al pulsar el botón también activa esa espera.
+
+## RF-41 · Recomendaciones automáticas (T-032)
+
+Reglas fijas, **sin IA**: alertas de calidad de datos, segmentos sugeridos para cruzar y plantilla sugerida. Las cifras se calculan en Python desde las respuestas guardadas.
+
+### `GET /api/projects/{id}/recommendations`
+- **Roles:** lector, analista, admin.
+- **Respuesta 200:**
+
+```json
+{
+  "alertas": [
+    { "id": "pocas_respuestas_30", "nivel": "aviso", "pregunta_id": null,
+      "mensaje": "La encuesta tiene 24 respuestas: los resultados pueden variar mucho. Tómalos como una primera mirada." },
+    { "id": "muchas_vacias", "nivel": "aviso", "pregunta_id": "q_7",
+      "mensaje": "Más de la mitad de las personas no respondió «¿Cuál es tu ingreso?» (15 de 24)." }
+  ],
+  "segmentos": [
+    { "pregunta_id": "q_3", "titulo": "Género", "n_grupos": 3,
+      "motivo": "Separa a las personas en 3 grupos con datos suficientes." }
+  ],
+  "plantilla": { "key": "evaluacion_docente_cna", "nombre": "Evaluación Docente (marco CNA)", "industria": "Educación Superior",
+                 "motivo": "La encuesta menciona «profesor», «clase» y «evaluación»." }
+}
+```
+
+- `alertas`: se generan en el orden de la tabla. `nivel` es `"importante"` o `"aviso"`, y `n` = personas del proyecto.
+
+| `id` | Regla | Nivel | Mensaje |
+| --- | --- | --- | --- |
+| `pocas_respuestas` | n < 10 | importante | "La encuesta tiene muy pocas respuestas ({n}); los resultados serán poco representativos." |
+| `pocas_respuestas_30` | 10 ≤ n < 30 | aviso | "La encuesta tiene {n} respuestas: los resultados pueden variar mucho. Tómalos como una primera mirada." |
+| `muchas_vacias` | por pregunta (no `identificador`): `n_na > n / 2` | aviso | "Más de la mitad de las personas no respondió «{título}» ({n_na} de {n})." |
+| `abierta_repetida` | abierta con ≥ 20 respuestas y ≤ 10 textos distintos (sin distinguir mayúsculas ni espacios) | aviso | "Las respuestas de «{título}» se repiten mucho (solo {k} distintas): quizás es una pregunta cerrada." |
+| `abierta_corta` | abierta con ≥ 20 respuestas y mediana de palabras ≤ 2 (si no aplica `abierta_repetida`) | aviso | "La mitad de las respuestas de «{título}» tiene 2 palabras o menos: el análisis de temas tendrá poco material." |
+| `cerrada_dispersa` | `seleccion_unica` o `segmento` con ≥ 30 respuestas y valores distintos > 50 % de sus respuestas | aviso | "«{título}» tiene casi tantas opciones distintas como respuestas ({k} de {r}): quizás es una pregunta abierta." |
+
+  Los títulos de más de 80 caracteres se recortan con "…". La lista queda vacía si no hay alertas.
+- `segmentos`: preguntas de tipo `segmento`, `seleccion_unica`, `si_no` o `numerica` (con los tramos por defecto). Se sugieren solo si cumplen todo:
+  - forman entre 2 y 15 grupos;
+  - al menos 2 grupos tienen ≥ 10 personas (`UMBRAL_POCOS_DATOS`);
+  - responden al menos la mitad de las personas.
+
+  Los grupos se arman con la **misma función** que `closed-results`.
+  - **Orden:** primero las preguntas cuyo título dice género, sexo, edad, comuna, región, sede, carrera, tienda, área o cargo; después, las que tienen más grupos con datos suficientes.
+  - **Máximo:** 3.
+  - **`n_grupos`:** grupos con ≥ 10 personas; el motivo usa ese número.
+
+  La lista queda vacía si no hay ninguna.
+- `plantilla`: una plantilla sugerida por palabras clave, o `null`.
+  - Cada plantilla de `templates.py` define `palabras_clave`: entre 6 y 15 palabras o raíces, sin tildes.
+  - Se buscan, sin tildes ni mayúsculas, en el nombre del proyecto, su marco teórico y los títulos de todas sus preguntas. Cuenta cada palabra distinta encontrada.
+  - Gana la de más coincidencias, con un mínimo de 2. En un empate, gana la primera en el orden de `FRAMEWORK_TEMPLATES`.
+  - El motivo cita hasta 3 de las palabras encontradas, tal como aparecen en `palabras_clave`.
+  - Es `null` si el proyecto no tiene preguntas abiertas, si ninguna plantilla llega al mínimo, o si el marco teórico del proyecto es exactamente el de una plantilla (ya eligió una).
+- **Errores:** 404 "Proyecto no encontrado" (incluida otra organización); 401 sin sesión.
+- Solo lectura: no escribe nada en la base ni en la auditoría.

@@ -678,7 +678,23 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Aparecen solas en "Nuevo proyecto" y en "Libro de códigos", agrupadas por rubro.
 - **Calidad:** una prueba automática revisa ahora que **todas** las plantillas (19) tengan definición, criterios de qué entra y qué no, y nombres sin repetir.
 - **Para afinar:** el contenido es un primer borrador. Conviene revisarlo con encuestas reales de Retail y de municipios.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** subida a GitHub (PR #36), esperando la aprobación del responsable.
+
+### 57. T-032 · Recomendaciones automáticas (servidor)
+
+- **Qué quedó:** el servidor entrega, para cada proyecto, tres tipos de recomendaciones calculadas con reglas, **sin IA**:
+  - **Alertas de calidad:**
+    - pocas respuestas (menos de 10, o menos de 30, con un aviso más suave);
+    - preguntas que más de la mitad no respondió;
+    - preguntas abiertas con respuestas muy cortas o repetidas;
+    - preguntas cerradas que parecen abiertas.
+  - **Hasta 3 grupos sugeridos para cruzar,** como edad o género, solo si forman grupos con datos suficientes.
+  - **Una plantilla sugerida,** según las palabras de la encuesta, con el motivo: "La encuesta menciona «…»". El cliente decide si la aplica y puede modificarla.
+- **Probado con la encuesta de vivienda (500 personas):** responde en 37 milésimas de segundo.
+  - Avisa que una pregunta abierta quedó sin responder por más de la mitad de las personas y que sus respuestas son muy cortas.
+  - Sugiere cruzar por edad, género e ingreso, y la plantilla de Percepción de Marca.
+- **Para afinar:** algunas palabras clave son muy generales y podrían sugerir una plantilla equivocada. Se ajustarán con encuestas reales.
+- **Estado:** aprobada; pendiente de subir a GitHub. La tarjeta en la pantalla llega en T-033.
 
 ---
 

@@ -21,6 +21,7 @@ database._client = mongomock.MongoClient()
 from fastapi.testclient import TestClient  # noqa: E402
 
 from app.main import app  # noqa: E402
+from app.services.question_types import _sin_tildes  # noqa: E402
 from app.templates import FRAMEWORK_TEMPLATES  # noqa: E402
 
 NUEVAS = {"Retail": 4, "Municipal": 3}
@@ -35,6 +36,9 @@ def test_estructura_de_cada_plantilla(key):
     assert 4 <= len(cats) <= 6
     for c in cats:
         assert all(str(c.get(k, "")).strip() for k in CAMPOS_CAT), (key, c.get("nombre"))
+    claves = t["palabras_clave"]  # RF-41: se buscan en la encuesta, sin tildes ni mayúsculas
+    assert 6 <= len(claves) <= 15 and len(set(claves)) == len(claves)
+    assert all(k.strip() and k == _sin_tildes(k).strip() for k in claves), key
     nombres = [c["nombre"] for c in cats]
     assert len(set(nombres)) == len(nombres)
 

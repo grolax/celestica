@@ -14,6 +14,7 @@ from app.auth import get_current_user
 from app.deps import _get_or_404, _get_vista, _vista_or_404, require_role
 from app.models import User
 from app.services import quantitative
+from app.services.recommendations import recomendar
 from app.services.question_types import TIPOS, contexto_por_defecto, detectar
 
 router = APIRouter()
@@ -246,6 +247,11 @@ def closed_results(project_id: str, por: Optional[str] = None, cortes: Optional[
         return quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []), por, cortes, unir)
     except ValueError as e:
         raise HTTPException(400, str(e))
+
+
+@router.get("/api/projects/{project_id}/recommendations")
+def recommendations(project_id: str, user: User = Depends(get_current_user)):
+    return recomendar(_get_or_404(project_id, user))
 
 
 @router.delete("/api/projects/{project_id}")
