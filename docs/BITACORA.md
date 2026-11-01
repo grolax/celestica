@@ -678,7 +678,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Aparecen solas en "Nuevo proyecto" y en "Libro de códigos", agrupadas por rubro.
 - **Calidad:** una prueba automática revisa ahora que **todas** las plantillas (19) tengan definición, criterios de qué entra y qué no, y nombres sin repetir.
 - **Para afinar:** el contenido es un primer borrador. Conviene revisarlo con encuestas reales de Retail y de municipios.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** subida a GitHub (PR #36), esperando la aprobación del responsable.
 
 ---
 
