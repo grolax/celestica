@@ -641,6 +641,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Revisión visual:** el responsable abrió los cuatro Excel de prueba (sin grupos, por género, por edad y por comuna) y los aprobó (2026-11-01).
 - **Estado:** incorporada a la versión oficial (PR #32). El botón para descargarlo llega en T-028.
 
+### 53. T-028 · Botón para descargar el Excel de las preguntas cerradas
+
+- **Qué quedó:** la pestaña "Preguntas cerradas" tiene un botón **"Descargar Excel"**.
+  - Descarga exactamente lo que se ve en pantalla: sin separar, o separado por el "Ver por…" elegido, con los tramos y los grupos unidos que estén aplicados.
+  - Sirve para todos los proyectos, incluidos los que tienen solo preguntas cerradas, que no tienen pestaña "Exportar".
+  - Mientras descarga, el botón muestra que está trabajando; si algo falla, aparece un mensaje claro.
+- **Probado con la encuesta de vivienda:** sin separar, por género y por edad con tramos juntados; el Excel trae los mismos grupos que la pantalla.
+- **Estado:** aprobada; pendiente de subir a GitHub.
+
 ---
 
 ## Glosario

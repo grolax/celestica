@@ -38,9 +38,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-025 Proyectos sin preguntas abiertas (servidor) | backend | RF-24, RNF-01, RNF-02 | 2026-10-31 | `tarea/T-025-proyectos-solo-cerradas` (fusionada, PR #30) |
 | T-026 Proyectos sin preguntas abiertas (pantalla) | frontend | RF-24, RF-40, RNF-13 | 2026-10-31 | `tarea/T-026-pantalla-solo-cerradas` (fusionada, PR #31) |
 | T-027 Excel de resultados de cerradas con grupos y gráficos | backend | RF-30, RF-31, RF-24, RF-52 | 2026-10-31 | `tarea/T-027-excel-cerradas` (fusionada, PR #32; revisión visual aprobada por el usuario 2026-11-01) |
+| T-028 Botón "Descargar Excel" en Preguntas cerradas | frontend | RF-30, RF-31, RF-24, RF-52 | 2026-11-01 | `tarea/T-028-boton-excel-cerradas` (aprobada, pendiente de subir) |
 
 ## En curso
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → **T-028 botón de descarga (pantalla, en curso: `tarea/T-028-boton-excel-cerradas`)** → RF-41, RF-43, RF-17.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, aprobada) → **RF-41 (siguiente)**, RF-43, RF-17.
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Decisiones T-022 (usuario, 2026-10-31): los tramos de edad que elige el cliente valen solo para ese análisis (no se guardan, ni por proyecto ni por organización); cruzar temas de preguntas abiertas por grupo queda para una tarea posterior.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
@@ -66,6 +67,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Botón "Descargar Excel" (T-028): el error de una descarga fallida sigue visible tras cambiar "Ver por…" hasta la siguiente descarga.
 - Proyectos sin abiertas (T-026): el contexto de las pestañas se tipa como `ProjectAbierta` con un cast; un enlace con `?pregunta=` a un proyecto sin abiertas muestra un 404.
 - Panel interno (`list_usage_all_projects`) muestra `n_responses` 0 en proyectos sin abiertas (T-025).
 - Pantalla de cruces (T-024): con un grupo elegido, las escalas repiten el total en tarjetas y en la fila "Todas las personas"; con 120 grupos (comuna) la pantalla tarda 3,5 s en la encuesta real (meta RNF-10: 2 s).

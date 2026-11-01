@@ -37,3 +37,14 @@ En la pestaña "Preguntas cerradas" aparece un botón "Descargar Excel" que baja
 - Patrón de referencia: `ExportReport.tsx` (`useDownload` + `busyKey`).
 - Para no duplicar la query de `getClosedResults` (`features/analysis/api.ts`, líneas ~53-58), se recomienda extraer una función `closedQuery(o?: ClosedOpciones): string` y usarla en ambos lados. Mismo resultado, una sola fuente.
 - Los proyectos con solo cerradas no tienen pestaña "Exportar" (T-026); por eso el botón vive en "Preguntas cerradas".
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff (3 archivos de `07_MVP/frontend`, +31/−12) dentro del alcance; sin cambios en backend, `ExportReport.tsx` ni `GroupControls.tsx`.
+- `npm run build` sin errores.
+- Contrato: `closedQuery` es la misma función para `closed-results` y `export/closed-xlsx`, así que la codificación de `por`, `cortes` y `unir` es idéntica por construcción.
+- `cortes` se guarda solo tras una carga exitosa (junto con `por` y `unir`): el Excel refleja lo aplicado, no lo escrito.
+- Botón: `Button` + `Icon` compartidos, `busy` de `useDownload`, deshabilitado sin datos o mientras se recalcula; error en el `alert-error` de la página.
+- Verificación del programador contra la encuesta real local: sin separar, por género (`por=q_3`) y por edad con tramos unidos dieron 200 con la misma query en ambos endpoints.
+- No verificado en navegador: clic real y proyecto con abiertas (el componente es el mismo para ambos).
+- Detalle menor (deuda): el error de una descarga fallida sigue visible tras cambiar "Ver por…" hasta la siguiente descarga.
