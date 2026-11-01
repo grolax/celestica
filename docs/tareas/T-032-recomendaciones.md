@@ -49,3 +49,22 @@ Lo consumirá la tarjeta "Recomendaciones" del panel del proyecto (T-033).
 - Para quitar tildes ya existe `_sin_tildes` en `services/question_types.py`; reutilizarla.
 - Las palabras clave se buscan como **raíces al inicio de palabra** (por ejemplo, `profesor` coincide con "profesores"), no como subcadenas en cualquier posición.
 - Las reglas de `cerrada_dispersa` y de abiertas usan los valores guardados en `respondentes`. Si la encuesta tiene preguntas ramificadas unidas, se usan los valores ya unidos, igual que en `closed-results`.
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff (+391): servicio `recommendations.py` (94 líneas), ruta de una línea con `_get_or_404` (filtra por organización), `palabras_clave` en las 19 plantillas, pruebas y una sección de `COMO_FUNCIONA.md`. Sin cambios en frontend, IA ni texto de las plantillas.
+- Contrato: forma y mensajes idénticos; segmentos con `quantitative._grupos` (los mismos grupos que `closed-results`); plantilla `null` en los tres casos pedidos; solo lectura.
+- Decisiones del programador donde el contrato no decía, aceptadas:
+  - las alertas se agrupan por regla;
+  - el recorte a 80 caracteres aplica solo a los mensajes;
+  - "entre 2 y 15 grupos" cuenta todos los grupos;
+  - "responden la mitad" cuenta a quienes quedan en un grupo.
+- `python -m pytest tests -q`: 334 pasan. 28 pruebas nuevas con los bordes de cada regla.
+- Encuesta real (500 personas), 37 ms:
+  - alertas `muchas_vacias` y `abierta_corta` en `q_32`;
+  - segmentos edad, género e ingreso;
+  - plantilla `percepcion_marca` ("marca", "asocia").
+- Deuda:
+  - Algunas palabras clave son genéricas ("comuna", "producto", "cliente", "proyecto", "desarrollo", "usuario") y pueden dar sugerencias equivocadas; hay que afinarlas con encuestas reales.
+  - Un marco editado a partir de una plantilla puede volver a sugerirla.
+- Para T-033: los títulos reales traen saltos de línea; en HTML se ven como un espacio (no usar `white-space: pre`).
