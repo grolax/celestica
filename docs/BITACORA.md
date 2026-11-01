@@ -670,6 +670,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Pendiente menor:** si el análisis falla mientras se espera, el botón vuelve a aparecer sin explicar por qué.
 - **Estado:** incorporada a la versión oficial (PR #35).
 
+### 56. T-031 · Plantillas para Retail y municipios
+
+- **Qué quedó:** 7 plantillas nuevas de marco teórico, cada una con 5 o 6 categorías listas para validar.
+  - **Retail:** Experiencia en Tienda, Post-compra y NPS, Despacho y E-commerce, y Colaboradores de Tienda.
+  - **Municipal:** Servicios Municipales, Consulta PLADECO y Presupuesto Participativo.
+  - Aparecen solas en "Nuevo proyecto" y en "Libro de códigos", agrupadas por rubro.
+- **Calidad:** una prueba automática revisa ahora que **todas** las plantillas (19) tengan definición, criterios de qué entra y qué no, y nombres sin repetir.
+- **Para afinar:** el contenido es un primer borrador. Conviene revisarlo con encuestas reales de Retail y de municipios.
+- **Estado:** aprobada; pendiente de subir a GitHub.
+
 ---
 
 ## Glosario

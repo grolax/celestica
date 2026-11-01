@@ -46,3 +46,11 @@ Sin cambios: `GET /api/framework-templates` devuelve la misma forma, con 7 eleme
 - Estándar de calidad: lo dice el docstring de `templates.py`. Las exclusiones bien escritas son lo que hace precisa la codificación de la IA.
 - Las categorías de plantilla siguen requiriendo validación humana (principio de la sección 6): `apply_template` ya las crea como `propuesta`, no cambiar eso.
 - El cliente puede modificar las categorías después de aplicarlas (editar, descartar, agregar). Editar el marco teórico después de crear el proyecto llega en una tarea posterior.
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff: `templates.py` (+242, solo plantillas nuevas bajo `RETAIL` y `MUNICIPAL`), prueba nueva `test_plantillas_pytest.py` y una línea de `test_e2e.py`, que tenía fijo "12 plantillas / 5 industrias". El cambio es necesario y está justificado.
+- 7 plantillas con 5 o 6 categorías cada una. Las exclusiones nombran a la categoría vecina y el lenguaje es simple; revisé el detalle de Retail.
+- La prueba de estructura recorre las 19 plantillas y no falló ninguna existente. La regla de "exclusión que nombra a la vecina" se aplica solo a las 7 nuevas, porque `feedback_empleados` y `percepcion_marca` no la cumplen del todo (deuda menor).
+- `python -m pytest tests -q`: 304 pasan.
+- El contenido es un primer borrador. Conviene afinarlo con encuestas reales de Retail y municipios, y no se ha probado cómo codifica la IA con estas exclusiones.
