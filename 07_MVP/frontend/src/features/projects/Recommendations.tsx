@@ -11,8 +11,9 @@ import { useProject } from "./useProjectData";
 
 const recortar = (t: string) => (t.length > 60 ? `${t.slice(0, 60)}…` : t);
 
-/** Alertas, cruces y plantilla sugeridos (RF-41). No se muestra si está vacía o si la consulta falla. */
-export default function Recommendations() {
+/** Alertas, cruces y plantilla sugeridos (RF-41). No se muestra si está vacía o si la consulta falla.
+ *  `onVerPor`: si la pantalla que la contiene ya muestra las preguntas cerradas, separa ahí en vez de navegar. */
+export default function Recommendations({ onVerPor }: { onVerPor?: (preguntaId: string) => void }) {
   const { project } = useProject();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -29,6 +30,7 @@ export default function Recommendations() {
   if (!rec.alertas.length && !rec.segmentos.length && !plantilla) return null;
 
   const verPor = (id: string) => {
+    if (onVerPor) return onVerPor(id);
     const p = new URLSearchParams(search);
     p.set("por", id);
     navigate(`cerradas?${p}`);

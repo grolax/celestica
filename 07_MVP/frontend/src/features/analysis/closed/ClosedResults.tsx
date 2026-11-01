@@ -152,7 +152,7 @@ export default function ClosedResults() {
       {data && (
         <>
           <p className="muted">{num(data.n_personas, 0)} personas respondieron la encuesta</p>
-          {project.pregunta == null && <Recommendations />}
+          {project.pregunta == null && <Recommendations onVerPor={cambiarPor} />}
           {separables.length > 0 && (
             <div className="pregunta-selector">
               <label className="field-label" htmlFor="ver_por">Ver por…</label>
