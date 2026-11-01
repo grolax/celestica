@@ -38,10 +38,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-025 Proyectos sin preguntas abiertas (servidor) | backend | RF-24, RNF-01, RNF-02 | 2026-10-31 | `tarea/T-025-proyectos-solo-cerradas` (fusionada, PR #30) |
 | T-026 Proyectos sin preguntas abiertas (pantalla) | frontend | RF-24, RF-40, RNF-13 | 2026-10-31 | `tarea/T-026-pantalla-solo-cerradas` (fusionada, PR #31) |
 | T-027 Excel de resultados de cerradas con grupos y gráficos | backend | RF-30, RF-31, RF-24, RF-52 | 2026-10-31 | `tarea/T-027-excel-cerradas` (fusionada, PR #32; revisión visual aprobada por el usuario 2026-11-01) |
-| T-028 Botón "Descargar Excel" en Preguntas cerradas | frontend | RF-30, RF-31, RF-24, RF-52 | 2026-11-01 | `tarea/T-028-boton-excel-cerradas` (aprobada, pendiente de subir) |
+| T-028 Botón "Descargar Excel" en Preguntas cerradas | frontend | RF-30, RF-31, RF-24, RF-52 | 2026-11-01 | `tarea/T-028-boton-excel-cerradas` (PR #33, esperando merge) |
 
 ## En curso
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, aprobada) → **RF-41 (siguiente)**, RF-43, RF-17.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, PR #33) → **T-029 léxico y propuesta una sola vez a la vez (backend, en curso)** → T-030 retomarlos al volver a la pestaña (pantalla) → RF-41, RF-43, RF-17.
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Decisiones T-022 (usuario, 2026-10-31): los tramos de edad que elige el cliente valen solo para ese análisis (no se guardan, ni por proyecto ni por organización); cruzar temas de preguntas abiertas por grupo queda para una tarea posterior.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
@@ -61,6 +61,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - **Respuestas vacías = "N/A" (decisión del usuario 2026-10-30):** donde una persona no respondió (o la columna ramificada no le correspondía), la plataforma muestra **"N/A"**, nunca un valor que parezca elegido. "N/A" se cuenta aparte y no se trata como una opción más de la pregunta.
 
 - **Contexto para la IA (decisión del usuario 2026-10-30):** a la IA solo se le envían como contexto las preguntas marcadas; por defecto solo **género y edad**; **nunca** identificadores (nombre, RUT, email). Hallazgo: el informe v2 enviaba todas las columnas `meta` de cada persona → corregido en T-011a.
+- Decisión (usuario, 2026-11-01): antes de RF-41, arreglar que el léxico y la propuesta de categorías se pierdan al salir de la pestaña (T-029 servidor, T-030 pantalla). Recordar el «Ver por…» de cerradas al cambiar de pestaña queda fuera por ahora.
 
 ## Bloqueado / requiere decisión del usuario
 
