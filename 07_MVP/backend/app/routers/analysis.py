@@ -9,7 +9,8 @@ from pydantic import BaseModel
 
 from app import store
 from app.auth import get_current_user
-from app.deps import _codify_progress, _get_or_404, _progress_lock, _get_vista, require_role
+from app.deps import (_analisis_en_curso, _codify_progress, _get_or_404, _get_vista, _progress_lock, require_role,
+                      una_sola_vez)
 from app.models import User
 from app.services import claude_log, lexical, thematic
 
@@ -21,20 +22,22 @@ router = APIRouter()
 @router.post("/api/projects/{project_id}/lexical")
 def run_lexical(project_id: str, pregunta: Optional[str] = None, user: User = Depends(require_role("analista"))):
     vista = _get_vista(project_id, user, pregunta)
-    result = lexical.analyze(vista["responses"])
+    with una_sola_vez((project_id, vista["pregunta"], "lexical"),
+                      "El análisis léxico ya está en curso para esta pregunta. Espera a que termine."):
+        result = lexical.analyze(vista["responses"])
 
-    try:
-        interpretation = thematic.interpret_lexical(vista["marco_teorico"], result)
-    except Exception:
-        interpretation = ""
-    result["interpretation"] = interpretation
+        try:
+            interpretation = thematic.interpret_lexical(vista["marco_teorico"], result)
+        except Exception:
+            interpretation = ""
+        result["interpretation"] = interpretation
 
-    store.set_project_field(project_id, user.org_id, "lexical", result, vista["pregunta"])
-    store.set_project_field(project_id, user.org_id, "lexical_interpretation", interpretation, vista["pregunta"])
-    store.log_event(vista, "sistema", "analisis_lexico", {
-        "n_respuestas": result["n_responses"], "metodo": result["method_note"], "pregunta": vista["pregunta"],
-    })
-    return {k: v for k, v in result.items() if k != "sentiment_by_response"}
+        store.set_project_field(project_id, user.org_id, "lexical", result, vista["pregunta"])
+        store.set_project_field(project_id, user.org_id, "lexical_interpretation", interpretation, vista["pregunta"])
+        store.log_event(vista, "sistema", "analisis_lexico", {
+            "n_respuestas": result["n_responses"], "metodo": result["method_note"], "pregunta": vista["pregunta"],
+        })
+        return {k: v for k, v in result.items() if k != "sentiment_by_response"}
 
 
 @router.get("/api/projects/{project_id}/lexical")
@@ -50,27 +53,29 @@ def get_lexical(project_id: str, pregunta: Optional[str] = None, user: User = De
 @router.post("/api/projects/{project_id}/categories/propose")
 def propose_categories(project_id: str, pregunta: Optional[str] = None, user: User = Depends(require_role("analista"))):
     vista = _get_vista(project_id, user, pregunta)
-    sample = [r["text"] for r in vista["responses"][:60]]
-    try:
-        proposals = thematic.propose_categories(vista["marco_teorico"], sample)
-    except RuntimeError as e:
-        raise HTTPException(503, str(e))
-    for p in proposals:
-        cat = {
-            "id": store.new_id("cat"),
-            "nombre": p.get("nombre", "Sin nombre"),
-            "definicion": p.get("definicion", ""),
-            "criterios_inclusion": p.get("criterios_inclusion", ""),
-            "criterios_exclusion": p.get("criterios_exclusion", ""),
-            "ejemplo": p.get("ejemplo", ""),
-            "origen": "claude",
-            "status": "propuesta",  # propuesta | validada | descartada
-            "comments": [],
-        }
-        vista["categories"].append(cat)
-        store.push_category(project_id, user.org_id, vista["pregunta"], cat)
-        store.log_event(vista, "claude", "propuesta_categoria", {"categoria": cat, "pregunta": vista["pregunta"]})
-    return vista["categories"]
+    with una_sola_vez((project_id, vista["pregunta"], "propose"),
+                      "Claude ya está proponiendo categorías para esta pregunta. Espera a que termine."):
+        sample = [r["text"] for r in vista["responses"][:60]]
+        try:
+            proposals = thematic.propose_categories(vista["marco_teorico"], sample)
+        except RuntimeError as e:
+            raise HTTPException(503, str(e))
+        for p in proposals:
+            cat = {
+                "id": store.new_id("cat"),
+                "nombre": p.get("nombre", "Sin nombre"),
+                "definicion": p.get("definicion", ""),
+                "criterios_inclusion": p.get("criterios_inclusion", ""),
+                "criterios_exclusion": p.get("criterios_exclusion", ""),
+                "ejemplo": p.get("ejemplo", ""),
+                "origen": "claude",
+                "status": "propuesta",  # propuesta | validada | descartada
+                "comments": [],
+            }
+            vista["categories"].append(cat)
+            store.push_category(project_id, user.org_id, vista["pregunta"], cat)
+            store.log_event(vista, "claude", "propuesta_categoria", {"categoria": cat, "pregunta": vista["pregunta"]})
+        return vista["categories"]
 
 
 class CategoryUpdate(BaseModel):
@@ -239,6 +244,13 @@ def codify(project_id: str, pregunta: Optional[str] = None, user: User = Depends
 
     threading.Thread(target=run, daemon=True).start()
     return {"status": "started", "total": total}
+
+
+@router.get("/api/projects/{project_id}/analysis-status")
+def analysis_status(project_id: str, pregunta: Optional[str] = None, user: User = Depends(get_current_user)):
+    vista = _get_vista(project_id, user, pregunta)
+    return {op: "running" if (project_id, vista["pregunta"], op) in _analisis_en_curso else "idle"
+            for op in ("lexical", "propose")}
 
 
 @router.get("/api/projects/{project_id}/codify/progress")

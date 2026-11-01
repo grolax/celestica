@@ -239,7 +239,7 @@ Ajustes respecto de la regla sugerida en la orden: el "título corto" (solo para
 
 ### Paso 1 — Análisis léxico (Capa 1, sin IA generativa)
 
-`services/lexical.py` calcula de forma **determinística**: frecuencias (sin stopwords), bigramas, co-ocurrencias, y sentimiento por lexicón con evidencia palabra por palabra. Corre en segundos y no consume API. Al final, una llamada opcional a Claude redacta una interpretación breve; sin API key, el análisis numérico queda igual.
+`services/lexical.py` calcula de forma **determinística**: frecuencias (sin stopwords), bigramas, co-ocurrencias, y sentimiento por lexicón con evidencia palabra por palabra. Corre en segundos y no consume API. Al final, una llamada opcional a Claude redacta una interpretación breve; sin API key, el análisis numérico queda igual. Léxico y propuesta de categorías (T-029) corren una sola vez a la vez por (proyecto, pregunta, operación): una segunda llamada responde 409 sin gastar IA, la marca (`deps._analisis_en_curso`, con `una_sola_vez`) se libera siempre al terminar o fallar, y `GET /api/projects/{id}/analysis-status` informa `running`/`idle` para que la pantalla retome la espera. Vive en memoria de un solo proceso, como `codify/progress`.
 
 ### Paso 2 — Libro de códigos (la IA propone, el humano decide)
 

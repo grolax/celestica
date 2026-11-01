@@ -44,6 +44,7 @@ ROUTES = [
     ("DELETE", "/api/projects/{project_id}/categories/{category_id}/comments/{comment_id}", {}),
     ("POST", "/api/projects/{project_id}/codify", {}),
     ("GET", "/api/projects/{project_id}/codify/progress", {}),
+    ("GET", "/api/projects/{project_id}/analysis-status", {}),
     ("PUT", "/api/projects/{project_id}/responses/{response_id}/codings", {"json": {"category_ids": ["SIN_CATEGORIA"]}}),
     ("GET", "/api/projects/{project_id}/summary", {}),
     ("GET", "/api/projects/{project_id}/audit", {}),

@@ -447,3 +447,33 @@ Decisiones del usuario (2026-10-31): los proyectos (con o sin abiertas) descarga
       - Todos los gráficos muestran los valores escritos (no dependen solo del color). La fila "Todas las personas" no aparece como una barra más.
 - **Errores:** los de `closed-results`: 400 con sus mensajes; 404 "Proyecto no encontrado" (incluida otra organización); 401 sin sesión.
 - **Proyecto sin preguntas cerradas:** descarga un Excel con la hoja "Resumen" y la nota "Este proyecto no tiene preguntas cerradas."
+
+## RF-23 / RNF-08 · Léxico y propuesta de categorías: una sola vez a la vez y estado consultable (T-029)
+
+Problema: si el usuario sale de la pestaña mientras corre el léxico o la propuesta de categorías, la pantalla olvida que hay algo en curso y permite lanzarlo de nuevo. Eso duplica el gasto de IA y, en la propuesta, también las categorías. El servidor sigue trabajando y guarda el resultado.
+
+### `POST /api/projects/{id}/lexical?pregunta=<id>` y `POST /api/projects/{id}/categories/propose?pregunta=<id>` (modificados)
+- Rol, cuerpo y respuesta 200: **sin cambios** (siguen siendo síncronos y devuelven lo mismo que hoy).
+- Si ya hay una ejecución **de la misma operación** en curso para el mismo `(proyecto, pregunta)`: **409**, sin llamar a la IA ni escribir nada:
+  - léxico: `"El análisis léxico ya está en curso para esta pregunta. Espera a que termine."`
+  - propuesta: `"Claude ya está proponiendo categorías para esta pregunta. Espera a que termine."`
+- La comprobación y la marca son atómicas: de dos llamadas simultáneas, una responde 200 y la otra 409. La marca se quita al terminar, **también si hay error**; la ejecución que falla responde su error de siempre (por ejemplo, 503).
+- Otra pregunta del mismo proyecto, u otra operación (léxico mientras se proponen categorías), sí puede correr en paralelo.
+- Errores existentes sin cambios (403, 404, 503).
+
+### `GET /api/projects/{id}/analysis-status?pregunta=<id>` (nuevo)
+- **Roles:** lector, analista, admin.
+- **Respuesta 200:**
+
+```json
+{ "lexical": "running", "propose": "idle" }
+```
+
+  Valores: `"running"` o `"idle"`. Solo informa si hay algo en curso; el resultado se obtiene con `GET .../lexical` y `GET /api/projects/{id}`.
+- **Errores:** 404 "Proyecto no encontrado" (incluida otra organización); 401 sin sesión.
+- Limitación conocida (igual que `codify/progress`): el estado vive en memoria de un solo proceso.
+
+**Uso en la pantalla (T-030):**
+- Al entrar a "Análisis léxico" o "Libro de códigos", consultar `analysis-status`.
+- Si la operación está `running`, mostrar el estado ocupado y consultar cada 2 s hasta `idle`; entonces recargar el resultado.
+- Un 409 al pulsar el botón también activa esa espera.

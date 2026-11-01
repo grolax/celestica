@@ -46,6 +46,7 @@ OPS = [
     ("GET", P + "/responses", "lector", dict),
     ("GET", P + "/lexical", "lector", dict),
     ("GET", P + "/codify/progress", "lector", dict),
+    ("GET", P + "/analysis-status", "lector", dict),
     ("GET", P + "/summary", "lector", dict),
     ("GET", P + "/audit", "lector", dict),
     ("GET", P + "/report", "lector", dict),

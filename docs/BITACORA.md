@@ -650,6 +650,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Probado con la encuesta de vivienda:** sin separar, por género y por edad con tramos juntados; el Excel trae los mismos grupos que la pantalla.
 - **Estado:** aprobada; pendiente de subir a GitHub.
 
+### 54. T-029 · El léxico y la propuesta de categorías no se lanzan dos veces
+
+- **Problema detectado por el responsable:** si se salía de la pestaña mientras corría un análisis, al volver la pantalla lo olvidaba y permitía lanzarlo de nuevo. Eso pagaba la IA dos veces y, en la propuesta de categorías, las duplicaba.
+- **Qué quedó (servidor):**
+  - Si el análisis léxico o la propuesta de categorías ya están en curso para una pregunta, un segundo intento recibe un aviso claro y no gasta IA.
+  - El servidor informa si hay uno en curso, para que la pantalla lo retome (T-030).
+  - Si un análisis falla, se puede volver a lanzar enseguida.
+- **Probado:** 276 pruebas automáticas, incluida una que simula dos clics simultáneos: la IA se llama una sola vez.
+- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-030.
+
 ---
 
 ## Glosario
