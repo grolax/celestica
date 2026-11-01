@@ -678,7 +678,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Aparecen solas en "Nuevo proyecto" y en "Libro de códigos", agrupadas por rubro.
 - **Calidad:** una prueba automática revisa ahora que **todas** las plantillas (19) tengan definición, criterios de qué entra y qué no, y nombres sin repetir.
 - **Para afinar:** el contenido es un primer borrador. Conviene revisarlo con encuestas reales de Retail y de municipios.
-- **Estado:** subida a GitHub (PR #36), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #36).
 
 ### 57. T-032 · Recomendaciones automáticas (servidor)
 
@@ -694,7 +694,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Avisa que una pregunta abierta quedó sin responder por más de la mitad de las personas y que sus respuestas son muy cortas.
   - Sugiere cruzar por edad, género e ingreso, y la plantilla de Percepción de Marca.
 - **Para afinar:** algunas palabras clave son muy generales y podrían sugerir una plantilla equivocada. Se ajustarán con encuestas reales.
-- **Estado:** aprobada; pendiente de subir a GitHub. La tarjeta en la pantalla llega en T-033.
+- **Estado:** subida a GitHub (PR #37), esperando la aprobación del responsable. La tarjeta en la pantalla llega en T-033.
 
 ---
 
