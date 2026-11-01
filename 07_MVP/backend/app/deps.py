@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import threading
 import unicodedata
+from contextlib import contextmanager
 from typing import Optional
 
 from fastapi import Depends, HTTPException, Request
@@ -19,6 +20,22 @@ _codify_progress: dict = {}
 _report_progress: dict = {}
 # Comprobar "¿hay uno en curso?" e iniciar debe ser atómico: los endpoints síncronos corren en un pool de hilos.
 _progress_lock = threading.Lock()
+# Léxico y propuesta de categorías (T-029): (proyecto, pregunta, operación) en curso.
+_analisis_en_curso: set = set()
+
+
+@contextmanager
+def una_sola_vez(key: tuple, mensaje_409: str):
+    """Marca `key` como en curso (atómico, 409 si ya lo estaba) y la libera siempre, también si hay error."""
+    with _progress_lock:
+        if key in _analisis_en_curso:
+            raise HTTPException(409, mensaje_409)
+        _analisis_en_curso.add(key)
+    try:
+        yield
+    finally:
+        with _progress_lock:
+            _analisis_en_curso.discard(key)
 
 # Largo típico de un informe (~4000 tokens ≈ 12k caracteres): para estimar %.
 # El progreso son caracteres realmente recibidos del stream; el % se satura en 95
