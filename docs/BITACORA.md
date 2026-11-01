@@ -660,6 +660,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Probado:** 276 pruebas automáticas, incluida una que simula dos clics simultáneos: la IA se llama una sola vez.
 - **Estado:** subida a GitHub (PR #34), esperando la aprobación del responsable. La pantalla llega en T-030.
 
+### 55. T-030 · Volver a la pestaña ya no reinicia el análisis
+
+- **Qué quedó (pantalla):** si se sale de "Análisis léxico" o de "Libro de códigos" mientras corre el análisis y luego se vuelve:
+  - el botón sigue mostrando que está trabajando y no se puede lanzar de nuevo;
+  - el léxico muestra el aviso "Ya hay un análisis en curso… Esta pantalla se actualizará sola cuando termine.";
+  - al terminar, el resultado o las categorías nuevas aparecen solos, sin recargar la página.
+- **Probado:** con un servidor de prueba y un navegador automático, sin usar la IA real. En ambas pestañas la IA se pidió una sola vez.
+- **Pendiente menor:** si el análisis falla mientras se espera, el botón vuelve a aparecer sin explicar por qué.
+- **Estado:** aprobada; pendiente de subir a GitHub.
+
 ---
 
 ## Glosario
