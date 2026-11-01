@@ -658,7 +658,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - El servidor informa si hay uno en curso, para que la pantalla lo retome (T-030).
   - Si un análisis falla, se puede volver a lanzar enseguida.
 - **Probado:** 276 pruebas automáticas, incluida una que simula dos clics simultáneos: la IA se llama una sola vez.
-- **Estado:** subida a GitHub (PR #34), esperando la aprobación del responsable. La pantalla llega en T-030.
+- **Estado:** incorporada a la versión oficial (PR #34).
 
 ### 55. T-030 · Volver a la pestaña ya no reinicia el análisis
 
@@ -668,6 +668,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - al terminar, el resultado o las categorías nuevas aparecen solos, sin recargar la página.
 - **Probado:** con un servidor de prueba y un navegador automático, sin usar la IA real. En ambas pestañas la IA se pidió una sola vez.
 - **Pendiente menor:** si el análisis falla mientras se espera, el botón vuelve a aparecer sin explicar por qué.
+- **Estado:** incorporada a la versión oficial (PR #35).
+
+### 56. T-031 · Plantillas para Retail y municipios
+
+- **Qué quedó:** 7 plantillas nuevas de marco teórico, cada una con 5 o 6 categorías listas para validar.
+  - **Retail:** Experiencia en Tienda, Post-compra y NPS, Despacho y E-commerce, y Colaboradores de Tienda.
+  - **Municipal:** Servicios Municipales, Consulta PLADECO y Presupuesto Participativo.
+  - Aparecen solas en "Nuevo proyecto" y en "Libro de códigos", agrupadas por rubro.
+- **Calidad:** una prueba automática revisa ahora que **todas** las plantillas (19) tengan definición, criterios de qué entra y qué no, y nombres sin repetir.
+- **Para afinar:** el contenido es un primer borrador. Conviene revisarlo con encuestas reales de Retail y de municipios.
 - **Estado:** aprobada; pendiente de subir a GitHub.
 
 ---

@@ -389,6 +389,248 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
              "criterios_exclusion": "El desempeño de las personas (Trato) o del sistema de agendamiento (Acceso)."},
         ],
     },
+
+    # ================= RETAIL =================
+
+    "retail_experiencia_tienda": {
+        "nombre": "Experiencia en Tienda",
+        "industria": "Retail",
+        "descripcion": "Para encuestas a clientes que compraron en tienda física: atención, disponibilidad de productos, caja, precios y cambios.",
+        "marco_teorico": (
+            "Modelo de experiencia de compra en tienda: cómo te atienden (el trato), si encuentras lo que "
+            "buscas (productos y orden de la tienda), cuánto te demoras en pagar (la caja), cuánto cuesta lo "
+            "que compras (precio y promociones) y qué pasa si algo sale mal (cambios y devoluciones). "
+            "Cada comentario se asigna a la parte de la visita que más pesa en lo que cuenta el cliente."
+        ),
+        "categorias_default": [
+            {"nombre": "Atención del Personal",
+             "definicion": "Trato y disposición de vendedores, personal de piso y servicio al cliente dentro de la tienda.",
+             "criterios_inclusion": "Amabilidad o mala cara, ayuda para encontrar un producto, conocimiento del vendedor, insistencia o abandono del cliente, tiempo para ser atendido en el mesón.",
+             "criterios_exclusion": "Demoras en la fila de pago (Caja y Tiempos de Espera) y atención en reclamos por cambios o devoluciones (Cambios y Devoluciones)."},
+            {"nombre": "Productos y Disponibilidad",
+             "definicion": "Si la tienda tiene lo que el cliente busca, en la talla, color o cantidad que necesita, y si está ordenado y a la vista.",
+             "criterios_inclusion": "Quiebres de stock, falta de tallas, variedad de productos, orden de las góndolas, productos mal ubicados, señalética para encontrar secciones.",
+             "criterios_exclusion": "Calidad o fallas del producto ya comprado (Cambios y Devoluciones) y el precio de lo que se encuentra (Precio y Promociones)."},
+            {"nombre": "Caja y Tiempos de Espera",
+             "definicion": "Rapidez y comodidad al pagar: filas, cajas abiertas y medios de pago.",
+             "criterios_inclusion": "Filas largas, pocas cajas habilitadas, autoservicio de pago, problemas con la tarjeta o el sistema de pago, demora en el empaque.",
+             "criterios_exclusion": "Espera para ser atendido por un vendedor (Atención del Personal) y cobros mal aplicados por precios o descuentos (Precio y Promociones)."},
+            {"nombre": "Precio y Promociones",
+             "definicion": "Percepción de precios, ofertas, descuentos y convenios, y si lo cobrado coincide con lo anunciado.",
+             "criterios_inclusion": "Precios caros o convenientes, ofertas que no se cumplen, diferencias entre el precio de góndola y el de caja, descuentos con tarjeta, programas de puntos.",
+             "criterios_exclusion": "Falta de stock de un producto en oferta (Productos y Disponibilidad) y demoras en la fila (Caja y Tiempos de Espera)."},
+            {"nombre": "Cambios y Devoluciones",
+             "definicion": "Experiencia al cambiar o devolver un producto, y respuesta de la tienda ante un problema con lo comprado.",
+             "criterios_inclusion": "Facilidad o trabas para cambiar, plazos, exigencia de boleta, reembolsos, garantía, productos defectuosos que el cliente quiso devolver.",
+             "criterios_exclusion": "Variedad o falta de stock al momento de comprar (Productos y Disponibilidad) y trato general del personal sin relación con un cambio (Atención del Personal)."},
+        ],
+    },
+    "retail_post_compra_nps": {
+        "nombre": "Post-compra y NPS",
+        "industria": "Retail",
+        "descripcion": "Para los comentarios abiertos de la encuesta NPS que se envía después de una compra, en tienda o en línea: qué hace que un cliente recomiende o no la marca.",
+        "marco_teorico": (
+            "Modelo de lealtad del cliente después de comprar: qué tal es lo que compró (producto), cómo fue "
+            "el proceso de compra, cómo lo trató la empresa si necesitó ayuda (servicio), si sintió que valió "
+            "lo que pagó (precio y valor) y si confía en la marca. Los comentarios se codifican contra estos "
+            "motivos para explicar el puntaje NPS, no solo describirlo."
+        ),
+        "categorias_default": [
+            {"nombre": "Producto Comprado",
+             "definicion": "Cómo es el producto que el cliente compró: calidad, variedad y si cumple lo que esperaba.",
+             "criterios_inclusion": "Calidad, durabilidad, talla y calce, que el producto sea igual a la foto o descripción, fallas o defectos, variedad del surtido.",
+             "criterios_exclusion": "Cómo llegó o cuánto demoró en llegar (Experiencia de Compra) y el trato recibido al reclamar (Servicio al Cliente)."},
+            {"nombre": "Experiencia de Compra",
+             "definicion": "Qué tan fácil o difícil fue comprar, en tienda o por la web o app.",
+             "criterios_inclusion": "Facilidad para encontrar y pagar, fallas del sitio o la app, filas, retiro en tienda, disponibilidad al momento de comprar.",
+             "criterios_exclusion": "Cumplimiento del plazo de entrega a domicilio (el detalle del despacho va en la plantilla Despacho y E-commerce) y el producto ya recibido (Producto Comprado)."},
+            {"nombre": "Servicio al Cliente",
+             "definicion": "Trato y capacidad de resolver problemas cuando el cliente necesitó ayuda de una persona de la empresa.",
+             "criterios_inclusion": "Amabilidad, rapidez de respuesta, reclamos resueltos o ignorados, cambios y devoluciones, atención por teléfono, chat o correo.",
+             "criterios_exclusion": "Falla del producto sin contacto con la empresa (Producto Comprado) y problemas de la web o la app sin intervención de una persona (Experiencia de Compra)."},
+            {"nombre": "Precio y Valor",
+             "definicion": "Si el cliente siente que lo que pagó fue justo o conveniente por lo que recibió.",
+             "criterios_inclusion": "Precio caro o barato, ofertas y descuentos, comparación con otras tiendas, \"vale lo que cuesta\", cobros inesperados o costos de envío.",
+             "criterios_exclusion": "Calidad del producto sin mencionar el precio (Producto Comprado) y atención en la devolución del dinero (Servicio al Cliente)."},
+            {"nombre": "Confianza y Recomendación",
+             "definicion": "Confianza en la marca y razones del cliente para recomendarla o no.",
+             "criterios_inclusion": "\"Volvería a comprar\", \"no la recomiendo\", honestidad de la publicidad, cumplimiento de lo prometido, seguridad de los datos y del pago, reputación de la marca.",
+             "criterios_exclusion": "Molestias puntuales con el producto, el precio o la atención que no cuestionan la confianza en la marca (Producto Comprado, Precio y Valor o Servicio al Cliente, según el tema)."},
+        ],
+    },
+    "retail_despacho_ecommerce": {
+        "nombre": "Despacho y E-commerce",
+        "industria": "Retail",
+        "descripcion": "Para encuestas a clientes que compraron en línea: cumplimiento del plazo de despacho, estado del producto al llegar, seguimiento del pedido y uso del sitio.",
+        "marco_teorico": (
+            "Modelo de la compra en línea de principio a fin: usar el sitio o la app para elegir y pagar, "
+            "esperar el pedido (plazo y seguimiento), recibirlo (entrega y estado del producto) y resolver "
+            "problemas si algo falla (postventa). Cada etapa tiene su propio responsable dentro de la empresa, "
+            "por eso se separan."
+        ),
+        "categorias_default": [
+            {"nombre": "Sitio y Proceso de Compra",
+             "definicion": "Facilidad de usar el sitio web o la app para buscar, elegir y pagar.",
+             "criterios_inclusion": "Navegación, buscador, fotos y descripciones, fallas al pagar, carro de compras, medios de pago, claridad del costo de envío antes de pagar.",
+             "criterios_exclusion": "Lo que ocurre después de pagar (Plazo de Despacho y Seguimiento) y la calidad del producto recibido (Estado y Contenido del Pedido)."},
+            {"nombre": "Plazo de Despacho y Seguimiento",
+             "definicion": "Cumplimiento de la fecha prometida y capacidad de saber dónde va el pedido.",
+             "criterios_inclusion": "Atrasos, entrega antes o después de lo prometido, número de seguimiento que no se actualiza, falta de avisos, reprogramaciones, pedido perdido.",
+             "criterios_exclusion": "Trato del repartidor al entregar (Entrega y Retiro) y problemas del pedido ya recibido (Estado y Contenido del Pedido)."},
+            {"nombre": "Entrega y Retiro",
+             "definicion": "Cómo fue el momento de recibir el pedido, a domicilio o retirándolo en tienda o punto de retiro.",
+             "criterios_inclusion": "Trato del repartidor, entrega fuera del horario acordado, nadie en casa, visitas fallidas, retiro en tienda, espera en el punto de retiro, entrega en el lugar equivocado.",
+             "criterios_exclusion": "Atraso general del despacho antes de la entrega (Plazo de Despacho y Seguimiento) y daños del producto (Estado y Contenido del Pedido)."},
+            {"nombre": "Estado y Contenido del Pedido",
+             "definicion": "Cómo llegó el pedido: si estaba completo, bien embalado y era lo que se compró.",
+             "criterios_inclusion": "Productos dañados o rotos, embalaje deficiente, productos faltantes o equivocados, bultos incompletos, productos usados o con fallas al abrirlos.",
+             "criterios_exclusion": "Demoras en llegar (Plazo de Despacho y Seguimiento) y la gestión del cambio o reembolso (Postventa y Devoluciones)."},
+            {"nombre": "Postventa y Devoluciones",
+             "definicion": "Respuesta de la empresa cuando el cliente reclama, cambia o devuelve algo de una compra en línea.",
+             "criterios_inclusion": "Facilidad o trabas para devolver, retiro del producto a devolver, reembolsos, tiempos de respuesta del servicio al cliente, reclamos sin solución.",
+             "criterios_exclusion": "El problema de origen, como un producto dañado o un atraso (Estado y Contenido del Pedido o Plazo de Despacho y Seguimiento); aquí solo importa cómo respondió la empresa."},
+        ],
+    },
+    "retail_colaboradores_tienda": {
+        "nombre": "Colaboradores de Tienda",
+        "industria": "Retail",
+        "descripcion": "Para encuestas internas al personal de tiendas: clima laboral, carga de trabajo, turnos, jefaturas, capacitación y condiciones del local.",
+        "marco_teorico": (
+            "Modelo de clima laboral en tiendas, adaptado a la realidad del retail: trabajo en turnos y con "
+            "público. Mira cómo es la carga del día a día (dotación, turnos, metas de venta), la relación con "
+            "la jefatura de tienda, el compañerismo, el aprendizaje y las oportunidades de crecer, y las "
+            "condiciones físicas del local. Sirve para entender qué desgasta o motiva al personal que atiende "
+            "al cliente."
+        ),
+        "categorias_default": [
+            {"nombre": "Carga de Trabajo y Turnos",
+             "definicion": "Cantidad de trabajo, horarios y turnos, y su efecto en el descanso y la vida personal.",
+             "criterios_inclusion": "Falta de dotación, turnos rotativos, horas extra, pocos días libres, trabajo en fines de semana y festivos, presión por metas de venta, cansancio.",
+             "criterios_exclusion": "Malestar por el trato de la jefatura (Liderazgo en Tienda) y sueldo o bonos (Remuneración y Reconocimiento)."},
+            {"nombre": "Liderazgo en Tienda",
+             "definicion": "Relación con el jefe de tienda, supervisores y la gerencia: trato, comunicación y justicia.",
+             "criterios_inclusion": "Trato de la jefatura, favoritismos, claridad de las instrucciones, retroalimentación, escucha ante problemas, coherencia entre lo que se dice y lo que se hace.",
+             "criterios_exclusion": "Relación entre compañeros de turno (Compañerismo y Ambiente) y la presión por metas como carga (Carga de Trabajo y Turnos)."},
+            {"nombre": "Compañerismo y Ambiente",
+             "definicion": "Relación entre colegas del mismo equipo y entre secciones o turnos de la tienda.",
+             "criterios_inclusion": "Ayuda mutua, buen o mal ambiente, conflictos entre compañeros, traspaso entre turnos, trato entre secciones, discriminación o malos tratos entre pares.",
+             "criterios_exclusion": "Relación con la jefatura (Liderazgo en Tienda) y problemas con clientes difíciles (Condiciones del Local y Seguridad)."},
+            {"nombre": "Capacitación y Desarrollo",
+             "definicion": "Preparación para el cargo y posibilidades de aprender y avanzar dentro de la empresa.",
+             "criterios_inclusion": "Inducción al entrar, capacitaciones, cursos, ascensos, cambios a otros cargos o tiendas, acceso a información de productos y procesos.",
+             "criterios_exclusion": "Sueldo, bonos y comisiones (Remuneración y Reconocimiento) y falta de dotación que impide capacitarse (Carga de Trabajo y Turnos)."},
+            {"nombre": "Remuneración y Reconocimiento",
+             "definicion": "Percepción de justicia en el sueldo, las comisiones, los beneficios y el reconocimiento del esfuerzo.",
+             "criterios_inclusion": "Sueldo base, comisiones y bonos por venta, beneficios, descuentos de personal, equidad entre colegas, sentirse valorado o ignorado.",
+             "criterios_exclusion": "Oportunidades de ascenso sin mención al pago (Capacitación y Desarrollo) y metas de venta como presión de trabajo (Carga de Trabajo y Turnos)."},
+            {"nombre": "Condiciones del Local y Seguridad",
+             "definicion": "Estado físico del lugar de trabajo, herramientas, seguridad y trato de clientes hacia el personal.",
+             "criterios_inclusion": "Bodega, comedor y baños del personal, temperatura, mobiliario, sistemas de caja y de inventario, robos o asaltos, clientes agresivos, uniformes, prevención de accidentes.",
+             "criterios_exclusion": "Cansancio por jornadas o dotación (Carga de Trabajo y Turnos) y conflictos con compañeros (Compañerismo y Ambiente)."},
+        ],
+    },
+
+    # ================= MUNICIPAL =================
+
+    "municipal_servicios": {
+        "nombre": "Satisfacción con Servicios Municipales",
+        "industria": "Municipal",
+        "descripcion": "Para encuestas a vecinos sobre los servicios que entrega el municipio: atención y trámites, aseo y ornato, seguridad y áreas verdes.",
+        "marco_teorico": (
+            "Modelo de satisfacción vecinal con los servicios del municipio: la atención y los trámites en "
+            "oficinas, el aseo y ornato de calles y espacios públicos, la seguridad del barrio, y las áreas "
+            "verdes y la infraestructura que usa la comunidad. Cada comentario se asigna al servicio del que "
+            "habla el vecino, para que cada dirección municipal sepa qué le toca mejorar."
+        ),
+        "categorias_default": [
+            {"nombre": "Atención y Trámites",
+             "definicion": "Experiencia del vecino al hacer trámites o consultas en las oficinas municipales, por teléfono o en línea.",
+             "criterios_inclusion": "Trato de los funcionarios, filas y tiempos de espera, permisos, patentes, certificados, claridad de los requisitos, horarios de atención, trámites por internet.",
+             "criterios_exclusion": "Reclamos por la mantención del barrio, como basura o luminarias (Aseo y Ornato), y por la seguridad (Seguridad Ciudadana)."},
+            {"nombre": "Aseo y Ornato",
+             "definicion": "Limpieza y mantención de calles, veredas, alumbrado y espacios públicos del barrio.",
+             "criterios_inclusion": "Retiro de basura, microbasurales, barrido de calles, luminarias quemadas, veredas y calles en mal estado, ferias y comercio ambulante, escombros.",
+             "criterios_exclusion": "Plazas, árboles y jardines (Áreas Verdes y Espacios Públicos) y delincuencia o falta de vigilancia aunque ocurra por mala iluminación (Seguridad Ciudadana)."},
+            {"nombre": "Seguridad Ciudadana",
+             "definicion": "Sensación de seguridad en el barrio y trabajo del municipio con las policías y la prevención.",
+             "criterios_inclusion": "Robos, balaceras, consumo de alcohol y drogas en la vía pública, patrullajes, cámaras de vigilancia, alarmas comunitarias, seguridad de noche, ruidos molestos.",
+             "criterios_exclusion": "Mantención de luminarias o calles sin mención a la seguridad (Aseo y Ornato) y trato del funcionario en una denuncia o trámite (Atención y Trámites)."},
+            {"nombre": "Áreas Verdes y Espacios Públicos",
+             "definicion": "Estado, cantidad y uso de plazas, parques, canchas, juegos infantiles y otros lugares de encuentro.",
+             "criterios_inclusion": "Mantención de plazas y parques, riego, poda de árboles, canchas y multicanchas, juegos infantiles, ciclovías, accesibilidad, falta de espacios para la comunidad.",
+             "criterios_exclusion": "Limpieza general de calles y basura (Aseo y Ornato) e inseguridad en una plaza (Seguridad Ciudadana)."},
+            {"nombre": "Servicios y Programas Sociales",
+             "definicion": "Programas del municipio para las personas: salud municipal, educación, cultura, deportes y apoyo social.",
+             "criterios_inclusion": "Consultorios y Cesfam municipales, colegios municipales, talleres, actividades culturales y deportivas, beneficios para adultos mayores, ayudas sociales, programas para jóvenes y mujeres.",
+             "criterios_exclusion": "Trato en una oficina por un trámite cualquiera (Atención y Trámites) y estado de canchas o plazas como infraestructura (Áreas Verdes y Espacios Públicos)."},
+        ],
+    },
+    "municipal_pladeco": {
+        "nombre": "Consulta PLADECO",
+        "industria": "Municipal",
+        "descripcion": "Para la consulta a la comunidad del Plan de Desarrollo Comunal (PLADECO): en qué ámbitos quieren los vecinos que avance la comuna y con qué proyectos.",
+        "marco_teorico": (
+            "El PLADECO es el plan que define hacia dónde quiere avanzar una comuna en los próximos años. "
+            "Esta plantilla ordena las respuestas de la comunidad por ámbito de desarrollo: social, "
+            "territorial y medio ambiente, económico y empleo, e institucional. Aparte se recogen las "
+            "propuestas de proyectos concretos, que se pueden cruzar con cada ámbito."
+        ),
+        "categorias_default": [
+            {"nombre": "Desarrollo Social y Comunitario",
+             "definicion": "Prioridades de las personas y la vida en comunidad: salud, educación, vivienda, cultura, deporte, adultos mayores, infancia y organizaciones sociales.",
+             "criterios_inclusion": "Falta de atención de salud, calidad de la educación, acceso a vivienda, apoyo a adultos mayores y jóvenes, vida comunitaria, cultura y deporte, igualdad y inclusión.",
+             "criterios_exclusion": "Obras, transporte o medio ambiente (Desarrollo Territorial y Medio Ambiente), empleo y comercio (Desarrollo Económico y Empleo) y proyectos con nombre y lugar (Propuestas de Proyectos)."},
+            {"nombre": "Desarrollo Territorial y Medio Ambiente",
+             "definicion": "Prioridades sobre cómo se ocupa y cuida el territorio: obras, conectividad, vivienda en el espacio urbano, seguridad del entorno y medio ambiente.",
+             "criterios_inclusion": "Transporte y conectividad, calles y veredas, áreas verdes, agua, basura y reciclaje, contaminación, riesgo de inundaciones o incendios, crecimiento urbano, seguridad del entorno.",
+             "criterios_exclusion": "Servicios a las personas, como salud o educación (Desarrollo Social y Comunitario) y peticiones de un proyecto puntual (Propuestas de Proyectos)."},
+            {"nombre": "Desarrollo Económico y Empleo",
+             "definicion": "Prioridades sobre trabajo, emprendimiento, comercio y turismo en la comuna.",
+             "criterios_inclusion": "Falta de empleo, capacitación laboral, apoyo a emprendedores y pymes, ferias, comercio local, turismo, patentes, atracción de empresas.",
+             "criterios_exclusion": "Educación y capacitación general sin fin laboral (Desarrollo Social y Comunitario) y obras de infraestructura (Desarrollo Territorial y Medio Ambiente)."},
+            {"nombre": "Gestión Municipal y Participación",
+             "definicion": "Opiniones sobre cómo funciona el municipio y cómo se involucra a la comunidad en las decisiones.",
+             "criterios_inclusion": "Transparencia, trato a los vecinos, cercanía de las autoridades, información, espacios para participar, rol de las juntas de vecinos, uso de los recursos municipales.",
+             "criterios_exclusion": "Reclamos por servicios concretos como basura o salud (el ámbito que corresponda) y propuestas de obras (Propuestas de Proyectos)."},
+            {"nombre": "Propuestas de Proyectos",
+             "definicion": "Ideas concretas que los vecinos proponen para la comuna, con algo específico que construir, crear o cambiar.",
+             "criterios_inclusion": "\"Propongo un…\", \"construir…\", \"habilitar…\", programas con nombre o lugar identificable, soluciones detalladas a un problema.",
+             "criterios_exclusion": "Problemas o carencias sin una solución propuesta (Desarrollo Social y Comunitario, Desarrollo Territorial y Medio Ambiente o Desarrollo Económico y Empleo, según el tema) y peticiones genéricas como \"más seguridad\"."},
+        ],
+    },
+    "municipal_presupuesto_participativo": {
+        "nombre": "Presupuesto Participativo",
+        "industria": "Municipal",
+        "descripcion": "Para procesos de presupuesto participativo: qué proyectos proponen y priorizan los vecinos, y qué opinan de las reglas y de la transparencia del proceso.",
+        "marco_teorico": (
+            "En un presupuesto participativo, los vecinos deciden en qué se gasta una parte del dinero del "
+            "municipio. Esta plantilla separa tres cosas: las ideas de proyectos que presenta la comunidad "
+            "(por tipo de proyecto), las razones por las que priorizan unos sobre otros, y la opinión sobre "
+            "cómo funciona el proceso, sus reglas y la confianza en que se cumpla lo votado."
+        ),
+        "categorias_default": [
+            {"nombre": "Proyectos de Infraestructura y Espacios Públicos",
+             "definicion": "Propuestas de obras físicas para el barrio: plazas, veredas, luminarias, sedes y equipamiento.",
+             "criterios_inclusion": "Mejoramiento de plazas y canchas, luminarias, veredas, paraderos, sedes vecinales, juegos infantiles, accesibilidad, pavimentación.",
+             "criterios_exclusion": "Proyectos de seguridad que no son obras, como alarmas o rondas (Proyectos de Seguridad y Prevención), y actividades para las personas (Proyectos Sociales, Culturales y Deportivos)."},
+            {"nombre": "Proyectos Sociales, Culturales y Deportivos",
+             "definicion": "Propuestas de actividades, talleres y programas para personas y organizaciones.",
+             "criterios_inclusion": "Talleres, eventos culturales, escuelas deportivas, apoyo a adultos mayores, actividades para niños y jóvenes, equipamiento de clubes y juntas de vecinos, fondos para organizaciones.",
+             "criterios_exclusion": "Construcción de espacios físicos (Proyectos de Infraestructura y Espacios Públicos) y proyectos de seguridad (Proyectos de Seguridad y Prevención)."},
+            {"nombre": "Proyectos de Seguridad y Prevención",
+             "definicion": "Propuestas para que el barrio esté más seguro: vigilancia, iluminación con fines de seguridad y prevención.",
+             "criterios_inclusion": "Cámaras, alarmas comunitarias, rejas, más patrullajes, programas de prevención del delito y del consumo de drogas, iluminación para prevenir delitos.",
+             "criterios_exclusion": "Mejoras de espacios públicos sin foco en seguridad (Proyectos de Infraestructura y Espacios Públicos) y talleres para jóvenes (Proyectos Sociales, Culturales y Deportivos)."},
+            {"nombre": "Criterios para Priorizar",
+             "definicion": "Razones que dan los vecinos para elegir o preferir unos proyectos sobre otros.",
+             "criterios_inclusion": "\"A cuántos beneficia\", urgencia, riesgo, abandono del sector, equidad entre barrios, costo, quiénes más lo necesitan.",
+             "criterios_exclusion": "El proyecto propuesto en sí (la categoría de proyectos que corresponda) y críticas a las reglas de votación (Reglas y Confianza en el Proceso)."},
+            {"nombre": "Reglas y Confianza en el Proceso",
+             "definicion": "Opiniones sobre cómo se organiza la votación, qué tan justo es y si se confía en que el municipio cumplirá.",
+             "criterios_inclusion": "Difusión, plazos, forma de votar, requisitos para postular, transparencia del conteo, \"nunca se hacen los proyectos\", bajo conocimiento del proceso, valoración de poder decidir.",
+             "criterios_exclusion": "Reclamos por la mantención de la comuna en general (la categoría de proyectos que corresponda) y razones para elegir un proyecto (Criterios para Priorizar)."},
+        ],
+    },
 }
 
 
