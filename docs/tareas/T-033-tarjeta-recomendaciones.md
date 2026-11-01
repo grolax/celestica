@@ -69,3 +69,11 @@ Lo demás está bien: diff dentro del alcance, contrato respetado, `alert-warnin
 - Desde "Resumen" se mantiene la navegación actual.
 - Verificación: describe en el resumen cómo comprobaste el botón en un proyecto **sin** abiertas. Puedes crear uno local desde la encuesta real desmarcando las abiertas, como en T-026, o, si ya existe uno, usarlo. No llames a la API real de Anthropic.
 - `npm run build` sin errores.
+
+## Revisión 2
+2026-11-01 · **Aprobada.**
+- Corrección mínima (2 archivos, +5/−3): prop opcional `onVerPor`; `ClosedResults` pasa `cambiarPor`; desde "Resumen" se mantiene la navegación.
+- `npm run build` sin errores.
+- Verificado por el programador en un proyecto local sin abiertas (backend con mongomock, sin IA): el botón separa por "Sede" en la misma pantalla, la URL sigue en `/cerradas` y no hay errores.
+- No probado en navegador: vista de lector y móvil. El lector sin plantilla queda cubierto por el código (`puede(user, "analista")`).
+- Menor: al separar desde la tarjeta o el selector, la URL no guarda `?por=` (igual que hoy con el selector).
