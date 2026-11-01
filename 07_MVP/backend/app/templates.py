@@ -23,6 +23,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "evaluacion_docente_cna": {
         "nombre": "Evaluación Docente (marco CNA)",
         "industria": "Educación Superior",
+        "palabras_clave": ["profesor", "docente", "clase", "asignatura", "catedra", "ramo", "pedagog", "metodolog", "aprendizaje"],
         "descripcion": "Dimensiones clásicas de la docencia universitaria usadas en procesos de acreditación CNA: dominio disciplinar, metodología, evaluación de aprendizajes y relación pedagógica.",
         "marco_teorico": (
             "Modelo de competencias docentes alineado con criterios CNA: "
@@ -51,6 +52,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "satisfaccion_estudiantil": {
         "nombre": "Satisfacción Estudiantil",
         "industria": "Educación Superior",
+        "palabras_clave": ["estudiante", "alumno", "universidad", "campus", "biblioteca", "casino", "beca", "carrera", "matricula", "malla", "bienestar"],
         "descripcion": "Dimensiones habituales de encuestas de satisfacción: servicios, infraestructura, gestión académica y experiencia formativa.",
         "marco_teorico": (
             "Modelo de satisfacción estudiantil con cuatro dimensiones: experiencia formativa, "
@@ -78,6 +80,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "acreditacion_institucional": {
         "nombre": "Acreditación Institucional (CNA)",
         "industria": "Educación Superior",
+        "palabras_clave": ["acreditacion", "institucional", "cna", "vinculacion", "aseguramiento", "autoevaluacion", "egresado", "investigacion"],
         "descripcion": "Dimensiones de la acreditación institucional CNA (Ley 21.091): docencia, gestión, aseguramiento interno de la calidad y vinculación con el medio.",
         "marco_teorico": (
             "Dimensiones de acreditación institucional CNA: docencia y resultados del proceso formativo, "
@@ -109,6 +112,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "satisfaccion_clientes_nps": {
         "nombre": "Satisfacción de Clientes (verbatims NPS)",
         "industria": "Estudios de Mercado",
+        "palabras_clave": ["cliente", "recomend", "nps", "promotor", "detractor", "csat", "satisfaccion", "fidelidad"],
         "descripcion": "Para analizar los comentarios abiertos de encuestas NPS/CSAT: qué explica que un cliente sea promotor, pasivo o detractor.",
         "marco_teorico": (
             "Modelo de drivers de satisfacción y lealtad de clientes: calidad del producto o servicio, "
@@ -142,6 +146,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "percepcion_marca": {
         "nombre": "Percepción de Marca",
         "industria": "Estudios de Mercado",
+        "palabras_clave": ["marca", "imagen", "posicionamiento", "competidor", "competencia", "publicidad", "asocia", "campana", "reputacion", "notoriedad"],
         "descripcion": "Para estudios de imagen y posicionamiento: asociaciones espontáneas, atributos funcionales y emocionales, y comparación con competidores.",
         "marco_teorico": (
             "Modelo de imagen de marca en tres capas: asociaciones funcionales (qué hace la marca y qué tan "
@@ -171,6 +176,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "investigacion_producto": {
         "nombre": "Investigación de Producto/Concepto",
         "industria": "Estudios de Mercado",
+        "palabras_clave": ["concepto", "prototipo", "lanzamiento", "novedoso", "intencion", "pagar", "adopcion", "funcionalidad", "usaria"],
         "descripcion": "Para tests de concepto y feedback de producto: comprensión, relevancia, intención y barreras de adopción.",
         "marco_teorico": (
             "Marco de evaluación de conceptos y productos: comprensión del concepto (¿se entiende?), "
@@ -207,6 +213,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "clima_organizacional": {
         "nombre": "Clima y Cultura Organizacional",
         "industria": "Organizaciones y B2B",
+        "palabras_clave": ["clima", "jefatura", "jefe", "liderazgo", "equipo", "companero", "organizacion", "reconocimiento", "remuneracion", "cultura"],
         "descripcion": "Para encuestas de clima: liderazgo, colaboración, desarrollo, reconocimiento y condiciones de trabajo.",
         "marco_teorico": (
             "Modelo de clima organizacional en cinco dimensiones: liderazgo y confianza en jefaturas, "
@@ -240,6 +247,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "feedback_empleados": {
         "nombre": "Feedback de Empleados (pulso / salida)",
         "industria": "Organizaciones y B2B",
+        "palabras_clave": ["renuncia", "permanencia", "pulso", "empleado", "trabajador", "desvincul", "rotacion", "onboarding"],
         "descripcion": "Para encuestas de pulso y entrevistas de salida: motivos de permanencia y renuncia, momentos críticos y propuestas.",
         "marco_teorico": (
             "Marco de experiencia del empleado (employee journey): motivos de permanencia (qué retiene), "
@@ -269,6 +277,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "voz_cliente_b2b": {
         "nombre": "Voz del Cliente B2B",
         "industria": "Organizaciones y B2B",
+        "palabras_clave": ["b2b", "proveedor", "contrato", "soporte", "partnership", "comercial", "facturacion", "ejecutivo"],
         "descripcion": "Para feedback de clientes empresa: relación comercial, calidad de la entrega, soporte y valor percibido del partnership.",
         "marco_teorico": (
             "Marco de relación cliente-proveedor B2B: gestión comercial y de cuenta (la relación), calidad "
@@ -301,6 +310,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "consultas_ciudadanas": {
         "nombre": "Consultas Ciudadanas",
         "industria": "Sector Público",
+        "palabras_clave": ["ciudadan", "participacion", "consulta", "autoridad", "gobierno", "demanda", "legitimidad", "politica", "representante"],
         "descripcion": "Para procesos participativos: demandas y prioridades, evaluación de la gestión, propuestas y confianza institucional.",
         "marco_teorico": (
             "Marco de análisis de participación ciudadana: demandas y necesidades priorizadas por la "
@@ -330,6 +340,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "servicios_publicos": {
         "nombre": "Evaluación de Servicios Públicos",
         "industria": "Sector Público",
+        "palabras_clave": ["tramite", "ventanilla", "funcionario", "publico", "beneficio", "requisito", "certificado", "reparticion", "usuario"],
         "descripcion": "Para encuestas de usuarios de servicios estatales: acceso, calidad de atención, tiempos y trámites, e información.",
         "marco_teorico": (
             "Modelo de experiencia del usuario de servicios públicos: acceso y cobertura (poder llegar al "
@@ -362,6 +373,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "experiencia_pacientes": {
         "nombre": "Experiencia de Pacientes",
         "industria": "Salud",
+        "palabras_clave": ["paciente", "hospital", "consultorio", "cesfam", "medico", "doctor", "enfermer", "clinic", "salud", "urgencia", "tratamiento", "diagnostico"],
         "descripcion": "Para encuestas de pacientes y familiares: trato del equipo clínico, información recibida, acceso y tiempos, e infraestructura.",
         "marco_teorico": (
             "Modelo de experiencia del paciente (patient experience): trato y humanización del equipo de "
@@ -395,6 +407,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "retail_experiencia_tienda": {
         "nombre": "Experiencia en Tienda",
         "industria": "Retail",
+        "palabras_clave": ["tienda", "caja", "vendedor", "probador", "stock", "promocion", "devolucion", "boleta", "cajero", "pasillo"],
         "descripcion": "Para encuestas a clientes que compraron en tienda física: atención, disponibilidad de productos, caja, precios y cambios.",
         "marco_teorico": (
             "Modelo de experiencia de compra en tienda: cómo te atienden (el trato), si encuentras lo que "
@@ -428,6 +441,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "retail_post_compra_nps": {
         "nombre": "Post-compra y NPS",
         "industria": "Retail",
+        "palabras_clave": ["compra", "recomend", "nps", "postcompra", "volveria", "recompra", "producto"],
         "descripcion": "Para los comentarios abiertos de la encuesta NPS que se envía después de una compra, en tienda o en línea: qué hace que un cliente recomiende o no la marca.",
         "marco_teorico": (
             "Modelo de lealtad del cliente después de comprar: qué tal es lo que compró (producto), cómo fue "
@@ -461,6 +475,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "retail_despacho_ecommerce": {
         "nombre": "Despacho y E-commerce",
         "industria": "Retail",
+        "palabras_clave": ["despacho", "pedido", "envio", "courier", "seguimiento", "ecommerce", "domicilio", "tracking", "repartidor", "retiro", "paquete"],
         "descripcion": "Para encuestas a clientes que compraron en línea: cumplimiento del plazo de despacho, estado del producto al llegar, seguimiento del pedido y uso del sitio.",
         "marco_teorico": (
             "Modelo de la compra en línea de principio a fin: usar el sitio o la app para elegir y pagar, "
@@ -494,6 +509,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "retail_colaboradores_tienda": {
         "nombre": "Colaboradores de Tienda",
         "industria": "Retail",
+        "palabras_clave": ["turno", "colaborador", "capacitacion", "tienda", "reponedor", "inventario", "comision", "uniforme", "bodega"],
         "descripcion": "Para encuestas internas al personal de tiendas: clima laboral, carga de trabajo, turnos, jefaturas, capacitación y condiciones del local.",
         "marco_teorico": (
             "Modelo de clima laboral en tiendas, adaptado a la realidad del retail: trabajo en turnos y con "
@@ -535,6 +551,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "municipal_servicios": {
         "nombre": "Satisfacción con Servicios Municipales",
         "industria": "Municipal",
+        "palabras_clave": ["municipal", "municipio", "vecino", "aseo", "ornato", "basura", "alumbrado", "comuna", "alcalde", "plaza"],
         "descripcion": "Para encuestas a vecinos sobre los servicios que entrega el municipio: atención y trámites, aseo y ornato, seguridad y áreas verdes.",
         "marco_teorico": (
             "Modelo de satisfacción vecinal con los servicios del municipio: la atención y los trámites en "
@@ -568,6 +585,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "municipal_pladeco": {
         "nombre": "Consulta PLADECO",
         "industria": "Municipal",
+        "palabras_clave": ["pladeco", "comuna", "territorial", "emprendimiento", "empleo", "ambiente", "desarrollo", "vecino", "proyecto"],
         "descripcion": "Para la consulta a la comunidad del Plan de Desarrollo Comunal (PLADECO): en qué ámbitos quieren los vecinos que avance la comuna y con qué proyectos.",
         "marco_teorico": (
             "El PLADECO es el plan que define hacia dónde quiere avanzar una comuna en los próximos años. "
@@ -601,6 +619,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "municipal_presupuesto_participativo": {
         "nombre": "Presupuesto Participativo",
         "industria": "Municipal",
+        "palabras_clave": ["presupuesto", "participativo", "votacion", "votar", "priorizar", "postular", "junta", "iniciativa"],
         "descripcion": "Para procesos de presupuesto participativo: qué proyectos proponen y priorizan los vecinos, y qué opinan de las reglas y de la transparencia del proceso.",
         "marco_teorico": (
             "En un presupuesto participativo, los vecinos deciden en qué se gasta una parte del dinero del "

@@ -53,6 +53,7 @@ OPS = [
     ("GET", P + "/report/progress", "lector", dict),
     ("GET", P + "/usage", "lector", dict),
     ("GET", P + "/closed-results", "lector", dict),
+    ("GET", P + "/recommendations", "lector", dict),
     ("GET", "/api/framework-templates", "lector", dict),
     ("GET", P + "/export/traceability", "lector", dict),
     ("GET", P + "/export/pdf", "lector", dict),
