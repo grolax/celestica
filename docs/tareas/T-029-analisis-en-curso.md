@@ -33,3 +33,12 @@ Que el léxico y la propuesta de categorías no se puedan lanzar dos veces a la 
 - Un `def` síncrono de FastAPI sigue ejecutándose aunque el cliente se desconecte, por eso basta con la marca: el resultado se guarda igual.
 - Usar `try/finally` para liberar la marca.
 - Limpiar el estado en memoria entre pruebas (como se hace con `_codify_progress.clear()`).
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff dentro del alcance: `deps.py` (`_analisis_en_curso` + `una_sola_vez`), `routers/analysis.py` (dos POST envueltos y `GET analysis-status`), pruebas y un párrafo de `COMO_FUNCIONA.md`. Sin cambios en frontend, `thematic.py` ni `store.py`.
+- Contrato: mensajes 409 exactos; respuesta 200 de los POST sin cambios; `analysis-status` con `running`/`idle` y rol lector.
+- Atomicidad: comprobar y marcar ocurren bajo `_progress_lock`; la marca se libera en `finally`, también ante 503 o 500.
+- Aislamiento: `_get_vista` filtra por organización antes de la marca; la ruta nueva está en las pruebas de acceso cruzado y de permisos.
+- `python -m pytest tests -q`: 276 pasan (78 s). Pruebas nuevas en `test_analisis_en_curso_pytest.py`: 409 sin IA ni auditoría, paralelismo con otra pregunta u operación, concurrencia (una 200 y una 409, una sola llamada a la IA) y liberación tras error.
+- Limitación conocida, igual que `codify/progress`: estado en memoria de un solo proceso.
