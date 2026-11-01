@@ -648,7 +648,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Sirve para todos los proyectos, incluidos los que tienen solo preguntas cerradas, que no tienen pestaña "Exportar".
   - Mientras descarga, el botón muestra que está trabajando; si algo falla, aparece un mensaje claro.
 - **Probado con la encuesta de vivienda:** sin separar, por género y por edad con tramos juntados; el Excel trae los mismos grupos que la pantalla.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** incorporada a la versión oficial (PR #33).
 
 ### 54. T-029 · El léxico y la propuesta de categorías no se lanzan dos veces
 
@@ -658,7 +658,17 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - El servidor informa si hay uno en curso, para que la pantalla lo retome (T-030).
   - Si un análisis falla, se puede volver a lanzar enseguida.
 - **Probado:** 276 pruebas automáticas, incluida una que simula dos clics simultáneos: la IA se llama una sola vez.
-- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-030.
+- **Estado:** subida a GitHub (PR #34), esperando la aprobación del responsable. La pantalla llega en T-030.
+
+### 55. T-030 · Volver a la pestaña ya no reinicia el análisis
+
+- **Qué quedó (pantalla):** si se sale de "Análisis léxico" o de "Libro de códigos" mientras corre el análisis y luego se vuelve:
+  - el botón sigue mostrando que está trabajando y no se puede lanzar de nuevo;
+  - el léxico muestra el aviso "Ya hay un análisis en curso… Esta pantalla se actualizará sola cuando termine.";
+  - al terminar, el resultado o las categorías nuevas aparecen solos, sin recargar la página.
+- **Probado:** con un servidor de prueba y un navegador automático, sin usar la IA real. En ambas pestañas la IA se pidió una sola vez.
+- **Pendiente menor:** si el análisis falla mientras se espera, el botón vuelve a aparecer sin explicar por qué.
+- **Estado:** aprobada; pendiente de subir a GitHub.
 
 ---
 

@@ -24,6 +24,11 @@ export function setUnauthorizedHandler(fn: (detail: string) => void) {
   onUnauthorized = fn;
 }
 
+/** Error de `req` con el código HTTP, para distinguir casos como el 409 sin leer el texto. */
+export class ApiError extends Error {
+  constructor(message: string, public status: number) { super(message); }
+}
+
 export async function req<T>(path: string, init?: RequestInit, base = BASE): Promise<T> {
   const token = getToken();
   const r = await fetch(`${base}${path}`, {
@@ -42,7 +47,7 @@ export async function req<T>(path: string, init?: RequestInit, base = BASE): Pro
     if (r.status === 401 && onUnauthorized && !path.startsWith("/login") && !path.startsWith("/signup")) {
       onUnauthorized(detail);
     }
-    throw new Error(detail);
+    throw new ApiError(detail, r.status);
   }
   return r.json();
 }

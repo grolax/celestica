@@ -30,3 +30,13 @@ Si el usuario sale de "Análisis léxico" o "Libro de códigos" mientras corre e
 ## Notas
 - Patrón de referencia: el efecto "Retoma una codificación en curso" de `Coding.tsx` (líneas ~55-65) y `usePolling`.
 - `req` lanza `Error` con el `detail`. Para distinguir el 409 puede hacer falta conocer el código HTTP. Si `shared/api/client.ts` no lo expone, hacer el cambio mínimo (por ejemplo, adjuntar `status` al error) sin afectar al resto de las llamadas que usan `req`.
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff dentro del alcance: `LexicalAnalysis.tsx`, `Codebook.tsx`, `api.ts`, `types.ts`. El cambio mínimo en `shared/api/client.ts` (`ApiError extends Error` con `status`) es compatible con todas las llamadas existentes.
+- Contrato: consume `GET analysis-status` y trata el 409 de los POST como espera, no como error.
+- Efectos con `off` y polling detenido al salir o cambiar de pregunta (patrón de `Coding.tsx`). Botón y selector de plantillas deshabilitados mientras espera.
+- Léxico: aviso `alert-info` con `role="status"`. Al cambiar de pregunta se limpia el resultado anterior; es un ajuste menor y coherente.
+- `npm run build` sin errores. No quedaron archivos temporales en el repo.
+- Verificación del programador con un backend simulado según el contrato y Chrome sin interfaz (19 chequeos): retomar en ambas pestañas con 1 solo POST, 409 sin error, sin consultas tras salir. No se probó contra el backend real.
+- Deuda: si el análisis falla en el servidor mientras la pantalla espera, el botón vuelve a aparecer sin explicar el error.

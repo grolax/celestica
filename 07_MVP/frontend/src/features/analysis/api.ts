@@ -1,6 +1,6 @@
 import { jsonBody, req } from "@/shared/api/client";
 import {
-  AuditEvent, Category, ClosedResultsData, CategoryComment, CodifyProgress, Coding,
+  AnalysisStatus, AuditEvent, Category, ClosedResultsData, CategoryComment, CodifyProgress, Coding,
   ClaudeUsage, ClosedOpciones, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
 } from "./types";
 
@@ -18,6 +18,10 @@ export const analysisApi = {
   // Respuestas
   getResponses: (id: string, pregunta: string, offset = 0, limit = 50) =>
     req<{ total: number; items: ResponseItem[] }>(`/projects/${id}/responses?offset=${offset}&limit=${limit}&${qp(pregunta)}`),
+
+  /** Qué análisis siguen corriendo (léxico y propuesta de categorías) para retomarlos al volver a la pestaña. */
+  getAnalysisStatus: (id: string, pregunta: string) =>
+    req<AnalysisStatus>(`/projects/${id}/analysis-status?${qp(pregunta)}`),
 
   // Capa 1: léxico
   runLexical: (id: string, pregunta: string) => req<LexicalResult>(`/projects/${id}/lexical?${qp(pregunta)}`, { method: "POST" }),

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { ApiError } from "@/shared/api/client";
+import { usePolling } from "@/shared/hooks/usePolling";
 import { analysisApi } from "../api";
 import { LexicalResult } from "../types";
 import { useAuth } from "@/features/auth/useAuth";
@@ -14,10 +16,38 @@ export default function LexicalAnalysis() {
   const [result, setResult] = useState<LexicalResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [waiting, setWaiting] = useState(false); // el servidor sigue analizando (otra visita a la pestaña o 409)
+  const { start, stop } = usePolling(2000);
 
+  // Al entrar o cambiar de pregunta: carga el resultado y retoma un análisis que siga en curso.
   useEffect(() => {
-    analysisApi.getLexical(project.id, project.pregunta).then(setResult).catch(() => {});
+    let off = false;
+    analysisApi.getLexical(project.id, project.pregunta).then((r) => !off && setResult(r)).catch(() => {});
+    analysisApi.getAnalysisStatus(project.id, project.pregunta)
+      .then((s) => { if (!off && s.lexical === "running") setWaiting(true); }).catch(() => {});
+    return () => { off = true; setWaiting(false); setResult(null); setError(""); };
   }, [project.id, project.pregunta]);
+
+  // Mientras espera, consulta cada 2 s; al quedar libre trae el resultado sin recargar la página.
+  useEffect(() => {
+    if (!waiting) return;
+    let off = false, handled = false; // handled: ya llegó el resultado; evita que un tick lento lo repita
+    start(async () => {
+      if (handled) return;
+      try {
+        const s = await analysisApi.getAnalysisStatus(project.id, project.pregunta);
+        if (off || handled || s.lexical !== "idle") return;
+        handled = true;
+        stop();
+        const r = await analysisApi.getLexical(project.id, project.pregunta);
+        if (!off) setResult(r);
+      } catch {
+        // si falló la consulta de estado se reintenta; si falló traer el resultado, se vuelve a mostrar el botón
+      }
+      if (handled && !off) { setWaiting(false); refresh(); }
+    });
+    return () => { off = true; stop(); };
+  }, [waiting, project.id, project.pregunta]);
 
   async function run() {
     setBusy(true);
@@ -26,7 +56,8 @@ export default function LexicalAnalysis() {
       setResult(await analysisApi.runLexical(project.id, project.pregunta));
       refresh();
     } catch (e) {
-      setError((e as Error).message);
+      if (e instanceof ApiError && e.status === 409) setWaiting(true);
+      else setError((e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -39,6 +70,7 @@ export default function LexicalAnalysis() {
     <>
       <PageHeader level={2} title="Análisis léxico" help="Las palabras y frases que más se repiten y el tono de las respuestas, calculados sin IA." />
       {error && <div className="alert alert-error">{error}</div>}
+      {waiting && <div className="alert alert-info" role="status">Ya hay un análisis en curso para esta pregunta. Esta pantalla se actualizará sola cuando termine.</div>}
       {!result && (
         <Card>
           <p className="muted">
@@ -46,7 +78,7 @@ export default function LexicalAnalysis() {
             una breve interpretación de los patrones. El análisis numérico es determinístico y se ejecuta en segundos.
           </p>
           {canEdit
-            ? <Button onClick={run} busy={busy}>{busy ? "Analizando e interpretando…" : "Ejecutar análisis léxico"}</Button>
+            ? <Button onClick={run} busy={busy || waiting}>{busy || waiting ? "Analizando e interpretando…" : "Ejecutar análisis léxico"}</Button>
             : <p className="small muted">Aún no se ejecuta. Un analista de tu organización puede hacerlo.</p>}
         </Card>
       )}
@@ -93,7 +125,7 @@ export default function LexicalAnalysis() {
               ))}
             </div>
             <p className="small muted" style={{ marginTop: 12 }}><strong>Método:</strong> {result.method_note}</p>
-            {canEdit && <Button variant="secondary" size="sm" onClick={run} busy={busy}>Re-ejecutar</Button>}
+            {canEdit && <Button variant="secondary" size="sm" onClick={run} busy={busy || waiting}>Re-ejecutar</Button>}
           </Card>
         </>
       )}
