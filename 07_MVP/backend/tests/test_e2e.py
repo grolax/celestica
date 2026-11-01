@@ -82,7 +82,7 @@ pid = r.json()["id"]
 # 3. plantillas agrupadas
 r = c.get("/api/framework-templates", headers=h)
 inds = {t["industria"] for t in r.json()}
-check("3. 12 plantillas / 5 industrias", len(r.json()) == 12 and len(inds) == 5, str(inds))
+check("3. 19 plantillas / 7 industrias", len(r.json()) == 19 and len(inds) == 7, str(inds))
 
 # 4. léxico
 r = c.post(f"/api/projects/{pid}/lexical", headers=h)
