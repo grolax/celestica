@@ -50,3 +50,22 @@ Mostrar las recomendaciones de `GET /recommendations` en una tarjeta clara, en l
 - Las recomendaciones son de todo el proyecto, no de una pregunta: `GET /api/projects/{id}/recommendations` no lleva `?pregunta=`.
 - Recargar las recomendaciones cuando cambie `project.id`. No hace falta recargarlas al codificar.
 - `ProjectView.tsx` ya maneja `useSearchParams` para `pregunta`; en `ClosedResults` basta con leer `por` una vez al montar.
+
+## Revisión 1
+2026-11-01 · **Con cambios.**
+
+Lo demás está bien: diff dentro del alcance, contrato respetado, `alert-warning` existente, lector sin plantilla, `?por=` al entrar desde "Resumen" y la línea "(sin IA)", que se acepta.
+
+**Falla: "Ver por este grupo" en proyectos sin preguntas abiertas.**
+- `Recommendations.tsx`, `verPor` (líneas ~32-36) navega a `cerradas?…` con una **ruta relativa**.
+  - Desde "Resumen" (ruta índice) funciona.
+  - Pero en un proyecto sin abiertas la tarjeta se monta **dentro** de `ClosedResults` (ruta `cerradas`), y la ruta relativa resuelve a `/proyectos/<id>/cerradas/cerradas`. Esa ruta no existe y cae en el `*` de `App.tsx`, que redirige a `/`.
+- Aunque la dirección fuera correcta, `ClosedResults` solo lee `?por=` al montar (`porUrl` + efecto sobre `project.id`), así que, al estar ya montada, no aplicaría el grupo.
+
+**Se espera:**
+- `Recommendations` acepta una prop opcional `onVerPor?: (preguntaId: string) => void`.
+  - Si viene, el botón la llama en vez de navegar.
+  - `ClosedResults` la pasa con `cambiarPor`, que ya existe, y el resultado se separa en el acto, con el selector actualizado.
+- Desde "Resumen" se mantiene la navegación actual.
+- Verificación: describe en el resumen cómo comprobaste el botón en un proyecto **sin** abiertas. Puedes crear uno local desde la encuesta real desmarcando las abiertas, como en T-026, o, si ya existe uno, usarlo. No llames a la API real de Anthropic.
+- `npm run build` sin errores.
