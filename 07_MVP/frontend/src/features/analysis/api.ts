@@ -7,6 +7,13 @@ import {
 /** Parámetro `?pregunta=` que el contrato RF-23 exige en toda operación de análisis. */
 export const qp = (pregunta: string) => `pregunta=${encodeURIComponent(pregunta)}`;
 
+/** Query de "Ver por…" compartida por closed-results y export/closed-xlsx: misma codificación en ambos. */
+export const closedQuery = (o?: ClosedOpciones) => o
+  ? `?por=${encodeURIComponent(o.por)}`
+    + (o.cortes !== undefined ? `&cortes=${encodeURIComponent(o.cortes)}` : "")
+    + (o.unir?.length ? `&unir=${encodeURIComponent(JSON.stringify(o.unir))}` : "")
+  : "";
+
 export const analysisApi = {
   // Respuestas
   getResponses: (id: string, pregunta: string, offset = 0, limit = 50) =>
@@ -51,11 +58,7 @@ export const analysisApi = {
 
   // Preguntas cerradas (RF-30): no recibe `pregunta`. RF-31: `por`, `cortes` y `unir` separan en grupos.
   getClosedResults: (id: string, o?: ClosedOpciones) =>
-    req<ClosedResultsData>(`/projects/${id}/closed-results` + (o
-      ? `?por=${encodeURIComponent(o.por)}`
-        + (o.cortes !== undefined ? `&cortes=${encodeURIComponent(o.cortes)}` : "")
-        + (o.unir?.length ? `&unir=${encodeURIComponent(JSON.stringify(o.unir))}` : "")
-      : "")),
+    req<ClosedResultsData>(`/projects/${id}/closed-results${closedQuery(o)}`),
 
   // Informe cualitativo
   /** forceFull: ignora el caché del análisis por respondente (Prompt 1) y
