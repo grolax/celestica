@@ -747,6 +747,14 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Probado:** 368 pruebas automáticas. Además, el supervisor comprobó en la base de datos real (en una copia desechable) que solo se modifica la pregunta indicada y nunca la de otra organización.
 - **Estado:** subida a GitHub (PR #42), esperando la aprobación del responsable. La pantalla llega en T-038.
 
+### 63. T-038 · Corregir el tipo de una pregunta desde la pantalla
+
+- **Qué quedó:** en "Preguntas cerradas", cada pregunta tiene un botón **"Cambiar tipo"**, solo para analistas y administradores.
+  - Se elige el tipo correcto entre los 7 tipos de preguntas cerradas y se guarda. La tarjeta se actualiza al instante, sin recargar la página y sin perder el "Ver por…" ni los grupos juntados.
+  - Si el cambio no tiene sentido, el motivo aparece junto al selector. Por ejemplo, convertir en "Escala" una pregunta cuyas respuestas son textos.
+- **Probado por el supervisor en el navegador** con la encuesta de vivienda: se cambió una pregunta y se devolvió a su tipo original, y se provocó el error. Los datos quedaron como estaban.
+- **Estado:** aprobada; pendiente de subir a GitHub.
+
 ---
 
 ## Glosario

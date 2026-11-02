@@ -38,3 +38,15 @@ En "Preguntas cerradas", un analista o admin puede corregir el tipo de una pregu
 ## Notas
 - Decisión del usuario: solo entre cerradas.
 - El cambio queda en la auditoría (lo registra el servidor).
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff: 2 archivos de frontend (+58/−4), dentro del alcance. Componente `CambiarTipo` y `updatePreguntaTipo`; recarga con `por`, `ver`, `cortes` y `unir`, más `refresh()`.
+- `npm run build` sin errores (programador).
+- Verificación del supervisor en Chrome, con la encuesta real local (servidores en 8000/5173, apagados al terminar):
+  - **Editor:** 29 botones "Cambiar tipo". Al abrir, el foco queda en el `select`, que ofrece solo los 7 tipos cerrados, y "Guardar" está deshabilitado sin cambios.
+  - **Ida y vuelta:** q_12 pasa de Escala a Selección única (cambia la tarjeta y desaparece "Promedio") y vuelve a Escala (reaparece "Promedio"), sin recargar.
+  - **Error:** q_8 a Escala muestra "Las respuestas de esta pregunta no son números, así que no puede ser «Escala»." junto al `select`, con el editor abierto. "Cancelar" lo cierra.
+  - **Datos:** quedan como estaban (q_8 = seleccion_unica, q_12 = escala). Sin errores de JS.
+- El criterio "la pregunta del Ver por… deja de servir" era innecesario: esa pregunta no aparece como tarjeta mientras es el "Ver por…". El código que la maneja (3 líneas) queda como defensa.
+- No probado: vista de lector (cubierta por `puede()`) y el 400 de NPS (cubierto por las pruebas del servidor).
