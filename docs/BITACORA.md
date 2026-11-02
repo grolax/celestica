@@ -735,7 +735,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Pares sugeridos:** la tarjeta "Recomendaciones" muestra hasta 5 cruces, como "Género × ¿Qué tan importante es para ti ser propietario?", con un botón **"Ver este cruce"** que lo abre directamente.
 - **Corrección en la revisión:** al cambiar de pregunta se perdían los grupos que el cliente había juntado. Ahora se mantienen.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda.
-- **Estado:** subida a GitHub (PR #41), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #41).
 
 ### 62. T-037 · Corregir el tipo de una pregunta cerrada (servidor)
 
@@ -745,7 +745,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Si las respuestas no lo permiten, explica por qué. Por ejemplo, "Las respuestas de esta pregunta no son números, así que no puede ser «Escala»", o un NPS con números fuera del 0 al 10.
   - Cada cambio queda en la auditoría, con el tipo anterior, el nuevo y quién lo hizo.
 - **Probado:** 368 pruebas automáticas. Además, el supervisor comprobó en la base de datos real (en una copia desechable) que solo se modifica la pregunta indicada y nunca la de otra organización.
-- **Estado:** subida a GitHub (PR #42), esperando la aprobación del responsable. La pantalla llega en T-038.
+- **Estado:** incorporada a la versión oficial (PR #42).
 
 ### 63. T-038 · Corregir el tipo de una pregunta desde la pantalla
 
@@ -753,7 +753,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Se elige el tipo correcto entre los 7 tipos de preguntas cerradas y se guarda. La tarjeta se actualiza al instante, sin recargar la página y sin perder el "Ver por…" ni los grupos juntados.
   - Si el cambio no tiene sentido, el motivo aparece junto al selector. Por ejemplo, convertir en "Escala" una pregunta cuyas respuestas son textos.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda: se cambió una pregunta y se devolvió a su tipo original, y se provocó el error. Los datos quedaron como estaban.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** incorporada a la versión oficial (PR #43).
 
 ---
 
