@@ -4,7 +4,7 @@
 
 **Quién lo actualiza:** el supervisor técnico (Claude), cada vez que se hace un cambio. El responsable del proyecto (Israel) aprueba qué se publica.
 
-**Última actualización:** 31 de octubre de 2026
+**Última actualización:** 2 de noviembre de 2026
 
 ---
 
@@ -56,7 +56,14 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-024 | Pantalla de resultados por grupo | ✅ Incorporada a la versión oficial |
 | T-025 | Proyectos con solo preguntas cerradas (servidor) | ✅ Incorporada a la versión oficial |
 | T-026 | Proyectos con solo preguntas cerradas (pantalla) | ✅ Incorporada a la versión oficial |
-| T-027 | Excel con los resultados de las preguntas cerradas, grupos y gráficos (servidor) | 🟡 Aprobada; esperando la aprobación del responsable (PR #32) |
+| T-027 | Excel con los resultados de las preguntas cerradas, grupos y gráficos (servidor) | ✅ Incorporada a la versión oficial |
+| T-028 | Botón "Descargar Excel" en Preguntas cerradas | ✅ Incorporada a la versión oficial |
+| T-029 y T-030 | El análisis léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña | ✅ Incorporadas a la versión oficial |
+| T-031 | Plantillas para Retail y municipios | ✅ Incorporada a la versión oficial |
+| T-032 y T-033 | Recomendaciones automáticas sin IA: alertas, cruces y plantilla sugerida | ✅ Incorporadas a la versión oficial |
+| T-034 | Alertas agrupadas y etiqueta "Poco respondida" | ✅ Incorporada a la versión oficial |
+| T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
+| T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -369,7 +376,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - La explicación de cada rol en la pantalla Miembros.
 - **T-008a, resultado:** quien entra con una contraseña temporal es llevado a cambiarla antes de seguir. En Configuración hay un botón para cambiar la contraseña. Si alguien es desactivado con la sesión abierta, vuelve al inicio de sesión y ve el aviso. Se verificó en la plataforma local con cuentas de prueba, sin usar IA.
 - **Hallazgo:** ya existía un error. Si alguien escribe mal la contraseña del panel interno de prompts, la plataforma le cierra la sesión. Quedó anotado para corregirlo en una tarea corta.
-- **Estado:** T-008a aprobada por el supervisor; espera que el responsable autorice publicarla. T-008b en cola.
+- **Estado:** T-008a incorporada a la versión oficial por el responsable (PR #15 en GitHub). T-008b se detalla en la entrada 30.
 
 ---
 
@@ -735,7 +742,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Pares sugeridos:** la tarjeta "Recomendaciones" muestra hasta 5 cruces, como "Género × ¿Qué tan importante es para ti ser propietario?", con un botón **"Ver este cruce"** que lo abre directamente.
 - **Corrección en la revisión:** al cambiar de pregunta se perdían los grupos que el cliente había juntado. Ahora se mantienen.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda.
-- **Estado:** subida a GitHub (PR #41), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #41).
 
 ### 62. T-037 · Corregir el tipo de una pregunta cerrada (servidor)
 
@@ -745,7 +752,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Si las respuestas no lo permiten, explica por qué. Por ejemplo, "Las respuestas de esta pregunta no son números, así que no puede ser «Escala»", o un NPS con números fuera del 0 al 10.
   - Cada cambio queda en la auditoría, con el tipo anterior, el nuevo y quién lo hizo.
 - **Probado:** 368 pruebas automáticas. Además, el supervisor comprobó en la base de datos real (en una copia desechable) que solo se modifica la pregunta indicada y nunca la de otra organización.
-- **Estado:** subida a GitHub (PR #42), esperando la aprobación del responsable. La pantalla llega en T-038.
+- **Estado:** incorporada a la versión oficial (PR #42).
 
 ### 63. T-038 · Corregir el tipo de una pregunta desde la pantalla
 
@@ -753,7 +760,27 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Se elige el tipo correcto entre los 7 tipos de preguntas cerradas y se guarda. La tarjeta se actualiza al instante, sin recargar la página y sin perder el "Ver por…" ni los grupos juntados.
   - Si el cambio no tiene sentido, el motivo aparece junto al selector. Por ejemplo, convertir en "Escala" una pregunta cuyas respuestas son textos.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda: se cambió una pregunta y se devolvió a su tipo original, y se provocó el error. Los datos quedaron como estaban.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** incorporada a la versión oficial (PR #43).
+
+---
+
+## 2 de noviembre de 2026
+
+### 64. Chequeo después de un cierre forzoso
+
+- **Qué se hizo:** el responsable tuvo que cerrar la sesión de trabajo a la fuerza, así que el supervisor comprobó dónde había quedado todo y comparó los documentos con la realidad.
+- **Resultado:** **no se perdió nada.**
+  - La versión oficial tiene todo hasta T-038 (PR #43) y no hay cambios a medio hacer ni solicitudes abiertas.
+  - Las 368 pruebas automáticas pasan y las pantallas se construyen sin errores.
+  - En la base de datos local no quedaron copias de prueba. La última prueba manual de T-038 dejó la pregunta con su tipo original.
+- **Qué se corrigió en los documentos:**
+  - El estado ya indica que este resumen sigue en una rama sin subir (`docs/estado-2026-11-02`).
+  - La entrada 28 ya indica que T-008a se incorporó (PR #15).
+  - Se anotó el tiempo real de las pruebas, unos 2 minutos.
+- **Pendiente:**
+  - El documento de producto y las guías técnicas siguen con datos antiguos; por ejemplo, dicen 12 plantillas y hay 19. Están fuera de `docs/`, así que quedaron anotados en el estado.
+  - La base local conserva proyectos de pruebas anteriores. El responsable decide si se borran.
+- **Siguiente:** editar el marco teórico después de crear el proyecto; luego, el panel de resultados para lectores. Ninguna de las dos está empezada.
 
 ---
 

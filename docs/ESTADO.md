@@ -46,12 +46,23 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-033 Tarjeta "Recomendaciones" (Resumen; Preguntas cerradas sin abiertas) y `?por=` en Preguntas cerradas | frontend | RF-41, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-033-tarjeta-recomendaciones` (fusionada, PR #38) |
 | T-034 Alertas compactas (una por tipo, lista desplegable) y etiqueta "Poco respondida" | frontend | RF-41, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-034-alertas-compactas` (fusionada, PR #39) |
 | T-035 Cruce de 2 preguntas (`ver` en closed-results y Excel) y pares sugeridos (`cruces`) | backend | RF-31, RF-41, RF-30, RNF-10 | 2026-11-01 | `tarea/T-035-cruce-dos-preguntas` (fusionada, PR #40) |
-| T-036 Selector "Pregunta" en Preguntas cerradas, Excel con `ver` y "Ver este cruce" en Recomendaciones | frontend | RF-31, RF-41, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-036-pantalla-cruce-dos-preguntas` (PR #41, esperando merge; sale de T-035) |
-| T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (PR #42, esperando merge; sale de T-036) |
-| T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (aprobada, pendiente de subir; sale de T-037) |
+| T-036 Selector "Pregunta" en Preguntas cerradas, Excel con `ver` y "Ver este cruce" en Recomendaciones | frontend | RF-31, RF-41, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-036-pantalla-cruce-dos-preguntas` (fusionada, PR #41) |
+| T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
+| T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 
 ## En curso
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, fusionada) → T-029 léxico y propuesta una sola vez a la vez (backend, fusionada) → T-030 retomarlos al volver a la pestaña (pantalla, fusionada) → T-031 plantillas Retail y Municipal, RF-17 (backend, fusionada) → T-032 recomendaciones RF-41 (backend, fusionada) → T-033 tarjeta "Recomendaciones" (pantalla, fusionada) → **ajustes tras la revisión del usuario: T-034 alertas compactas (pantalla, fusionada) → T-035 cruce de 2 preguntas y pares sugeridos (servidor, fusionada) → T-036 su pantalla (PR #41) → T-037 cambiar el tipo entre cerradas (servidor, PR #42) → T-038 su pantalla (aprobada)** → **editar el marco teórico (siguiente)** → RF-43. Más adelante: sugerir la plantilla al crear el proyecto (paso 3 de RF-40).
+- **Situación al 2026-11-02 (verificada tras un cierre forzoso):** código en `main` al día (último merge: PR #43), sin PR abiertos, sin trabajo perdido: 368 pruebas pytest y build sin errores. **Pendiente de subir:** rama `docs/estado-2026-11-02`, solo con cambios en `docs/`; hasta que se fusione, `ESTADO.md` y `BITACORA.md` de `main` no incluyen este resumen. **Siguiente, sin empezar (sin contrato ni orden de trabajo):** editar el marco teórico después de crear el proyecto (backend + frontend); luego RF-43 (panel de resultados para lectores).
+- **Avance de la sesión 2026-11-01 (T-028 → T-038, PR #33 a #43, todos fusionados):**
+  - Excel de cerradas descargable desde la pantalla (T-028).
+  - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
+  - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).
+  - Recomendaciones automáticas sin IA, RF-41: alertas de calidad, cruces sugeridos y plantilla sugerida (T-032, T-033).
+  - Ajustes tras la revisión del usuario:
+    - alertas agrupadas por tipo y etiqueta "Poco respondida" (T-034);
+    - cruce de 2 preguntas con selector "Pregunta" y pares sugeridos (T-035, T-036);
+    - cambiar el tipo de una pregunta cerrada después de crear el proyecto (T-037, T-038).
+  - Verificación final del supervisor sobre la rama acumulada: 368 pruebas pytest, build sin errores, fusión sin conflictos y 26/26 chequeos en el navegador.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, fusionada) → T-029 léxico y propuesta una sola vez a la vez (backend, fusionada) → T-030 retomarlos al volver a la pestaña (pantalla, fusionada) → T-031 plantillas Retail y Municipal, RF-17 (backend, fusionada) → T-032 recomendaciones RF-41 (backend, fusionada) → T-033 tarjeta "Recomendaciones" (pantalla, fusionada) → **ajustes tras la revisión del usuario: T-034 alertas compactas (pantalla, fusionada) → T-035 cruce de 2 preguntas y pares sugeridos (servidor, fusionada) → T-036 su pantalla (fusionada) → T-037 cambiar el tipo entre cerradas (servidor, fusionada) → T-038 su pantalla (fusionada)** → **editar el marco teórico (siguiente)** → RF-43. Más adelante: sugerir la plantilla al crear el proyecto (paso 3 de RF-40).
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Decisiones T-022 (usuario, 2026-10-31): los tramos de edad que elige el cliente valen solo para ese análisis (no se guardan, ni por proyecto ni por organización); cruzar temas de preguntas abiertas por grupo queda para una tarea posterior.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
@@ -84,6 +95,14 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- `CONTEXTO_SOFTINSIGHT.md` desactualizado (el supervisor no escribe fuera de `docs/`; lo actualiza el usuario o una orden de trabajo): §4 marca como 🆕 requerimientos ya hechos (por ejemplo RF-02, RF-03, RF-22, RF-30); §3.1 describe el flujo v1.1; §10 mantiene abiertas las decisiones 1 (un usuario, una organización; solo asesores en varias) y 5 (nombre Celestica); falta la ampliación de RF-51.
+- `07_MVP/README.md` (líneas 5 y 103) y `07_MVP/COMO_FUNCIONA.md` (línea 296) dicen 12 plantillas; hay 19, y `COMO_FUNCIONA.md` no menciona Retail ni Municipal (T-031). Corregir en una tarea de backend.
+- Base MongoDB local: 14 de 25 proyectos parecen de verificaciones (nombres con T-0xx, "Supervisor" o "Demo"). No se tocaron; el usuario decide si limpiarlos.
+- Preguntas cerradas (T-036): con "Juntar grupos" abierto, los controles ocupan mucho espacio antes de los resultados (mejora de diseño).
+- Nombres: la pestaña dice "Dashboard" y su título interior "Resumen del proyecto"; unificar.
+- Columnas ramificadas no unidas al crear el proyecto (por ejemplo, "¿En qué comuna vives?" en 16 columnas): hoy no se pueden unir después de crear el proyecto; candidata a una tarea futura si el usuario la pide.
+- `quantitative._num` (privada) se importa desde `routers/projects.py` (T-037); hacerla pública si se reutiliza más.
+- Sin suite Playwright en el repo (RNF-18): las verificaciones de pantalla se hacen con scripts desechables.
 - Recomendaciones (T-032): palabras clave genéricas ("comuna", "producto", "cliente", "proyecto", "desarrollo", "usuario") pueden sugerir una plantilla equivocada; afinar con encuestas reales. Un marco editado a partir de una plantilla puede volver a sugerirla.
 - Plantillas (T-031): `feedback_empleados` y `percepcion_marca` tienen exclusiones que no nombran a la categoría vecina; las plantillas Retail y Municipal son un primer borrador para afinar con encuestas reales.
 - Retomar léxico/propuesta (T-030): si el análisis falla en el servidor mientras la pantalla espera, el botón vuelve a aparecer sin explicar el error (el estado solo dice running/idle).
@@ -110,7 +129,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - Lección (T-011a): una migración "automática al arrancar" se verifica llamando a `init_db()`, no a la función de migración; y contra una copia de MongoDB real.
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
-- La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
+- La suite tarda ~2 min (118 s con 368 pruebas, 2026-11-02), sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
 - La presentación muestra "Iniciar sesión" un instante mientras carga la sesión (`LandingPage` no espera `loading` de `useAuth`); menor.
 - Tablas del DOCX con estilo de Word "Light Grid Accent 1" (azul del tema de Word, no la paleta Celestica); menor.
