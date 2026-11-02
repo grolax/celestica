@@ -51,7 +51,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #43). No hay ramas ni PR pendientes. **Siguiente:** editar el marco teórico después de crear el proyecto (backend + frontend); luego RF-43 (panel de resultados para lectores).
+- **Situación al 2026-11-02 (verificada tras un cierre forzoso):** código en `main` al día (último merge: PR #43), sin PR abiertos, sin trabajo perdido: 368 pruebas pytest y build sin errores. **Pendiente de subir:** rama `docs/estado-2026-11-02`, solo con cambios en `docs/`; hasta que se fusione, `ESTADO.md` y `BITACORA.md` de `main` no incluyen este resumen. **Siguiente, sin empezar (sin contrato ni orden de trabajo):** editar el marco teórico después de crear el proyecto (backend + frontend); luego RF-43 (panel de resultados para lectores).
 - **Avance de la sesión 2026-11-01 (T-028 → T-038, PR #33 a #43, todos fusionados):**
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
@@ -95,6 +95,9 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- `CONTEXTO_SOFTINSIGHT.md` desactualizado (el supervisor no escribe fuera de `docs/`; lo actualiza el usuario o una orden de trabajo): §4 marca como 🆕 requerimientos ya hechos (por ejemplo RF-02, RF-03, RF-22, RF-30); §3.1 describe el flujo v1.1; §10 mantiene abiertas las decisiones 1 (un usuario, una organización; solo asesores en varias) y 5 (nombre Celestica); falta la ampliación de RF-51.
+- `07_MVP/README.md` (líneas 5 y 103) y `07_MVP/COMO_FUNCIONA.md` (línea 296) dicen 12 plantillas; hay 19, y `COMO_FUNCIONA.md` no menciona Retail ni Municipal (T-031). Corregir en una tarea de backend.
+- Base MongoDB local: 14 de 25 proyectos parecen de verificaciones (nombres con T-0xx, "Supervisor" o "Demo"). No se tocaron; el usuario decide si limpiarlos.
 - Preguntas cerradas (T-036): con "Juntar grupos" abierto, los controles ocupan mucho espacio antes de los resultados (mejora de diseño).
 - Nombres: la pestaña dice "Dashboard" y su título interior "Resumen del proyecto"; unificar.
 - Columnas ramificadas no unidas al crear el proyecto (por ejemplo, "¿En qué comuna vives?" en 16 columnas): hoy no se pueden unir después de crear el proyecto; candidata a una tarea futura si el usuario la pide.
@@ -126,7 +129,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - Lección (T-011a): una migración "automática al arrancar" se verifica llamando a `init_db()`, no a la función de migración; y contra una copia de MongoDB real.
 - Signup crea el usuario antes que la organización: si la segunda inserción falla, queda un usuario con `org_id` inexistente (no ve nada; ventana mínima).
 - Panel admin (`list_usage_all_projects`) muestra `user_id`, no `org_id`.
-- La suite tarda ~35 s, sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
+- La suite tarda ~2 min (118 s con 368 pruebas, 2026-11-02), sobre todo por los scripts en subproceso (`test_fase3` duerme para simular streaming).
 - Progreso de codificación e informe vive en memoria; se pierde si el servidor se reinicia (RNF-12).
 - La presentación muestra "Iniciar sesión" un instante mientras carga la sesión (`LandingPage` no espera `loading` de `useAuth`); menor.
 - Tablas del DOCX con estilo de Word "Light Grid Accent 1" (azul del tema de Word, no la paleta Celestica); menor.

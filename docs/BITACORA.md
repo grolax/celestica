@@ -376,7 +376,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - La explicación de cada rol en la pantalla Miembros.
 - **T-008a, resultado:** quien entra con una contraseña temporal es llevado a cambiarla antes de seguir. En Configuración hay un botón para cambiar la contraseña. Si alguien es desactivado con la sesión abierta, vuelve al inicio de sesión y ve el aviso. Se verificó en la plataforma local con cuentas de prueba, sin usar IA.
 - **Hallazgo:** ya existía un error. Si alguien escribe mal la contraseña del panel interno de prompts, la plataforma le cierra la sesión. Quedó anotado para corregirlo en una tarea corta.
-- **Estado:** T-008a aprobada por el supervisor; espera que el responsable autorice publicarla. T-008b en cola.
+- **Estado:** T-008a incorporada a la versión oficial por el responsable (PR #15 en GitHub). T-008b se detalla en la entrada 30.
 
 ---
 
@@ -761,6 +761,26 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Si el cambio no tiene sentido, el motivo aparece junto al selector. Por ejemplo, convertir en "Escala" una pregunta cuyas respuestas son textos.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda: se cambió una pregunta y se devolvió a su tipo original, y se provocó el error. Los datos quedaron como estaban.
 - **Estado:** incorporada a la versión oficial (PR #43).
+
+---
+
+## 2 de noviembre de 2026
+
+### 64. Chequeo después de un cierre forzoso
+
+- **Qué se hizo:** el responsable tuvo que cerrar la sesión de trabajo a la fuerza, así que el supervisor comprobó dónde había quedado todo y comparó los documentos con la realidad.
+- **Resultado:** **no se perdió nada.**
+  - La versión oficial tiene todo hasta T-038 (PR #43) y no hay cambios a medio hacer ni solicitudes abiertas.
+  - Las 368 pruebas automáticas pasan y las pantallas se construyen sin errores.
+  - En la base de datos local no quedaron copias de prueba. La última prueba manual de T-038 dejó la pregunta con su tipo original.
+- **Qué se corrigió en los documentos:**
+  - El estado ya indica que este resumen sigue en una rama sin subir (`docs/estado-2026-11-02`).
+  - La entrada 28 ya indica que T-008a se incorporó (PR #15).
+  - Se anotó el tiempo real de las pruebas, unos 2 minutos.
+- **Pendiente:**
+  - El documento de producto y las guías técnicas siguen con datos antiguos; por ejemplo, dicen 12 plantillas y hay 19. Están fuera de `docs/`, así que quedaron anotados en el estado.
+  - La base local conserva proyectos de pruebas anteriores. El responsable decide si se borran.
+- **Siguiente:** editar el marco teórico después de crear el proyecto; luego, el panel de resultados para lectores. Ninguna de las dos está empezada.
 
 ---
 
