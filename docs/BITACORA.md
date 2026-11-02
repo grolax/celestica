@@ -724,7 +724,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Las recomendaciones sugieren hasta **5 pares** "grupo × pregunta de nota". En la encuesta de vivienda: edad × importancia de ser propietario, edad × qué tan informado se siente, género × importancia de ser propietario, edad × confianza en inmobiliarias y género × qué tan informado se siente.
 - **Corrección en la revisión:** la primera regla sugería 5 veces la misma pregunta con grupos distintos. Ahora los pares mezclan preguntas y grupos.
 - **Probado:** 347 pruebas automáticas.
-- **Estado:** subida a GitHub (PR #40), esperando la aprobación del responsable. La pantalla llega en T-036.
+- **Estado:** incorporada a la versión oficial (PR #40).
 
 ### 61. T-036 · Cruce de 2 preguntas en la pantalla
 
@@ -745,7 +745,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Si las respuestas no lo permiten, explica por qué. Por ejemplo, "Las respuestas de esta pregunta no son números, así que no puede ser «Escala»", o un NPS con números fuera del 0 al 10.
   - Cada cambio queda en la auditoría, con el tipo anterior, el nuevo y quién lo hizo.
 - **Probado:** 368 pruebas automáticas. Además, el supervisor comprobó en la base de datos real (en una copia desechable) que solo se modifica la pregunta indicada y nunca la de otra organización.
-- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-038.
+- **Estado:** subida a GitHub (PR #42), esperando la aprobación del responsable. La pantalla llega en T-038.
 
 ---
 

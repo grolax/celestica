@@ -2,7 +2,7 @@
 Lado: frontend
 Requerimientos: RF-25, RF-30, RNF-13, RNF-14
 Rama: tarea/T-038-pantalla-cambiar-tipo
-Depende de: T-037
+Depende de: T-037 (PR #42; la rama sale de ella)
 
 ## Objetivo
 En "Preguntas cerradas", un analista o admin puede corregir el tipo de una pregunta desde su propia tarjeta, y ver al instante el resultado con el tipo nuevo.
