@@ -65,3 +65,10 @@ La línea "Pregunta" del Resumen en dos celdas, igual que "Separado por", se ace
 - Ajustar la prueba de orden de `cruces` a la regla nueva, con un caso de 2 segmentos y 3 escalas cuyo orden esperado sea explícito.
 - Reportar los `cruces` que devuelve la encuesta real con la regla nueva.
 - `pytest tests -q` en verde.
+
+## Revisión 2
+2026-11-01 · **Aprobada.**
+- `_cruces` ordena por `(i + j, i)` y toma 5. Ese es el único cambio de código. La prueba nueva, con 2 segmentos y 3 medidas, escribe el orden esperado explícito, y otra comprueba que se consideran más de 3 segmentos.
+- `python -m pytest tests -q`: 347 pasan.
+- Encuesta real: 5 pares con 3 preguntas distintas (q_12, q_23, q_27) y 2 grupos (edad, género).
+- Antes (revisión 1, ya aprobado): `ver` filtra antes de calcular (0,46 s → 0,02 s con comuna), los 400 tienen los mensajes exactos, y el Excel y su nombre siguen el contrato.

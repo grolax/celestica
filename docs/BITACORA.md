@@ -716,6 +716,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Probado:** en el proyecto de vivienda con solo preguntas cerradas, la tarjeta pasó de 15 alertas a una sola línea.
 - **Estado:** subida a GitHub (PR #39), esperando la aprobación del responsable.
 
+### 60. T-035 · Cruce de 2 preguntas (servidor)
+
+- **Pedido del responsable:** al separar por un grupo, ver solo la pregunta que interesa, en vez de bajar por toda la lista, y recibir sugerencias de qué cruzar.
+- **Qué quedó (servidor):**
+  - Los resultados de las preguntas cerradas, y su Excel, se pueden pedir para **una sola pregunta**, con o sin separar por grupo. Cruzar por comuna una sola pregunta tarda 0,02 segundos, contra 0,46 segundos con todas.
+  - Las recomendaciones sugieren hasta **5 pares** "grupo × pregunta de nota". En la encuesta de vivienda: edad × importancia de ser propietario, edad × qué tan informado se siente, género × importancia de ser propietario, edad × confianza en inmobiliarias y género × qué tan informado se siente.
+- **Corrección en la revisión:** la primera regla sugería 5 veces la misma pregunta con grupos distintos. Ahora los pares mezclan preguntas y grupos.
+- **Probado:** 347 pruebas automáticas.
+- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-036.
+
 ---
 
 ## Glosario
