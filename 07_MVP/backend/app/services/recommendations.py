@@ -14,6 +14,7 @@ from app.templates import FRAMEWORK_TEMPLATES
 
 PRIORIDAD = {"genero", "sexo", "edad", "comuna", "region", "sede", "carrera", "tienda", "area", "cargo"}
 MAX_SEGMENTOS = 3
+MAX_CRUCES = 5
 
 
 def _titulo(q: dict) -> str:
@@ -54,7 +55,8 @@ def _alertas(preguntas: list[dict], respondentes: list[dict]) -> list[dict]:
     return out
 
 
-def _segmentos(preguntas: list[dict], respondentes: list[dict]) -> list[dict]:
+def _candidatos(preguntas: list[dict], respondentes: list[dict]) -> list[dict]:
+    """Todos los segmentos que cumplen las reglas, ya en orden de recomendación."""
     out = []
     for q in preguntas:
         if q["tipo"] not in POR_TIPOS:
@@ -66,7 +68,20 @@ def _segmentos(preguntas: list[dict], respondentes: list[dict]) -> list[dict]:
                         "motivo": f"Separa a las personas en {suficientes} grupos con datos suficientes."})
     # sort estable: dentro de cada bloque queda el orden de la encuesta
     out.sort(key=lambda s: (not set(re.findall(r"[a-z0-9]+", _sin_tildes(s["titulo"]))) & PRIORIDAD, -s["n_grupos"]))
-    return out[:MAX_SEGMENTOS]
+    return out
+
+
+def _corto(t: str) -> str:
+    return t if len(t) <= 60 else t[:60] + "…"
+
+
+def _cruces(preguntas: list[dict], segmentos: list[dict]) -> list[dict]:
+    out = []
+    for v in (q for q in preguntas if q["tipo"] in ("escala", "nps")):  # una pregunta a la vez, con todos los segmentos
+        for s in segmentos:
+            out.append({"por": s["pregunta_id"], "por_titulo": s["titulo"], "ver": v["id"], "ver_titulo": v["titulo"],
+                        "motivo": f"Compara «{_corto(v['titulo'])}» entre los grupos de «{_corto(s['titulo'])}»."})
+    return out[:MAX_CRUCES]
 
 
 def _plantilla(project: dict) -> dict | None:
@@ -90,5 +105,6 @@ def _plantilla(project: dict) -> dict | None:
 
 def recomendar(project: dict) -> dict:
     preguntas, respondentes = project.get("preguntas", []), project.get("respondentes", [])
-    return {"alertas": _alertas(preguntas, respondentes), "segmentos": _segmentos(preguntas, respondentes),
-            "plantilla": _plantilla(project)}
+    candidatos = _candidatos(preguntas, respondentes)
+    return {"alertas": _alertas(preguntas, respondentes), "segmentos": candidatos[:MAX_SEGMENTOS],
+            "cruces": _cruces(preguntas, candidatos), "plantilla": _plantilla(project)}

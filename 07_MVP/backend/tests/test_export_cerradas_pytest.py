@@ -75,14 +75,14 @@ def _query(**kw) -> str:
     return "&".join(f"{k}={quote(v)}" for k, v in kw.items() if v is not None)
 
 
-def _xlsx(env, por=None, cortes=None, unir=None, h="h"):
-    q = _query(por=env["ids"].get(por, por) if por else None, cortes=cortes, unir=unir)
+def _xlsx(env, por=None, cortes=None, unir=None, h="h", ver=None):
+    q = _query(por=env["ids"].get(por, por) if por else None, cortes=cortes, unir=unir, ver=env["ids"].get(ver, ver) if ver else None)
     r = env["c"].get(f"/api/projects/{env['pid']}/export/closed-xlsx?{q}", headers=env[h])
     return r, (load_workbook(io.BytesIO(r.content)) if r.status_code == 200 else None)
 
 
-def _json(env, por=None, cortes=None, unir=None):
-    q = _query(por=env["ids"].get(por, por) if por else None, cortes=cortes, unir=unir)
+def _json(env, por=None, cortes=None, unir=None, ver=None):
+    q = _query(por=env["ids"].get(por, por) if por else None, cortes=cortes, unir=unir, ver=env["ids"].get(ver, ver) if ver else None)
     return env["c"].get(f"/api/projects/{env['pid']}/closed-results?{q}", headers=env["h"]).json()
 
 
@@ -297,3 +297,81 @@ def test_proyecto_sin_cerradas_descarga_resumen_con_la_nota(env):
     assert r.status_code == 200
     wb = load_workbook(io.BytesIO(r.content))
     assert wb.sheetnames == ["Resumen"] and export_closed.SIN_CERRADAS in [c.value for c in wb["Resumen"]["A"]]
+
+
+# ---------- T-035: `ver` (una sola pregunta) ----------
+
+UNIR_TRAMO = json.dumps([{"nombre": "20-29", "valores": ["20-24", "25-29"]}])
+CASOS_VER = [dict(), dict(por="Género"), dict(por="Tramo", unir=UNIR_TRAMO), dict(por="Edad", cortes="18,30,40")]
+
+
+def test_ver_trae_un_solo_elemento_identico_al_de_la_lista_completa_en_todos_los_tipos(env):
+    for kw in CASOS_VER:
+        completo = _json(env, **kw)
+        for p in completo["preguntas"]:  # incluye selección múltiple, NPS, escala, numérica...
+            res = _json(env, ver=p["titulo"], **kw)
+            assert res["preguntas"] == [p], (kw, p["titulo"])
+            assert {k: v for k, v in res.items() if k != "preguntas"} == {k: v for k, v in completo.items() if k != "preguntas"}
+    assert {p["tipo"] for p in _json(env)["preguntas"]} >= {"escala", "nps", "si_no", "seleccion_unica", "seleccion_multiple", "numerica", "segmento"}
+
+
+def test_ver_no_calcula_las_otras_preguntas(env, monkeypatch):
+    llamadas = []
+    original = quantitative._pregunta
+    monkeypatch.setattr(quantitative, "_pregunta", lambda q, *a, **k: llamadas.append(q["id"]) or original(q, *a, **k))
+    _json(env, ver="Frutas")
+    assert llamadas == [env["ids"]["Frutas"]]
+    llamadas.clear()
+    _json(env, por="Género", ver="Frutas")
+    assert set(llamadas) == {env["ids"]["Frutas"]} and len(llamadas) == 4  # total + 3 grupos
+
+
+def test_ver_errores_400_con_los_mensajes_del_contrato(env):
+    uno = f"/api/projects/{env['pid']}/closed-results?ver=no-existe"
+    for url in (uno, uno.replace("closed-results", "export/closed-xlsx")):
+        r = env["c"].get(url, headers=env["h"])
+        assert r.status_code == 400 and r.json()["detail"] == "La pregunta elegida no existe o no es una pregunta cerrada."
+    for ruta in ("closed-results", "export/closed-xlsx"):
+        r = env["c"].get(f"/api/projects/{env['pid']}/{ruta}?por={env['ids']['Género']}&ver={env['ids']['Género']}", headers=env["h"])
+        assert r.status_code == 400 and r.json()["detail"] == "Elige una pregunta distinta a la de «Ver por…»."
+    # un error existente no cambia aunque venga `ver`
+    r = env["c"].get(f"/api/projects/{env['pid']}/closed-results?por=x&ver={env['ids']['Frutas']}", headers=env["h"])
+    assert r.status_code == 400 and r.json()["detail"] == "Esa pregunta no se puede usar para separar en grupos."
+
+
+def test_ver_con_pregunta_abierta_da_400(env):
+    csv = "Comentario,Nota\n" + "\n".join(f"texto largo número {i},{i % 5 + 1}" for i in range(6))
+    r = env["c"].post("/api/projects", headers=env["h"], data={"name": "Mixta", "preguntas": json.dumps(
+        [{"titulo": "Comentario", "columnas": ["Comentario"], "tipo": "abierta"}, {"titulo": "Nota", "columnas": ["Nota"], "tipo": "escala"}])},
+        files={"file": ("e.csv", io.BytesIO(csv.encode()), "text/csv")})
+    r = env["c"].get(f"/api/projects/{r.json()['id']}/closed-results?ver=q_1", headers=env["h"])
+    assert r.status_code == 400 and r.json()["detail"] == "La pregunta elegida no existe o no es una pregunta cerrada."
+
+
+def test_ver_en_el_excel_solo_esa_pregunta_linea_en_resumen_y_nombre_de_archivo(env):
+    for kw in CASOS_VER:
+        for titulo in ("Satisfacción", "Frutas"):
+            r, wb = _xlsx(env, ver=titulo, **kw)
+            assert r.status_code == 200 and wb.sheetnames == (["Resumen", "Totales", "Por grupo"] if kw.get("por") else ["Resumen", "Totales"])
+            res = _json(env, ver=titulo, **kw)
+            assert set(_bloques(wb["Totales"])) == {titulo}
+            if kw.get("por"):
+                ws = wb["Por grupo"]
+                assert set(_bloques(ws)) == {titulo}
+                tabla = _tabla(ws, _bloques(ws)[titulo] + 2, ancho=3)
+                assert [f[0] for f in tabla] == ["Todas las personas"] + [g["valor"] for g in res["grupos"]]
+                assert [f[1] for f in tabla] == [res["preguntas"][0]["n_respuestas"]] + [g["n_respuestas"] for g in res["preguntas"][0]["por_grupo"]]
+            assert ["Pregunta", titulo] in [[c.value for c in f][:2] for f in wb["Resumen"].iter_rows()]
+    r, _ = _xlsx(env, por="Género", ver="Satisfacción")
+    assert r.headers["content-disposition"] == 'attachment; filename="resultados_cerradas_Encuesta_Nandu_por_Genero_Satisfaccion.xlsx"'
+    r, _ = _xlsx(env, ver="Satisfacción")
+    assert r.headers["content-disposition"] == 'attachment; filename="resultados_cerradas_Encuesta_Nandu_Satisfaccion.xlsx"'
+    # sin `ver` el Resumen no trae la línea
+    assert not any(c.value == "Pregunta" for c in _xlsx(env)[1]["Resumen"]["A"])
+
+
+def test_ver_otra_organizacion_404(env):
+    r = env["c"].get(f"/api/projects/{env['pid']}/closed-results?ver={env['ids']['Satisfacción']}", headers=env["hb"])
+    assert r.status_code == 404 and r.json()["detail"] == "Proyecto no encontrado"
+    r, _ = _xlsx(env, ver="Satisfacción", h="hb")
+    assert r.status_code == 404 and r.json()["detail"] == "Proyecto no encontrado"

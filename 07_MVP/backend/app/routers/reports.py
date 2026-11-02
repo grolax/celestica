@@ -80,14 +80,15 @@ def export_xlsx(project_id: str, pregunta: Optional[str] = None, user: User = De
 
 @router.get("/api/projects/{project_id}/export/closed-xlsx")
 def export_closed_xlsx(project_id: str, por: Optional[str] = None, cortes: Optional[str] = None,
-                       unir: Optional[str] = None, user: User = Depends(get_current_user)):
+                       unir: Optional[str] = None, ver: Optional[str] = None, user: User = Depends(get_current_user)):
     project = _get_or_404(project_id, user)
     try:
-        res = quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []), por, cortes, unir)
+        res = quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []), por, cortes, unir, ver)
     except ValueError as e:
         raise HTTPException(400, str(e))
     nombre = f"resultados_cerradas_{_slug(project['name'])}" + (f"_por_{_slug(res['por']['titulo'])}" if por else "")
-    return _download(export_closed.generate_closed_xlsx(project, res, cortes), f"{nombre}.xlsx",
+    nombre += f"_{_slug(res['preguntas'][0]['titulo'])}" if ver else ""
+    return _download(export_closed.generate_closed_xlsx(project, res, cortes, bool(ver)), f"{nombre}.xlsx",
                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 

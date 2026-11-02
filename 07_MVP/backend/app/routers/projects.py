@@ -241,10 +241,10 @@ def get_project(project_id: str, pregunta: Optional[str] = None, user: User = De
 
 @router.get("/api/projects/{project_id}/closed-results")
 def closed_results(project_id: str, por: Optional[str] = None, cortes: Optional[str] = None,
-                   unir: Optional[str] = None, user: User = Depends(get_current_user)):
+                   unir: Optional[str] = None, ver: Optional[str] = None, user: User = Depends(get_current_user)):
     project = _get_or_404(project_id, user)
     try:
-        return quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []), por, cortes, unir)
+        return quantitative.calcular(project.get("preguntas", []), project.get("respondentes", []), por, cortes, unir, ver)
     except ValueError as e:
         raise HTTPException(400, str(e))
 

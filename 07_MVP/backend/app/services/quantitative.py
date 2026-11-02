@@ -25,6 +25,8 @@ ERR_UNIR = "La forma de unir grupos no es válida."
 ERR_UNIR_POR = "Solo se pueden unir opciones de una pregunta de grupos."
 ERR_UNIR_MIN = "Un grupo unido necesita al menos dos opciones."
 ERR_UNIR_NOMBRE = "Cada grupo unido necesita un nombre distinto."
+ERR_VER = "La pregunta elegida no existe o no es una pregunta cerrada."
+ERR_VER_POR = "Elige una pregunta distinta a la de «Ver por…»."
 
 
 def _pct(n: int, base: int) -> float:
@@ -201,8 +203,9 @@ def _unir(grupos: dict[str, list[dict]], texto: str) -> tuple[dict[str, list[dic
 
 
 def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = None, cortes: str | None = None,
-             unir: str | None = None) -> dict:
-    """Con `por` (RF-31) agrega `grupos` y, en cada pregunta, `por_grupo`; `unir` (JSON) junta opciones de `por`.
+             unir: str | None = None, ver: str | None = None) -> dict:
+    """Con `por` (RF-31) agrega `grupos` y, en cada pregunta, `por_grupo`; `unir` (JSON) junta opciones de `por`;
+    `ver` calcula solo esa pregunta cerrada.
     Errores de entrada: ValueError con el mensaje."""
     porq = None
     if por is not None:
@@ -213,13 +216,18 @@ def calcular(preguntas: list[dict], respondentes: list[dict], por: str | None = 
         raise ValueError(ERR_CORTES)
     if unir is not None and (not porq or porq["tipo"] == "numerica"):
         raise ValueError(ERR_UNIR_POR)
+    if ver is not None:
+        if ver == por:
+            raise ValueError(ERR_VER_POR)
+        if not any(q["id"] == ver and q["tipo"] in CERRADAS for q in preguntas):
+            raise ValueError(ERR_VER)
     grupos = _grupos(porq, respondentes, cortes) if porq else {}
     unidos = {}
     if unir is not None:
         grupos, unidos = _unir(grupos, unir)
     out = []
     for q in preguntas:
-        if q["tipo"] not in CERRADAS or q is porq:
+        if q["tipo"] not in CERRADAS or q is porq or (ver is not None and q["id"] != ver):
             continue
         split = None
         if q["tipo"] == "seleccion_multiple":  # se separa una vez con todas las respuestas; el total y cada grupo usan ese resultado

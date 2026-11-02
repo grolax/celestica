@@ -162,10 +162,10 @@ def _bloque_grupos(ws, p: dict, res: dict, natural: bool, row: int) -> int:
     return row + ALTO_GRAFICO + 2
 
 
-def _resumen(ws, project: dict, res: dict, cortes: str | None, sin_cerradas: bool) -> None:
+def _resumen(ws, project: dict, res: dict, cortes: str | None, sin_cerradas: bool, ver: bool = False) -> None:
     _titulo(ws, 1, "Resultados de preguntas cerradas")
     filas = [("Proyecto", project["name"]), ("Fecha de descarga", datetime.now().strftime("%d-%m-%Y")),
-             ("Personas", res["n_personas"]), (NOTA,)]
+             ("Personas", res["n_personas"]), *([("Pregunta", res["preguntas"][0]["titulo"])] if ver else []), (NOTA,)]
     if sin_cerradas:
         filas.append((SIN_CERRADAS,))
     for i, f in enumerate(filas, 3):
@@ -194,14 +194,14 @@ def _resumen(ws, project: dict, res: dict, cortes: str | None, sin_cerradas: boo
                             "personas: tómalos con cautela.",))
 
 
-def generate_closed_xlsx(project: dict, res: dict, cortes: str | None = None) -> bytes:
+def generate_closed_xlsx(project: dict, res: dict, cortes: str | None = None, ver: bool = False) -> bytes:
     """`res` = `quantitative.calcular(...)` del proyecto con los mismos parámetros que la descarga."""
     wb = Workbook()
     resumen = wb.active
     resumen.title = "Resumen"
     resumen.column_dimensions["A"].width = 30
     resumen.column_dimensions["B"].width = 40
-    _resumen(resumen, project, res, cortes, not any(q["tipo"] in CERRADAS for q in project.get("preguntas", [])))
+    _resumen(resumen, project, res, cortes, not any(q["tipo"] in CERRADAS for q in project.get("preguntas", [])), ver)
     if res["preguntas"]:
         ws = wb.create_sheet("Totales")
         ws.column_dimensions["A"].width = 44
