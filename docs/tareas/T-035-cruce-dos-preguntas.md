@@ -45,3 +45,23 @@ Que `closed-results` y su Excel puedan entregar **una sola pregunta** (`ver`), y
   - el cliente puede armar cualquier par.
 - El nombre `ver` evita confundirse con `pregunta`, que ya identifica la pregunta abierta en otras rutas.
 - Reutilizar la lógica de `_segmentos` para los candidatos (sin el corte a 3) en vez de duplicarla.
+
+## Revisión 1
+2026-11-01 · **Con cambios (por un error del contrato, no de la implementación).**
+
+Lo implementado cumple el contrato original y está bien:
+- `ver` filtra antes de calcular;
+- los 400 tienen los mensajes exactos;
+- el Excel y su nombre siguen el contrato;
+- las pruebas de identidad cubren todos los tipos;
+- hay pruebas de aislamiento con `ver`.
+
+La línea "Pregunta" del Resumen en dos celdas, igual que "Separado por", se acepta.
+
+**Problema:** con el orden del contrato original, en la encuesta real los 5 pares usan **la misma pregunta** (`q_12`) con 5 grupos distintos. Para el cliente, eso no es una sugerencia variada.
+
+**Se espera** (contrato actualizado en `docs/API_CONTRATOS.md`, sección T-035, "Orden de los pares"):
+- `recommendations._cruces` ordena todos los pares (segmento `i`, escala o NPS `j`) por `(i + j, i)` y toma los 5 primeros.
+- Ajustar la prueba de orden de `cruces` a la regla nueva, con un caso de 2 segmentos y 3 escalas cuyo orden esperado sea explícito.
+- Reportar los `cruces` que devuelve la encuesta real con la regla nueva.
+- `pytest tests -q` en verde.

@@ -560,6 +560,9 @@ Campo nuevo **`cruces`**. `segmentos` se mantiene sin cambios, por compatibilida
 ```
 
 - **Pares:** cada segmento que hoy se sugiere en `segmentos` (mismas reglas y orden; se consideran todos los que cumplen las reglas, no solo los 3 primeros) se combina con cada pregunta de tipo **`escala` o `nps`** del proyecto, en el orden de la encuesta.
-- **Orden de los pares:** primero la primera escala o NPS con cada segmento, en orden; luego la segunda escala o NPS con cada segmento, y así sucesivamente. **Máximo 5.**
+- **Orden de los pares** (precisado en la revisión 1 de T-035, para que se mezclen preguntas y grupos):
+  - Con `i` = posición del segmento en su orden y `j` = posición de la escala o NPS en la encuesta (desde 0), los pares se ordenan por `(i + j, i)`.
+  - Es decir: (seg0, m0), (seg0, m1), (seg1, m0), (seg0, m2), (seg1, m1), (seg2, m0)…
+  - **Máximo 5.**
 - Lista vacía si no hay segmentos o no hay escalas ni NPS.
 - En `motivo`, los títulos de más de 60 caracteres se recortan con "…". `por_titulo` y `ver_titulo` van completos.
