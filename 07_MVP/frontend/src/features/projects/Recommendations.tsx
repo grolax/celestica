@@ -55,7 +55,7 @@ function AlertaGrupo({ alertas }: { alertas: Alerta[] }) {
 
 /** Alertas, cruces y plantilla sugeridos (RF-41). No se muestra si está vacía o si la consulta falla.
  *  `onVerPor`: si la pantalla que la contiene ya muestra las preguntas cerradas, separa ahí en vez de navegar. */
-export default function Recommendations({ onVerPor }: { onVerPor?: (preguntaId: string) => void }) {
+export default function Recommendations({ onVerPor }: { onVerPor?: (por: string, ver?: string) => void }) {
   const { project } = useProject();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -69,12 +69,13 @@ export default function Recommendations({ onVerPor }: { onVerPor?: (preguntaId: 
 
   if (!rec) return null;
   const plantilla = canEdit ? rec.plantilla : null;
-  if (!rec.alertas.length && !rec.segmentos.length && !plantilla) return null;
+  if (!rec.alertas.length && !rec.cruces.length && !rec.segmentos.length && !plantilla) return null;
 
-  const verPor = (id: string) => {
-    if (onVerPor) return onVerPor(id);
+  const verPor = (por: string, ver?: string) => {
+    if (onVerPor) return onVerPor(por, ver);
     const p = new URLSearchParams(search);
-    p.set("por", id);
+    p.set("por", por);
+    if (ver) p.set("ver", ver); else p.delete("ver");
     navigate(`cerradas?${p}`);
   };
 
@@ -93,17 +94,27 @@ export default function Recommendations({ onVerPor }: { onVerPor?: (preguntaId: 
         ),
       )}
 
-      {rec.segmentos.length > 0 && (
+      {(rec.cruces.length > 0 || rec.segmentos.length > 0) && (
         <>
           <h4 style={{ marginTop: 14 }}>Cruces sugeridos</h4>
-          {rec.segmentos.map((s) => (
-            <div key={s.pregunta_id} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "8px 0", borderBottom: "1px solid var(--border-soft)" }}>
+          {/* Sin pares (no hay escalas ni NPS) se sugieren solo los grupos, como antes. */}
+          {(rec.cruces.length > 0
+            ? rec.cruces.map((c) => ({
+                key: `${c.por}|${c.ver}`, motivo: c.motivo, boton: "Ver este cruce", abrir: () => verPor(c.por, c.ver),
+                titulo: <><strong title={c.por_titulo}>{recortar(c.por_titulo)}</strong> × <strong title={c.ver_titulo}>{recortar(c.ver_titulo)}</strong></>,
+              }))
+            : rec.segmentos.map((s) => ({
+                key: s.pregunta_id, motivo: s.motivo, boton: "Ver por este grupo", abrir: () => verPor(s.pregunta_id),
+                titulo: <strong title={s.titulo}>{recortar(s.titulo)}</strong>,
+              }))
+          ).map((f) => (
+            <div key={f.key} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "8px 0", borderBottom: "1px solid var(--border-soft)" }}>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <strong title={s.titulo}>{recortar(s.titulo)}</strong>
-                <div className="small muted">{s.motivo}</div>
+                {f.titulo}
+                <div className="small muted">{f.motivo}</div>
               </div>
-              <Button size="sm" variant="secondary" onClick={() => verPor(s.pregunta_id)}>
-                Ver por este grupo <Icon name="arrowRight" size={16} />
+              <Button size="sm" variant="secondary" onClick={f.abrir}>
+                {f.boton} <Icon name="arrowRight" size={16} />
               </Button>
             </div>
           ))}

@@ -724,7 +724,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Las recomendaciones sugieren hasta **5 pares** "grupo × pregunta de nota". En la encuesta de vivienda: edad × importancia de ser propietario, edad × qué tan informado se siente, género × importancia de ser propietario, edad × confianza en inmobiliarias y género × qué tan informado se siente.
 - **Corrección en la revisión:** la primera regla sugería 5 veces la misma pregunta con grupos distintos. Ahora los pares mezclan preguntas y grupos.
 - **Probado:** 347 pruebas automáticas.
-- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-036.
+- **Estado:** subida a GitHub (PR #40), esperando la aprobación del responsable. La pantalla llega en T-036.
+
+### 61. T-036 · Cruce de 2 preguntas en la pantalla
+
+- **Qué quedó:** en "Preguntas cerradas", al elegir un "Ver por…" aparece un segundo selector, **"Pregunta"**.
+  - El cliente elige qué pregunta quiere ver separada, o "Todas las preguntas". Hasta que elige, no se muestra la lista larga.
+  - El Excel descarga lo mismo que se ve.
+  - Los tramos y grupos que el cliente juntó se mantienen al cambiar de pregunta.
+- **Pares sugeridos:** la tarjeta "Recomendaciones" muestra hasta 5 cruces, como "Género × ¿Qué tan importante es para ti ser propietario?", con un botón **"Ver este cruce"** que lo abre directamente.
+- **Corrección en la revisión:** al cambiar de pregunta se perdían los grupos que el cliente había juntado. Ahora se mantienen.
+- **Probado por el supervisor en el navegador** con la encuesta de vivienda.
+- **Estado:** aprobada; pendiente de subir a GitHub.
 
 ---
 
