@@ -307,6 +307,15 @@ def set_project_field(project_id: str, org_id: str, field: str, value: Any,
     return result.matched_count > 0
 
 
+def set_pregunta_tipo(project_id: str, org_id: str, pregunta_id: str, tipo: str) -> bool:
+    """$set puntual de `preguntas.$.tipo` (operador posicional), con el filtro de organización."""
+    result = get_db().projects.update_one(
+        {**_tenant_filter(project_id, org_id), "preguntas.id": pregunta_id},
+        {"$set": {"preguntas.$.tipo": tipo}},
+    )
+    return result.matched_count > 0
+
+
 # ---------- Consumo de API Claude por proyecto (observabilidad de costo) ----------
 
 def inc_project_usage(project_id: str, step: str, input_tokens: int,

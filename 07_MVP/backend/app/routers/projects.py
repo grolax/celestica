@@ -8,6 +8,7 @@ from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from pydantic import BaseModel
 
 from app import store, templates
 from app.auth import get_current_user
@@ -237,6 +238,42 @@ def get_project(project_id: str, pregunta: Optional[str] = None, user: User = De
         "preguntas": store.preguntas_publicas(project),
         "pregunta": vista["pregunta"],
     }
+
+
+class TipoBody(BaseModel):
+    tipo: str
+
+
+NUMERICOS = {"escala": "Escala", "nps": "NPS", "numerica": "Numérica"}
+
+
+@router.patch("/api/projects/{project_id}/preguntas/{pregunta_id}")
+def cambiar_tipo_pregunta(project_id: str, pregunta_id: str, body: TipoBody,
+                          user: User = Depends(require_role("analista"))):
+    """RF-25: corrige el tipo de una pregunta cerrada mal detectada (solo entre tipos cerrados)."""
+    project = _get_or_404(project_id, user)
+    q = next((q for q in project.get("preguntas", []) if q["id"] == pregunta_id), None)
+    if q is None:
+        raise HTTPException(404, "Pregunta no encontrada")
+    nuevo = body.tipo
+    if nuevo not in TIPOS:
+        raise HTTPException(400, f"«{nuevo}» no es un tipo de pregunta válido.")
+    if q["tipo"] not in quantitative.CERRADAS or nuevo not in quantitative.CERRADAS:
+        raise HTTPException(400, "Solo se puede cambiar el tipo entre preguntas cerradas.")
+    if nuevo != q["tipo"]:
+        if nuevo in NUMERICOS:  # misma lectura de números que closed-results; ≥ 90 % de las no vacías
+            vals = [v for r in project.get("respondentes", []) if (v := r["valores"].get(pregunta_id)) is not None]
+            nums = [x for x in map(quantitative._num, vals) if x is not None]
+            if len(nums) * 10 < len(vals) * 9:
+                raise HTTPException(400, f"Las respuestas de esta pregunta no son números, así que no puede ser «{NUMERICOS[nuevo]}».")
+            if nuevo == "nps" and not all(0 <= x <= 10 for x in nums):
+                raise HTTPException(400, "Para ser NPS, las respuestas deben ser números del 0 al 10.")
+        store.set_pregunta_tipo(project_id, user.org_id, pregunta_id, nuevo)
+        store.log_event(project, "analista", "cambio_tipo_pregunta",
+                        {"pregunta": pregunta_id, "titulo": q["titulo"], "antes": q["tipo"], "despues": nuevo,
+                         "usuario": user.email})
+        q["tipo"] = nuevo
+    return next(p for p in store.preguntas_publicas(project) if p["id"] == pregunta_id)
 
 
 @router.get("/api/projects/{project_id}/closed-results")

@@ -714,7 +714,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Las alertas del mismo tipo se juntan en una sola línea. Por ejemplo: "15 preguntas tienen más de la mitad sin responder", con un botón **"Ver cuáles (15)"** que despliega la lista.
   - En "Preguntas cerradas", cada pregunta que más de la mitad no respondió lleva una etiqueta pequeña, **"Poco respondida"**, del mismo estilo que "Pocos datos".
 - **Probado:** en el proyecto de vivienda con solo preguntas cerradas, la tarjeta pasó de 15 alertas a una sola línea.
-- **Estado:** subida a GitHub (PR #39), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #39).
 
 ### 60. T-035 · Cruce de 2 preguntas (servidor)
 
@@ -735,7 +735,17 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Pares sugeridos:** la tarjeta "Recomendaciones" muestra hasta 5 cruces, como "Género × ¿Qué tan importante es para ti ser propietario?", con un botón **"Ver este cruce"** que lo abre directamente.
 - **Corrección en la revisión:** al cambiar de pregunta se perdían los grupos que el cliente había juntado. Ahora se mantienen.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** subida a GitHub (PR #41), esperando la aprobación del responsable.
+
+### 62. T-037 · Corregir el tipo de una pregunta cerrada (servidor)
+
+- **Pedido del responsable:** poder corregir el tipo de una pregunta mal detectada en un proyecto ya creado, solo entre tipos de preguntas cerradas.
+- **Qué quedó (servidor):**
+  - Un analista o administrador puede cambiar, por ejemplo, de "Selección única" a "Escala". Los resultados, el Excel y las recomendaciones usan el tipo nuevo al instante.
+  - Si las respuestas no lo permiten, explica por qué. Por ejemplo, "Las respuestas de esta pregunta no son números, así que no puede ser «Escala»", o un NPS con números fuera del 0 al 10.
+  - Cada cambio queda en la auditoría, con el tipo anterior, el nuevo y quién lo hizo.
+- **Probado:** 368 pruebas automáticas. Además, el supervisor comprobó en la base de datos real (en una copia desechable) que solo se modifica la pregunta indicada y nunca la de otra organización.
+- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-038.
 
 ---
 
