@@ -737,6 +737,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda.
 - **Estado:** subida a GitHub (PR #41), esperando la aprobación del responsable.
 
+### 62. T-037 · Corregir el tipo de una pregunta cerrada (servidor)
+
+- **Pedido del responsable:** poder corregir el tipo de una pregunta mal detectada en un proyecto ya creado, solo entre tipos de preguntas cerradas.
+- **Qué quedó (servidor):**
+  - Un analista o administrador puede cambiar, por ejemplo, de "Selección única" a "Escala". Los resultados, el Excel y las recomendaciones usan el tipo nuevo al instante.
+  - Si las respuestas no lo permiten, explica por qué. Por ejemplo, "Las respuestas de esta pregunta no son números, así que no puede ser «Escala»", o un NPS con números fuera del 0 al 10.
+  - Cada cambio queda en la auditoría, con el tipo anterior, el nuevo y quién lo hizo.
+- **Probado:** 368 pruebas automáticas. Además, el supervisor comprobó en la base de datos real (en una copia desechable) que solo se modifica la pregunta indicada y nunca la de otra organización.
+- **Estado:** aprobada; pendiente de subir a GitHub. La pantalla llega en T-038.
+
 ---
 
 ## Glosario

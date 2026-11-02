@@ -41,3 +41,12 @@ Permitir que un analista corrija el tipo de una pregunta cerrada mal detectada e
 - Para leer números, reutilizar la lectura que ya usa `quantitative` (`_num`) para que el criterio sea el mismo que en los resultados.
 - Decisión del usuario: solo entre cerradas.
 - Fuera de alcance, pero relacionado: unir columnas ramificadas después de crear el proyecto (el caso de "¿En qué comuna vives?" repartida en 16 columnas). Si el usuario lo pide, va en otra tarea.
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- Diff dentro del alcance: la ruta en `projects.py` (+37), `store.set_pregunta_tipo` (`$set` posicional con `_tenant_filter` y `preguntas.id`), 25 pruebas nuevas, las rutas agregadas a aislamiento y permisos, y un párrafo de `COMO_FUNCIONA.md`.
+- Contrato: mensajes exactos; mismo tipo sin escritura ni auditoría; regla del 90 % con `quantitative._num` (la misma lectura que los resultados); NPS de 0 a 10; evento `cambio_tipo_pregunta` con antes, después y usuario.
+- Decisión aceptada: una pregunta sin respuestas puede pasar a escala, NPS o numérica.
+- `python -m pytest tests -q`: 368 pasan.
+- Comprobado por el supervisor en MongoDB real, en una base desechable que se borró después: el `$set` posicional cambia solo la pregunta indicada, y con otra organización no coincide nada.
+- Sin migración: el esquema no cambia.
