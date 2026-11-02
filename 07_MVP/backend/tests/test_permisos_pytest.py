@@ -76,6 +76,7 @@ OPS = [
     ("POST", P + "/categories", "analista", lambda: {"json": {"nombre": "Intrusa"}}),
     ("PATCH", CAT, "analista", lambda: {"json": {"nombre": "Hackeada"}}),
     ("POST", P + "/codify", "analista", dict),
+    ("PATCH", P + "/preguntas/{pregunta_id}", "analista", lambda: {"json": {"tipo": "escala"}}),
     ("PUT", P + "/responses/{response_id}/codings", "analista", lambda: {"json": {"category_ids": ["SIN_CATEGORIA"]}}),
     ("POST", P + "/report", "analista", dict),
     ("DELETE", P, "analista", dict),
@@ -144,7 +145,7 @@ def env():
 
     yield {"c": c, "ha": ha, "hl": hl, "hn": hn, "hr": hr, "hl_otra": hl_otra, "lector": lector, "analista": analista,
            "org": orgs["a"], "ai_calls": ai_calls,
-           "ids": {"project_id": pid, "category_id": cid, "comment_id": com, "response_id": "E001"}}
+           "ids": {"project_id": pid, "category_id": cid, "comment_id": com, "response_id": "E001", "pregunta_id": "q_1"}}
     mp.undo()
 
 

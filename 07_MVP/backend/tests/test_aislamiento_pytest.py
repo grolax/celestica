@@ -63,6 +63,7 @@ ROUTES = [
     ("GET", "/api/projects/{project_id}/closed-results", {"params": {"ver": "q_1"}}),
     ("GET", "/api/projects/{project_id}/export/closed-xlsx", {"params": {"ver": "q_1"}}),
     ("GET", "/api/projects/{project_id}/recommendations", {}),
+    ("PATCH", "/api/projects/{project_id}/preguntas/{pregunta_id}", {"json": {"tipo": "escala"}}),
 ]
 
 
@@ -108,7 +109,7 @@ def env():
     ai_calls.clear()  # solo interesa lo que ocurra a nombre de B
 
     yield {"c": c, "hb": users["b"][0], "ha": ha, "uid_a": users["a"][1], "uid_b": users["b"][1],
-           "ids": {"project_id": pid, "category_id": cid, "comment_id": com, "response_id": "E001"},
+           "ids": {"project_id": pid, "category_id": cid, "comment_id": com, "response_id": "E001", "pregunta_id": "q_1"},
            "ai_calls": ai_calls}
     mp.undo()
 
