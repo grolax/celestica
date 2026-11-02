@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/features/auth/useAuth";
+import { puede } from "@/features/auth/api";
+import { projectsApi } from "@/features/projects/api";
+import { TipoPregunta } from "@/features/projects/types";
 import { useSearchParams } from "react-router-dom";
 import { analysisApi } from "../api";
 import { ClosedGrupo, ClosedOpcion, ClosedPregunta, ClosedResultsData, ClosedUnion } from "../types";
@@ -41,7 +45,41 @@ function Opciones({ opciones }: { opciones: ClosedOpcion[] }) {
   );
 }
 
-function Pregunta({ q, grupos }: { q: ClosedPregunta; grupos?: ClosedGrupo[] }) {
+/** Corrige el tipo de la pregunta (solo entre cerradas). Un error del servidor se muestra aquí y deja abierto el editor. */
+function CambiarTipo({ q, onGuardar }: { q: ClosedPregunta; onGuardar: (tipo: TipoPregunta) => Promise<void> }) {
+  const [abierto, setAbierto] = useState(false);
+  const [nuevo, setNuevo] = useState<string>(q.tipo);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const selector = useRef<HTMLSelectElement>(null);
+  useEffect(() => { if (abierto) selector.current?.focus(); }, [abierto]);
+  const cerrar = () => { setAbierto(false); setError(""); };
+  const guardar = async () => {
+    setBusy(true); setError("");
+    try { await onGuardar(nuevo as TipoPregunta); cerrar(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+  };
+  if (!abierto) {
+    return <Button size="sm" variant="ghost" onClick={() => { setNuevo(q.tipo); setAbierto(true); }}>Cambiar tipo</Button>;
+  }
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <label className="field-label" htmlFor={`tipo_${q.id}`} style={{ marginTop: 0 }}>Tipo de pregunta</label>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <select id={`tipo_${q.id}`} ref={selector} value={nuevo} disabled={busy} aria-invalid={!!error}
+                onChange={(e) => setNuevo(e.target.value)}>
+          {TIPOS.filter(([t]) => CERRADAS.includes(t)).map(([t, etiqueta]) => <option key={t} value={t}>{etiqueta}</option>)}
+        </select>
+        <Button size="sm" busy={busy} disabled={nuevo === q.tipo} onClick={guardar}>Guardar</Button>
+        <Button size="sm" variant="secondary" disabled={busy} onClick={cerrar}>Cancelar</Button>
+      </div>
+      {error && <p className="field-error" role="alert">{error}</p>}
+    </div>
+  );
+}
+
+function Pregunta({ q, grupos, onCambiarTipo }: {
+  q: ClosedPregunta; grupos?: ClosedGrupo[]; onCambiarTipo?: (tipo: TipoPregunta) => Promise<void>;
+}) {
   const { escala, nps, numerica } = q;
   const tipo = TIPOS.find(([t]) => t === q.tipo)?.[1] ?? q.tipo;
   return (
@@ -55,6 +93,7 @@ function Pregunta({ q, grupos }: { q: ClosedPregunta; grupos?: ClosedGrupo[] }) 
           </>
         )}
       </p>
+      {onCambiarTipo && <CambiarTipo q={q} onGuardar={onCambiarTipo} />}
       {q.n_invalidas ? (
         <p className="small muted">{num(q.n_invalidas, 0)} respuestas no se pudieron leer como número y no se cuentan.</p>
       ) : null}
@@ -103,7 +142,8 @@ function Pregunta({ q, grupos }: { q: ClosedPregunta; grupos?: ClosedGrupo[] }) 
 }
 
 export default function ClosedResults() {
-  const { project } = useProject();
+  const { project, refresh } = useProject();
+  const canEdit = puede(useAuth().user, "analista");
   const [data, setData] = useState<ClosedResultsData | null>(null);
   const [error, setError] = useState("");
   const [errorControl, setErrorControl] = useState(""); // 400 de tramos o uniones: se muestra junto al campo
@@ -149,6 +189,16 @@ export default function ClosedResults() {
   const cambiarPregunta = (v: string) => { setError(""); cargar(por, v, cortes, unir).catch((e) => setError(e.message)); };
   const cambiarControl = (c: string | undefined, u: ClosedUnion[]) =>
     cargar(por, ver, c, u).then(() => true, (e) => { setErrorControl(e.message); return false; }); // true = se aplicó
+  // Guarda el tipo y recarga con lo mismo que se ve. Si era la pregunta de "Ver por…" y ya no sirve para separar, vuelve a "sin separar";
+  // si sigue sirviendo, sus tramos y uniones ya no valen. Un fallo al recargar va al error de la pantalla; el cambio ya está guardado.
+  const cambiarTipo = async (preguntaId: string, tipo: TipoPregunta) => {
+    await projectsApi.updatePreguntaTipo(project.id, preguntaId, tipo);
+    const eraPor = por === preguntaId;
+    const sigue = !eraPor || TIPOS_GRUPO.includes(tipo);
+    try { await cargar(sigue ? por : "", sigue ? ver : "", eraPor ? undefined : cortes, eraPor ? [] : unir); }
+    catch (e) { setError((e as Error).message); }
+    refresh();
+  };
   const separables = project.preguntas.filter((q) => TIPOS_GRUPO.includes(q.tipo));
   const pocos = data?.grupos?.some((g) => g.pocos_datos);
   const sinElegir = !!por && !ver; // con "Ver por…" falta elegir la pregunta
@@ -209,7 +259,8 @@ export default function ClosedResults() {
             ? <p className="muted">Elige qué pregunta quieres ver separada por «{data.por?.titulo}», o «Todas las preguntas».</p>
             : data.preguntas.length === 0
             ? <p className="muted">Este proyecto no tiene preguntas cerradas.</p>
-            : data.preguntas.map((q) => <Pregunta key={q.id} q={q} grupos={data.grupos} />)}
+            : data.preguntas.map((q) => <Pregunta key={q.id} q={q} grupos={data.grupos}
+                                          onCambiarTipo={canEdit ? (t) => cambiarTipo(q.id, t) : undefined} />)}
         </>
       )}
     </>
