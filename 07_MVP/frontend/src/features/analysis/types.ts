@@ -131,7 +131,7 @@ export interface ClosedPregunta extends ClosedMetricas {
 /** RF-31: grupo del cruce; `unidos` solo si viene de una unión (T-023). */
 export interface ClosedGrupo { valor: string; n_personas: number; pocos_datos: boolean; unidos?: string[] }
 export interface ClosedUnion { nombre: string; valores: string[] }
-export interface ClosedOpciones { por: string; cortes?: string; unir?: ClosedUnion[] }
+export interface ClosedOpciones { por: string; ver?: string; cortes?: string; unir?: ClosedUnion[] }
 export interface ClosedResultsData {
   n_personas: number;
   preguntas: ClosedPregunta[];

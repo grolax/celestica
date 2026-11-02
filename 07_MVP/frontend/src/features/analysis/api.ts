@@ -10,6 +10,7 @@ export const qp = (pregunta: string) => `pregunta=${encodeURIComponent(pregunta)
 /** Query de "Ver por…" compartida por closed-results y export/closed-xlsx: misma codificación en ambos. */
 export const closedQuery = (o?: ClosedOpciones) => o
   ? `?por=${encodeURIComponent(o.por)}`
+    + (o.ver ? `&ver=${encodeURIComponent(o.ver)}` : "")
     + (o.cortes !== undefined ? `&cortes=${encodeURIComponent(o.cortes)}` : "")
     + (o.unir?.length ? `&unir=${encodeURIComponent(JSON.stringify(o.unir))}` : "")
   : "";
