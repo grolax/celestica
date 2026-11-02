@@ -714,7 +714,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Las alertas del mismo tipo se juntan en una sola línea. Por ejemplo: "15 preguntas tienen más de la mitad sin responder", con un botón **"Ver cuáles (15)"** que despliega la lista.
   - En "Preguntas cerradas", cada pregunta que más de la mitad no respondió lleva una etiqueta pequeña, **"Poco respondida"**, del mismo estilo que "Pocos datos".
 - **Probado:** en el proyecto de vivienda con solo preguntas cerradas, la tarjeta pasó de 15 alertas a una sola línea.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** subida a GitHub (PR #39), esperando la aprobación del responsable.
 
 ---
 
