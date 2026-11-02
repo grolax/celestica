@@ -63,3 +63,14 @@ Se acepta la decisión de pedir una pregunta "sonda" con `ver` para obtener los 
 - El Excel sigue reflejando lo que se ve.
 - Verificar: con "Ver por" edad, juntar dos tramos, elegir una escala, luego "Todas", luego otra pregunta. Los grupos unidos deben mantenerse en los tres pasos, igual en la pantalla y en la URL del Excel. Lo mismo con tramos de una pregunta numérica, si la hay.
 - `npm run build` sin errores. No dejar servidores ni archivos temporales.
+
+## Revisión 2
+2026-11-01 · **Aprobada.**
+- Corrección mínima: `cambiarPregunta(v)` llama `cargar(por, v, cortes, unir)`; "Ver por…" sigue reiniciando.
+- Verificación del supervisor en Chrome, con la encuesta real local (`proj_4df733d1c3`), los servidores levantados en 8000/5173 y apagados al terminar:
+  - **Dashboard:** 5 botones "Ver este cruce". El tercero abre `cerradas?por=q_3&ver=q_12` con ambos selectores aplicados y 1 tarjeta.
+  - **Ver por edad:** "Elige una pregunta…", 0 tarjetas, el mensaje de ayuda y el Excel deshabilitado.
+  - **Juntar "20-24" y "25-29" como "Jóvenes"** y pasar por q_12, "Todas" y q_23: 1, 28 y 1 tarjetas, con la unión intacta en pantalla y en cada petición.
+  - **Excel:** pide `closed-xlsx?por=q_2&ver=q_23&unir=[…]` y el nombre incluye la pregunta.
+  - Sin errores de JS.
+- Para más adelante (UX, no bloquea): con "Juntar grupos" abierto, los controles ocupan mucho espacio antes de los resultados.
