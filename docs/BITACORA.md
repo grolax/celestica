@@ -714,7 +714,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Las alertas del mismo tipo se juntan en una sola línea. Por ejemplo: "15 preguntas tienen más de la mitad sin responder", con un botón **"Ver cuáles (15)"** que despliega la lista.
   - En "Preguntas cerradas", cada pregunta que más de la mitad no respondió lleva una etiqueta pequeña, **"Poco respondida"**, del mismo estilo que "Pocos datos".
 - **Probado:** en el proyecto de vivienda con solo preguntas cerradas, la tarjeta pasó de 15 alertas a una sola línea.
-- **Estado:** subida a GitHub (PR #39), esperando la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #39).
 
 ### 60. T-035 · Cruce de 2 preguntas (servidor)
 
@@ -735,7 +735,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Pares sugeridos:** la tarjeta "Recomendaciones" muestra hasta 5 cruces, como "Género × ¿Qué tan importante es para ti ser propietario?", con un botón **"Ver este cruce"** que lo abre directamente.
 - **Corrección en la revisión:** al cambiar de pregunta se perdían los grupos que el cliente había juntado. Ahora se mantienen.
 - **Probado por el supervisor en el navegador** con la encuesta de vivienda.
-- **Estado:** aprobada; pendiente de subir a GitHub.
+- **Estado:** subida a GitHub (PR #41), esperando la aprobación del responsable.
 
 ---
 

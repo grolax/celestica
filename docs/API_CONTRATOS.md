@@ -566,3 +566,29 @@ Campo nuevo **`cruces`**. `segmentos` se mantiene sin cambios, por compatibilida
   - **Máximo 5.**
 - Lista vacía si no hay segmentos o no hay escalas ni NPS.
 - En `motivo`, los títulos de más de 60 caracteres se recortan con "…". `por_titulo` y `ver_titulo` van completos.
+
+## RF-25 · Cambiar el tipo de una pregunta cerrada después de crear el proyecto (T-037)
+
+Decisión del usuario (2026-11-01): solo se cambia **entre tipos cerrados** (`escala`, `nps`, `si_no`, `seleccion_unica`, `seleccion_multiple`, `segmento`, `numerica`). Pasar de abierta a cerrada, o al revés, no se permite.
+
+### `PATCH /api/projects/{id}/preguntas/{pregunta_id}`
+- **Roles:** analista, admin. El lector recibe 403.
+- **Cuerpo:** `{ "tipo": "escala" }`
+- **Respuesta 200:** la pregunta con la misma forma de `preguntas[]` en `GET /api/projects/{id}`.
+
+```json
+{ "id": "q_9", "titulo": "¿Qué tan satisfecho estás?", "columnas": ["¿Qué tan satisfecho estás?"],
+  "tipo": "escala", "contexto_ia": false, "n_respuestas": 480, "n_na": 20 }
+```
+
+- **Efecto:**
+  - Se guarda el `tipo` nuevo. Desde ese momento, `closed-results`, el Excel y `recommendations` lo usan; no hay caché.
+  - Queda un evento en la auditoría: `cambio_tipo_pregunta`, actor `analista`, con `{ "pregunta": "<id>", "titulo": "...", "antes": "seleccion_unica", "despues": "escala", "usuario": "<email>" }`.
+  - Si el tipo es el mismo que ya tenía: 200, sin escribir nada ni registrar en la auditoría.
+- **Validación de números:** para pasar a `escala`, `nps` o `numerica`, al menos el **90 %** de las respuestas no vacías deben leerse como número. Se usa la misma lectura que `closed-results`. Para `nps`, además, esos números deben estar entre 0 y 10.
+- **Errores** (mensajes para la UI):
+  - 400 `"«{tipo}» no es un tipo de pregunta válido."`
+  - 400 `"Solo se puede cambiar el tipo entre preguntas cerradas."` (la pregunta actual o el tipo nuevo no es cerrado)
+  - 400 `"Las respuestas de esta pregunta no son números, así que no puede ser «{etiqueta}»."` (etiquetas: Escala, NPS, Numérica)
+  - 400 `"Para ser NPS, las respuestas deben ser números del 0 al 10."`
+  - 403 (lector); 404 `"Proyecto no encontrado"` (incluida otra organización); 404 `"Pregunta no encontrada"`.
