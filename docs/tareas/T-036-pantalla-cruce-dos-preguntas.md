@@ -39,3 +39,27 @@ En "Preguntas cerradas", al elegir un "Ver por…", el cliente elige **qué preg
 ## Notas
 - Decisión del usuario: el cliente elige la pregunta; "Todas" queda como opción.
 - Mantener el patrón de `cargar` (contador `ultima`, estado solo tras una carga exitosa) y guardar también `ver` aplicado.
+
+## Revisión 1
+2026-11-01 · **Con cambios.**
+
+Lo demás está bien:
+- `ver` en `closedQuery`, compartido con el Excel;
+- el Excel queda deshabilitado sin pregunta elegida;
+- `?ver=` inválido se ignora;
+- los cruces sugeridos y el respaldo con `segmentos` funcionan;
+- `npm run build` sin errores.
+
+Se acepta la decisión de pedir una pregunta "sonda" con `ver` para obtener los grupos sin mostrar la lista: calcula una sola pregunta y mantiene disponibles los tramos y "Juntar grupos".
+
+**Falla: cambiar "Pregunta" borra los tramos y grupos unidos aplicados.**
+- `ClosedResults.tsx`: el `onChange` de `#ver_pregunta` llama a `aplicar(por, e.target.value)`, que hace `cargar(p, v)` sin `cortes` ni `unir`.
+- Si el cliente junta "20-24" con "25-29", o cambia los tramos, y luego elige una pregunta (o pasa a "Todas"), los grupos vuelven a los originales.
+- Además, `GroupControls` (con `key={por}`) sigue mostrando la unión anterior, así que la pantalla queda incoherente.
+
+**Se espera:**
+- Al cambiar solo "Pregunta", se mantienen los `cortes` y `unir` aplicados, es decir, `cargar(por, v, cortes, unir)`.
+- Al cambiar "Ver por…", se reinician, como hoy.
+- El Excel sigue reflejando lo que se ve.
+- Verificar: con "Ver por" edad, juntar dos tramos, elegir una escala, luego "Todas", luego otra pregunta. Los grupos unidos deben mantenerse en los tres pasos, igual en la pantalla y en la URL del Excel. Lo mismo con tramos de una pregunta numérica, si la hay.
+- `npm run build` sin errores. No dejar servidores ni archivos temporales.
