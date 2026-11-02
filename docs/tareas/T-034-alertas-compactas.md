@@ -45,3 +45,16 @@ Sin cambios. Consume `GET /api/projects/{id}/recommendations` (T-032) y `closed-
   - una etiqueta pequeña por pregunta, como "Pocos datos";
   - los cruces de a 2 y el cambio de tipo de las cerradas llegan en tareas posteriores.
 - El backend local debe estar en `main` actualizado (incluye `GET /recommendations`). Si el puerto 8000 está ocupado por otro proceso, usa otro puerto para tu verificación y no detengas procesos del usuario.
+
+## Revisión
+2026-11-01 · **Aprobada.**
+- La primera ejecución se cortó por el límite de uso con el código sin commit. Un segundo programador la revisó, la verificó, limpió los temporales (configuración de Vite y servidores en 8001 y 5181) e hizo el commit, sin cambios en el código.
+- Diff: 2 archivos de frontend, +57/−5, dentro del alcance.
+  - Agrupación por `id` con los textos exactos de la orden.
+  - Botón accesible con `aria-expanded`; la lista empieza cerrada.
+  - Etiqueta con la misma regla que `muchas_vacias`.
+- `npm run build` sin errores.
+- Verificación en Chrome sin interfaz:
+  - En el proyecto sin abiertas (`proj_08d77f74ba`), las 15 alertas quedan en una sola línea, con "Ver cuáles (15)", y hay 15 etiquetas "Poco respondida", también con "Ver por…".
+  - En la encuesta con abiertas, las 2 alertas son de tipos distintos y se ven sin agrupar.
+- Decisión aceptada: el grupo se pinta de rojo si alguna alerta del grupo es "importante".

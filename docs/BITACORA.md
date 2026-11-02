@@ -707,6 +707,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Probado con la encuesta de vivienda:** 2 avisos, cruces por edad, género e ingreso, y la plantilla Percepción de Marca. "Ver por este grupo" en edad abre la pantalla separada por edad.
 - **Estado:** incorporada a la versión oficial (PR #38).
 
+### 59. T-034 · Alertas más ordenadas
+
+- **Pedido del responsable:** al revisar la pantalla, la tarjeta "Recomendaciones" se llenaba de alertas, una por pregunta, y tapaba lo demás.
+- **Qué quedó:**
+  - Las alertas del mismo tipo se juntan en una sola línea. Por ejemplo: "15 preguntas tienen más de la mitad sin responder", con un botón **"Ver cuáles (15)"** que despliega la lista.
+  - En "Preguntas cerradas", cada pregunta que más de la mitad no respondió lleva una etiqueta pequeña, **"Poco respondida"**, del mismo estilo que "Pocos datos".
+- **Probado:** en el proyecto de vivienda con solo preguntas cerradas, la tarjeta pasó de 15 alertas a una sola línea.
+- **Estado:** aprobada; pendiente de subir a GitHub.
+
 ---
 
 ## Glosario
