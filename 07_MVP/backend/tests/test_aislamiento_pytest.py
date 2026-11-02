@@ -60,6 +60,8 @@ ROUTES = [
     ("GET", "/api/projects/{project_id}/report", {}),
     ("GET", "/api/projects/{project_id}/usage", {}),
     ("GET", "/api/projects/{project_id}/closed-results", {}),
+    ("GET", "/api/projects/{project_id}/closed-results", {"params": {"ver": "q_1"}}),
+    ("GET", "/api/projects/{project_id}/export/closed-xlsx", {"params": {"ver": "q_1"}}),
     ("GET", "/api/projects/{project_id}/recommendations", {}),
 ]
 
@@ -117,7 +119,7 @@ def _snapshot(e):
             db.audit_events.count_documents({"project_id": e["ids"]["project_id"]}))
 
 
-@pytest.mark.parametrize("method,path,kw", ROUTES, ids=[f"{m} {p}" for m, p, _ in ROUTES])
+@pytest.mark.parametrize("method,path,kw", ROUTES, ids=[f"{m} {p} {kw.get('params', '')}" for m, p, kw in ROUTES])
 def test_otro_usuario_recibe_404_y_nada_cambia(env, method, path, kw):
     before = _snapshot(env)
     assert before[0] is not None  # sin esto la comparación de abajo podría ser None == None

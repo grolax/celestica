@@ -177,6 +177,47 @@ def test_segmentos_ignora_tipos_que_no_separan():
     assert _seg(("P", "escala", ["1"] * 20 + ["2"] * 20), ("Q", "abierta", ["a"] * 20 + ["b"] * 20)) == []
 
 
+# ---------- cruces (T-035) ----------
+
+def _cruces(*cols):
+    return recomendar(_proyecto(*cols))["cruces"]
+
+
+def test_cruces_forma_y_motivo():
+    c = _cruces(("Género", "segmento", ["F"] * 20 + ["M"] * 20), ("Qué tan satisfecho estás", "escala", ["3"] * 40))
+    assert c == [{"por": "q_1", "por_titulo": "Género", "ver": "q_2", "ver_titulo": "Qué tan satisfecho estás",
+                  "motivo": "Compara «Qué tan satisfecho estás» entre los grupos de «Género»."}]
+
+
+def test_cruces_orden_mezcla_preguntas_y_grupos_por_i_mas_j_maximo_5():
+    dos = ["a", "b"] * 20
+    cols = [(f"Seg {i}", "seleccion_unica", dos) for i in range(1, 3)] + [("Esc A", "escala", ["3"] * 40), ("Nps B", "nps", ["9"] * 40),
+                                                                         ("Esc C", "escala", ["2"] * 40)]
+    # 2 segmentos x 3 medidas = 6 pares; el (Seg 2, Esc C) queda fuera por el máximo de 5
+    assert [(c["por_titulo"], c["ver_titulo"]) for c in _cruces(*cols)] == [
+        ("Seg 1", "Esc A"), ("Seg 1", "Nps B"), ("Seg 2", "Esc A"), ("Seg 1", "Esc C"), ("Seg 2", "Nps B")]
+
+
+def test_cruces_considera_mas_de_3_segmentos():
+    dos = ["a", "b"] * 20
+    cols = [(f"Seg {i}", "seleccion_unica", dos) for i in range(1, 5)] + [("Esc A", "escala", ["3"] * 40)]
+    r = recomendar(_proyecto(*cols))
+    assert len(r["segmentos"]) == 3  # sin cambios
+    assert [c["por_titulo"] for c in r["cruces"]] == ["Seg 1", "Seg 2", "Seg 3", "Seg 4"]
+
+
+def test_cruces_recorta_titulos_largos_en_el_motivo_pero_no_en_los_campos():
+    largo = "x" * 61
+    c = _cruces((largo, "segmento", ["F"] * 20 + ["M"] * 20), ("y" * 60, "escala", ["3"] * 40))[0]
+    assert c["por_titulo"] == largo and c["ver_titulo"] == "y" * 60
+    assert c["motivo"] == f"Compara «{'y' * 60}» entre los grupos de «{'x' * 60}…»."
+
+
+def test_cruces_vacio_sin_escalas_ni_nps_o_sin_segmentos():
+    assert _cruces(("Género", "segmento", ["F"] * 20 + ["M"] * 20), ("Color", "seleccion_unica", ["a"] * 40)) == []
+    assert _cruces(("Nota", "escala", ["3"] * 40)) == []
+
+
 # ---------- plantilla ----------
 
 def _tpl(*titulos, abierta=True, **kw):
@@ -249,7 +290,7 @@ def test_endpoint_devuelve_la_forma_del_contrato_y_no_escribe(env):
     r = c.get(f"/api/projects/{pid}/recommendations", headers=h)
     assert r.status_code == 200, r.text
     body = r.json()
-    assert set(body) == {"alertas", "segmentos", "plantilla"}
+    assert set(body) == {"alertas", "segmentos", "cruces", "plantilla"}
     assert _ids(body["alertas"]) == ["pocas_respuestas_30"]
     assert [s["titulo"] for s in body["segmentos"]] == ["Género"]
     assert body["plantilla"]["key"] == "evaluacion_docente_cna"

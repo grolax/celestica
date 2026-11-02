@@ -534,3 +534,35 @@ Reglas fijas, **sin IA**: alertas de calidad de datos, segmentos sugeridos para 
   - Es `null` si el proyecto no tiene preguntas abiertas, si ninguna plantilla llega al mínimo, o si el marco teórico del proyecto es exactamente el de una plantilla (ya eligió una).
 - **Errores:** 404 "Proyecto no encontrado" (incluida otra organización); 401 sin sesión.
 - Solo lectura: no escribe nada en la base ni en la auditoría.
+
+## RF-31 / RF-41 · Cruce de 2 preguntas y pares sugeridos (T-035)
+
+Pedido del usuario: ver el cruce de **una** pregunta elegida contra el "Ver por…", en vez de la lista completa, y recibir sugerencias de pares.
+
+### `GET /api/projects/{id}/closed-results` y `GET /api/projects/{id}/export/closed-xlsx` (modificados)
+- Parámetro nuevo opcional **`ver=<pregunta_id>`**: el resultado incluye **solo** esa pregunta cerrada en `preguntas` (lista de un elemento). Todo lo demás es igual (`n_personas`, `por`, `grupos`, `n_sin_grupo`, `umbral_pocos_datos`), y las cifras son idénticas a las que tiene esa pregunta sin `ver`.
+- Sin `ver`, todo funciona como hoy (todas las preguntas).
+- Se combina con `por`, `cortes` y `unir`, y también funciona sin `por` (solo el total de esa pregunta).
+- Errores nuevos, 400 con estos mensajes:
+  - `ver` no es una pregunta cerrada del proyecto: "La pregunta elegida no existe o no es una pregunta cerrada."
+  - `ver` es igual a `por`: "Elige una pregunta distinta a la de «Ver por…»."
+- Excel con `ver`: las hojas "Totales" y "Por grupo" traen solo esa pregunta; "Resumen" agrega la línea "Pregunta: <título>". Al nombre del archivo se agrega `_<slug del título de ver>`, al final, antes de `.xlsx`.
+- Solo se calcula la pregunta pedida, para que sea más rápido.
+
+### `GET /api/projects/{id}/recommendations` (modificado)
+Campo nuevo **`cruces`**. `segmentos` se mantiene sin cambios, por compatibilidad.
+
+```json
+"cruces": [
+  { "por": "q_2", "por_titulo": "1. ¿Cuál es tu edad?", "ver": "q_9", "ver_titulo": "¿Qué tan importante es para ti ser propietario?",
+    "motivo": "Compara «¿Qué tan importante es para ti ser propietario?» entre los grupos de «1. ¿Cuál es tu edad?»." }
+]
+```
+
+- **Pares:** cada segmento que hoy se sugiere en `segmentos` (mismas reglas y orden; se consideran todos los que cumplen las reglas, no solo los 3 primeros) se combina con cada pregunta de tipo **`escala` o `nps`** del proyecto, en el orden de la encuesta.
+- **Orden de los pares** (precisado en la revisión 1 de T-035, para que se mezclen preguntas y grupos):
+  - Con `i` = posición del segmento en su orden y `j` = posición de la escala o NPS en la encuesta (desde 0), los pares se ordenan por `(i + j, i)`.
+  - Es decir: (seg0, m0), (seg0, m1), (seg1, m0), (seg0, m2), (seg1, m1), (seg2, m0)…
+  - **Máximo 5.**
+- Lista vacía si no hay segmentos o no hay escalas ni NPS.
+- En `motivo`, los títulos de más de 60 caracteres se recortan con "…". `por_titulo` y `ver_titulo` van completos.
