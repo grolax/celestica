@@ -145,6 +145,8 @@ export default function ClosedResults() {
   }, [project.id]);
 
   const aplicar = (p: string, v = "") => { setError(""); cargar(p, v).catch((e) => setError(e.message)); };
+  // Cambiar solo la pregunta conserva los tramos y los grupos unidos que ya se ven (y que lleva el Excel).
+  const cambiarPregunta = (v: string) => { setError(""); cargar(por, v, cortes, unir).catch((e) => setError(e.message)); };
   const cambiarControl = (c: string | undefined, u: ClosedUnion[]) =>
     cargar(por, ver, c, u).then(() => true, (e) => { setErrorControl(e.message); return false; }); // true = se aplicó
   const separables = project.preguntas.filter((q) => TIPOS_GRUPO.includes(q.tipo));
@@ -180,7 +182,7 @@ export default function ClosedResults() {
           {por && (
             <div className="pregunta-selector">
               <label className="field-label" htmlFor="ver_pregunta">Pregunta</label>
-              <select id="ver_pregunta" value={ver} disabled={busy} onChange={(e) => aplicar(por, e.target.value)}>
+              <select id="ver_pregunta" value={ver} disabled={busy} onChange={(e) => cambiarPregunta(e.target.value)}>
                 <option value="">Elige una pregunta…</option>
                 <option value={TODAS}>Todas las preguntas</option>
                 {cerradas.filter((q) => q.id !== por).map((q) => <option key={q.id} value={q.id} title={q.titulo}>{recortar(q.titulo)}</option>)}
