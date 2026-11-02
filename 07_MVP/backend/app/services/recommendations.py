@@ -76,12 +76,12 @@ def _corto(t: str) -> str:
 
 
 def _cruces(preguntas: list[dict], segmentos: list[dict]) -> list[dict]:
-    out = []
-    for v in (q for q in preguntas if q["tipo"] in ("escala", "nps")):  # una pregunta a la vez, con todos los segmentos
-        for s in segmentos:
-            out.append({"por": s["pregunta_id"], "por_titulo": s["titulo"], "ver": v["id"], "ver_titulo": v["titulo"],
-                        "motivo": f"Compara «{_corto(v['titulo'])}» entre los grupos de «{_corto(s['titulo'])}»."})
-    return out[:MAX_CRUCES]
+    medidas = [q for q in preguntas if q["tipo"] in ("escala", "nps")]
+    # orden por (i + j, i): se mezclan preguntas y grupos en vez de repetir la misma pregunta
+    pares = sorted(((i, j) for i in range(len(segmentos)) for j in range(len(medidas))), key=lambda p: (p[0] + p[1], p[0]))
+    return [{"por": segmentos[i]["pregunta_id"], "por_titulo": segmentos[i]["titulo"], "ver": medidas[j]["id"], "ver_titulo": medidas[j]["titulo"],
+             "motivo": f"Compara «{_corto(medidas[j]['titulo'])}» entre los grupos de «{_corto(segmentos[i]['titulo'])}»."}
+            for i, j in pares[:MAX_CRUCES]]
 
 
 def _plantilla(project: dict) -> dict | None:

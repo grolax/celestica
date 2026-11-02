@@ -189,15 +189,21 @@ def test_cruces_forma_y_motivo():
                   "motivo": "Compara «Qué tan satisfecho estás» entre los grupos de «Género»."}]
 
 
-def test_cruces_orden_por_pregunta_luego_segmento_maximo_5_y_considera_mas_de_3_segmentos():
+def test_cruces_orden_mezcla_preguntas_y_grupos_por_i_mas_j_maximo_5():
     dos = ["a", "b"] * 20
-    cols = [(f"Seg {i}", "seleccion_unica", dos) for i in range(1, 5)] + [("Esc A", "escala", ["3"] * 40), ("Nps B", "nps", ["9"] * 40),
+    cols = [(f"Seg {i}", "seleccion_unica", dos) for i in range(1, 3)] + [("Esc A", "escala", ["3"] * 40), ("Nps B", "nps", ["9"] * 40),
                                                                          ("Esc C", "escala", ["2"] * 40)]
+    # 2 segmentos x 3 medidas = 6 pares; el (Seg 2, Esc C) queda fuera por el máximo de 5
+    assert [(c["por_titulo"], c["ver_titulo"]) for c in _cruces(*cols)] == [
+        ("Seg 1", "Esc A"), ("Seg 1", "Nps B"), ("Seg 2", "Esc A"), ("Seg 1", "Esc C"), ("Seg 2", "Nps B")]
+
+
+def test_cruces_considera_mas_de_3_segmentos():
+    dos = ["a", "b"] * 20
+    cols = [(f"Seg {i}", "seleccion_unica", dos) for i in range(1, 5)] + [("Esc A", "escala", ["3"] * 40)]
     r = recomendar(_proyecto(*cols))
     assert len(r["segmentos"]) == 3  # sin cambios
-    # 4 segmentos (no solo los 3 primeros): la primera escala con los 4 y luego el NPS con el primero
-    assert [(c["ver_titulo"], c["por_titulo"]) for c in r["cruces"]] == [
-        ("Esc A", "Seg 1"), ("Esc A", "Seg 2"), ("Esc A", "Seg 3"), ("Esc A", "Seg 4"), ("Nps B", "Seg 1")]
+    assert [c["por_titulo"] for c in r["cruces"]] == ["Seg 1", "Seg 2", "Seg 3", "Seg 4"]
 
 
 def test_cruces_recorta_titulos_largos_en_el_motivo_pero_no_en_los_campos():
