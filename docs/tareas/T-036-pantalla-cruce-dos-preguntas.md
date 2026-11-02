@@ -2,7 +2,7 @@
 Lado: frontend
 Requerimientos: RF-31, RF-41, RNF-13, RNF-14
 Rama: tarea/T-036-pantalla-cruce-dos-preguntas
-Depende de: T-035
+Depende de: T-035 (PR #40; la rama sale de ella)
 
 ## Objetivo
 En "Preguntas cerradas", al elegir un "Ver por…", el cliente elige **qué pregunta** quiere ver separada; también puede elegir "Todas". La tarjeta "Recomendaciones" sugiere **pares** y los abre directamente.
