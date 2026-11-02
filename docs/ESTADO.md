@@ -51,7 +51,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 
 ## En curso
-- **Situación al 2026-11-02 (verificada tras un cierre forzoso):** código en `main` al día (último merge: PR #43), sin PR abiertos, sin trabajo perdido: 368 pruebas pytest y build sin errores. **Pendiente de subir:** rama `docs/estado-2026-11-02`, solo con cambios en `docs/`; hasta que se fusione, `ESTADO.md` y `BITACORA.md` de `main` no incluyen este resumen. **Siguiente, sin empezar (sin contrato ni orden de trabajo):** editar el marco teórico después de crear el proyecto (backend + frontend); luego RF-43 (panel de resultados para lectores).
+- **Situación al 2026-11-02:** `main` al día (último merge: PR #44), sin PR abiertos. **En curso:** T-039 editar el marco teórico después de crear el proyecto (backend, rama `tarea/T-039-editar-marco`). **Después:** T-040, su pantalla; luego RF-43 (panel de resultados para lectores).
 - **Avance de la sesión 2026-11-01 (T-028 → T-038, PR #33 a #43, todos fusionados):**
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
