@@ -694,7 +694,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Avisa que una pregunta abierta quedó sin responder por más de la mitad de las personas y que sus respuestas son muy cortas.
   - Sugiere cruzar por edad, género e ingreso, y la plantilla de Percepción de Marca.
 - **Para afinar:** algunas palabras clave son muy generales y podrían sugerir una plantilla equivocada. Se ajustarán con encuestas reales.
-- **Estado:** subida a GitHub (PR #37), esperando la aprobación del responsable. La tarjeta en la pantalla llega en T-033.
+- **Estado:** incorporada a la versión oficial (PR #37).
 
 ### 58. T-033 · Tarjeta "Recomendaciones" en la pantalla
 
@@ -705,6 +705,15 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - En los proyectos con solo preguntas cerradas, la tarjeta aparece en "Preguntas cerradas".
 - **Corrección en la revisión:** en los proyectos con solo cerradas, "Ver por este grupo" llevaba a la página de inicio. Ahora separa en la misma pantalla.
 - **Probado con la encuesta de vivienda:** 2 avisos, cruces por edad, género e ingreso, y la plantilla Percepción de Marca. "Ver por este grupo" en edad abre la pantalla separada por edad.
+- **Estado:** incorporada a la versión oficial (PR #38).
+
+### 59. T-034 · Alertas más ordenadas
+
+- **Pedido del responsable:** al revisar la pantalla, la tarjeta "Recomendaciones" se llenaba de alertas, una por pregunta, y tapaba lo demás.
+- **Qué quedó:**
+  - Las alertas del mismo tipo se juntan en una sola línea. Por ejemplo: "15 preguntas tienen más de la mitad sin responder", con un botón **"Ver cuáles (15)"** que despliega la lista.
+  - En "Preguntas cerradas", cada pregunta que más de la mitad no respondió lleva una etiqueta pequeña, **"Poco respondida"**, del mismo estilo que "Pocos datos".
+- **Probado:** en el proyecto de vivienda con solo preguntas cerradas, la tarjeta pasó de 15 alertas a una sola línea.
 - **Estado:** aprobada; pendiente de subir a GitHub.
 
 ---

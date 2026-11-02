@@ -47,6 +47,12 @@ function Pregunta({ q, grupos }: { q: ClosedPregunta; grupos?: ClosedGrupo[] }) 
     <Card title={q.titulo}>
       <p className="muted small" style={{ marginTop: -4 }}>
         {tipo} · {num(q.n_respuestas, 0)} respondieron · {num(q.n_na, 0)} N/A ({pct(q.tasa_respuesta)} de respuesta)
+        {q.n_na * 2 > q.n_respuestas + q.n_na && (
+          <>
+            {" "}
+            <span className="pill propuesta" title="Más de la mitad de las personas no respondió esta pregunta">Poco respondida</span>
+          </>
+        )}
       </p>
       {q.n_invalidas ? (
         <p className="small muted">{num(q.n_invalidas, 0)} respuestas no se pudieron leer como número y no se cuentan.</p>
