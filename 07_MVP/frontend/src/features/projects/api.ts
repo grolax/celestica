@@ -1,7 +1,7 @@
 import { jsonBody, req } from "@/shared/api/client";
 import { qp } from "@/features/analysis/api";
 import { Category } from "@/features/analysis/types";
-import { FrameworkTemplate, Project, ProjectSummary, Recomendaciones, VistaPrevia } from "./types";
+import { FrameworkTemplate, Project, ProjectSummary, Recomendaciones, TipoPregunta, VistaPrevia } from "./types";
 
 export const projectsApi = {
   listProjects: () => req<ProjectSummary[]>("/projects"),
@@ -20,6 +20,9 @@ export const projectsApi = {
   getProject: (id: string, pregunta?: string) =>
     req<Project>(`/projects/${id}${pregunta ? `?${qp(pregunta)}` : ""}`),
   getRecommendations: (id: string) => req<Recomendaciones>(`/projects/${id}/recommendations`),
+  // Solo entre tipos cerrados; el servidor valida y deja el cambio en la auditoría.
+  updatePreguntaTipo: (id: string, preguntaId: string, tipo: TipoPregunta) =>
+    req<unknown>(`/projects/${id}/preguntas/${preguntaId}`, { method: "PATCH", ...jsonBody({ tipo }) }),
   deleteProject: (id: string) => req<{ deleted: string }>(`/projects/${id}`, { method: "DELETE" }),
   importLegacy: () => req<{ imported: number }>("/projects/import-legacy", { method: "POST" }),
 
