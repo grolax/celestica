@@ -75,3 +75,14 @@ En el resumen del proyecto, cualquiera puede leer el marco teórico completo, y 
 - **Verificación:** basta con `npm run build`. El supervisor repite la prueba en el navegador; los puertos 8000 y 5173 ya están ocupados por sus servidores, así que no levantes otros.
 
 No toques el backend: guardar `\r\n` al crear queda como deuda técnica.
+
+## Revisión 2
+2026-11-02 · **Código conforme; aprobación pendiente de una suite en verde.**
+- Diff: 5 archivos de frontend, dentro del alcance. Sin cambios en el backend. `npm run build` sin errores.
+- Corrección de la revisión 1 (`114f1e0`): un marco con `\r\n` ya no habilita "Guardar" si solo cambian los espacios de los extremos, y el contador cuenta bien los saltos de línea.
+- Verificación del supervisor en Chrome, sobre una base desechable ya borrada: 25 de 25 comprobaciones de lectura, edición, error de 5.001 caracteres, marco vacío, auditoría completa, recomendaciones, lector y proyecto solo con cerradas. Sin IA real.
+- **Pruebas del backend en rojo, con fallas que cambian:**
+  - Corrida 1: falla `test_fase3` (380 pasan). Repetida sola, pasa.
+  - Corrida 2: falla `test_rendimiento_10000_filas_por_30_columnas` (380 pasan). Exige menos de 2 s; repetida sola 3 veces, falló 2 (2,16 s y 2,24 s).
+- La CPU estaba al 100 % por otras aplicaciones y la suite tardó de 4 a 5 min, en vez de unos 2. Es la causa probable, no confirmada: no se vio el motivo de la falla de `test_fase3`.
+- **Falta:** una corrida completa en verde con el equipo descargado.

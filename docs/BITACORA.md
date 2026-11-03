@@ -819,7 +819,11 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 
 - **Qué se hace:** el resumen del proyecto tendrá una tarjeta "Marco teórico". Todos podrán leerlo completo, y los analistas y administradores podrán editarlo. Antes de guardar, la pantalla avisa que lo ya generado no cambia y que el próximo informe profundo volverá a gastar IA.
 - **Hallazgo al planificar:** la pestaña Auditoría corta el detalle de cada evento a 300 caracteres. Un marco largo habría ocultado parte del texto y quién hizo el cambio, así que T-040 lo muestra completo para estos eventos.
-- **Estado:** en desarrollo.
+- **Qué quedó:** la tarjeta funciona como se planificó, y Auditoría muestra completos el texto anterior, el nuevo y quién hizo el cambio.
+- **Error encontrado en la revisión:** un marco de varias líneas creado desde el formulario se guarda con saltos de línea de Windows. Por eso "Guardar" se activaba aunque solo se agregara un espacio, y habría dejado en Auditoría un cambio sin contenido real, imposible de borrar. Se corrigió en la pantalla.
+- **Cómo se verificó:** el supervisor recorrió la pantalla en el navegador, sobre una base de datos desechable y sin IA: 25 de 25 comprobaciones correctas.
+- **Pendiente:** dos corridas de las pruebas automáticas fallaron en una prueba, distinta cada vez (380 de 381 pasan), con el computador al 100 % de uso. Hay que repetirlas con el computador descargado antes de aprobar.
+- **Estado:** revisada, aún sin aprobar.
 
 ---
 
