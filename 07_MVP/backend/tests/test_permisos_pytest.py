@@ -80,6 +80,7 @@ OPS = [
     ("PUT", P + "/responses/{response_id}/codings", "analista", lambda: {"json": {"category_ids": ["SIN_CATEGORIA"]}}),
     ("POST", P + "/report", "analista", dict),
     ("DELETE", P, "analista", dict),
+    ("PATCH", P, "analista", lambda: {"json": {"marco_teorico": "Otro marco"}}),
     ("GET", "/api/integrations/qualtrics/credentials", "analista", dict),
     ("PUT", "/api/integrations/qualtrics/credentials", "analista", lambda: {"json": {"api_token": "t", "datacenter": "d"}}),
     ("DELETE", "/api/integrations/qualtrics/credentials", "analista", dict),
