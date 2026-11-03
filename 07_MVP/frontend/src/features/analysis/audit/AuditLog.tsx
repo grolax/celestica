@@ -13,6 +13,19 @@ interface AuditEvent {
   detail: unknown;
 }
 
+interface CambioMarcoDetail { antes: string; despues: string; usuario: string }
+
+// Texto completo y con saltos de línea: es lo que permite ver qué cambió.
+function CambioMarco({ d }: { d: CambioMarcoDetail }) {
+  return (
+    <>
+      {([["Antes", d.antes], ["Después", d.despues], ["Por", d.usuario]] as const).map(([k, v]) => (
+        <div key={k} style={{ whiteSpace: "pre-wrap" }}><strong>{k}:</strong> {v || "(vacío)"}</div>
+      ))}
+    </>
+  );
+}
+
 export default function AuditLog() {
   const { project } = useProject();
   const [events, setEvents] = useState<AuditEvent[]>([]);
@@ -45,7 +58,7 @@ export default function AuditLog() {
             <td><span className={`pill ${e.actor}`}>{e.actor}</span></td>
             <td><strong>{e.action}</strong></td>
             <td className="muted small" style={{ maxWidth: 460, wordBreak: "break-word" }}>
-              {JSON.stringify(e.detail).slice(0, 300)}
+              {e.action === "cambio_marco_teorico" ? <CambioMarco d={e.detail as CambioMarcoDetail} /> : JSON.stringify(e.detail).slice(0, 300)}
             </td>
           </tr>
         ))}

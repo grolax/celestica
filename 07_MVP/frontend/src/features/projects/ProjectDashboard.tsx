@@ -9,6 +9,7 @@ import Card, { StatCard } from "@/shared/components/Card";
 import { useProject } from "./useProjectData";
 import Icon from "@/shared/components/Icon";
 import PageHeader from "@/shared/components/PageHeader";
+import MarcoTeorico from "./MarcoTeorico";
 import Recommendations from "./Recommendations";
 
 export default function ProjectDashboard() {
@@ -89,6 +90,8 @@ export default function ProjectDashboard() {
           )}
         </Card>
       </div>
+
+      <MarcoTeorico />
 
       {stats && confTotal > 0 && (
         <Card title="Distribución de confianza de la codificación IA">
