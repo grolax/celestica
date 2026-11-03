@@ -4,7 +4,7 @@
 
 **Quién lo actualiza:** el supervisor técnico (Claude), cada vez que se hace un cambio. El responsable del proyecto (Israel) aprueba qué se publica.
 
-**Última actualización:** 2 de noviembre de 2026
+**Última actualización:** 3 de noviembre de 2026
 
 ---
 
@@ -65,6 +65,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
 | T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
+| T-040 | Editar el marco teórico desde la pantalla | 🟡 Publicada para revisión del responsable (PR #47) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -813,7 +814,18 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Resultado:** de 49 requerimientos funcionales, 20 están hechos. Quedan por terminar 6 de prioridad más alta: panel para lectores, asistente, perfil de organización, marca en informes, plantillas propias e informe integrado.
 - **Algo a tener en cuenta:** ningún cliente real ha validado todavía el producto. Hasta ahora, la validación ha sido técnica o del responsable.
 - **Decisiones del responsable:** aprobó el orden propuesto; el informe integrado usará una estructura única, sin esperar a las plantillas de informe; y en el panel para lectores, cada pregunta abierta tendrá su resumen en la misma pantalla.
-- **Estado:** publicado para revisión del responsable. Después sigue T-040.
+- **Estado:** incorporado a la versión oficial (PR #46).
+
+### 67. T-040 · Plan: editar el marco teórico desde la pantalla
+
+- **Qué se hace:** el resumen del proyecto tendrá una tarjeta "Marco teórico". Todos podrán leerlo completo, y los analistas y administradores podrán editarlo. Antes de guardar, la pantalla avisa que lo ya generado no cambia y que el próximo informe profundo volverá a gastar IA.
+- **Hallazgo al planificar:** la pestaña Auditoría corta el detalle de cada evento a 300 caracteres. Un marco largo habría ocultado parte del texto y quién hizo el cambio, así que T-040 lo muestra completo para estos eventos.
+- **Qué quedó:** la tarjeta funciona como se planificó, y Auditoría muestra completos el texto anterior, el nuevo y quién hizo el cambio.
+- **Error encontrado en la revisión:** un marco de varias líneas creado desde el formulario se guarda con saltos de línea de Windows. Por eso "Guardar" se activaba aunque solo se agregara un espacio, y habría dejado en Auditoría un cambio sin contenido real, imposible de borrar. Se corrigió en la pantalla.
+- **Cómo se verificó:** el supervisor recorrió la pantalla en el navegador, sobre una base de datos desechable y sin IA: 25 de 25 comprobaciones correctas.
+- **Pruebas automáticas:** dos corridas fallaron en una prueba, distinta cada vez (380 de 381 pasaron), con el computador al 100 % de uso. Al repetirlas con el computador descargado, pasaron las 381.
+- **Pendiente:** que el responsable valide los criterios en la plataforma.
+- **Estado:** publicada para revisión del responsable (PR #47).
 
 ---
 

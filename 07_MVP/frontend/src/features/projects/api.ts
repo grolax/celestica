@@ -23,6 +23,9 @@ export const projectsApi = {
   // Solo entre tipos cerrados; el servidor valida y deja el cambio en la auditoría.
   updatePreguntaTipo: (id: string, preguntaId: string, tipo: TipoPregunta) =>
     req<unknown>(`/projects/${id}/preguntas/${preguntaId}`, { method: "PATCH", ...jsonBody({ tipo }) }),
+  // Solo analista/admin; lo ya generado no cambia (RF-41). El servidor valida el largo.
+  updateMarco: (id: string, marco_teorico: string) =>
+    req<{ marco_teorico: string }>(`/projects/${id}`, { method: "PATCH", ...jsonBody({ marco_teorico }) }),
   deleteProject: (id: string) => req<{ deleted: string }>(`/projects/${id}`, { method: "DELETE" }),
   importLegacy: () => req<{ imported: number }>("/projects/import-legacy", { method: "POST" }),
 

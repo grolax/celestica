@@ -50,9 +50,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 | T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (fusionada, PR #45) |
+| T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (aprobada, PR #47 abierto) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #45). `docs/BACKLOG.md` en la rama `docs/backlog`, con PR abierto: **espera el merge del usuario**. **Después:** T-040, la pantalla para editar el marco; luego sigue el orden de `docs/BACKLOG.md`.
+- **Situación al 2026-11-02:** `main` al día (último merge: PR #46, backlog). **Espera el merge del usuario:** T-040 (PR #47). **Después:** sigue el orden de `docs/BACKLOG.md` (RF-43).
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
   - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).
@@ -97,6 +98,9 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada); con la CPU cerca del 35 % pasan las 381 en 1 min 29 s (T-040).
+- Marco creado desde el formulario: se guarda con `\r\n` porque viaja en `FormData`; normalizarlo al crear en el backend. La pantalla ya lo tolera (T-040).
+- Tarjeta "Marco teórico" (T-040): al cerrar el editor, el foco no vuelve a "Editar" (`Button` no acepta `ref`); tras guardar se ve un instante el marco anterior y "Recomendaciones" parpadea al recargar.
 - Portada del PDF y Word (T-039): muestra el marco actual; si se editó sin regenerar el informe, puede no coincidir con el marco con que se generó (RNF-07). Guardar el marco junto al informe si se decide corregirlo.
 - `CONTEXTO_SOFTINSIGHT.md` desactualizado (el supervisor no escribe fuera de `docs/`; lo actualiza el usuario o una orden de trabajo): §4 marca como 🆕 requerimientos ya hechos (por ejemplo RF-02, RF-03, RF-22, RF-30), y mientras tanto el estado real está en `docs/BACKLOG.md`; §3.1 describe el flujo v1.1; §10 mantiene abiertas las decisiones 1 (un usuario, una organización; solo asesores en varias) y 5 (nombre Celestica); falta la ampliación de RF-51.
 - `07_MVP/README.md` (líneas 5 y 103) y `07_MVP/COMO_FUNCIONA.md` (línea 296) dicen 12 plantillas; hay 19, y `COMO_FUNCIONA.md` no menciona Retail ni Municipal (T-031). Corregir en una tarea de backend.

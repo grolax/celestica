@@ -65,7 +65,7 @@ export default function Recommendations({ onVerPor }: { onVerPor?: (por: string,
   useEffect(() => {
     setRec(null);
     projectsApi.getRecommendations(project.id).then(setRec).catch(() => {});
-  }, [project.id]);
+  }, [project.id, project.marco_teorico]); // la plantilla sugerida depende del marco
 
   if (!rec) return null;
   const plantilla = canEdit ? rec.plantilla : null;
