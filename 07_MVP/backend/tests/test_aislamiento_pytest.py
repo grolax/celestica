@@ -64,6 +64,7 @@ ROUTES = [
     ("GET", "/api/projects/{project_id}/closed-results", {"params": {"ver": "q_1"}}),
     ("GET", "/api/projects/{project_id}/export/closed-xlsx", {"params": {"ver": "q_1"}}),
     ("GET", "/api/projects/{project_id}/recommendations", {}),
+    ("GET", "/api/projects/{project_id}/temas-principales", {}),
     ("PATCH", "/api/projects/{project_id}/preguntas/{pregunta_id}", {"json": {"tipo": "escala"}}),
 ]
 

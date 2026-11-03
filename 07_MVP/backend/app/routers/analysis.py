@@ -13,6 +13,7 @@ from app.deps import (_analisis_en_curso, _codify_progress, _get_or_404, _get_vi
                       una_sola_vez)
 from app.models import User
 from app.services import claude_log, lexical, thematic
+from app.services.temas_principales import temas_principales
 
 router = APIRouter()
 
@@ -311,6 +312,11 @@ def summary(project_id: str, pregunta: Optional[str] = None, user: User = Depend
         "has_lexical": vista["lexical"] is not None,
         "has_report": bool(vista.get("qualitative_report")),
     }
+
+
+@router.get("/api/projects/{project_id}/temas-principales")
+def temas_principales_ruta(project_id: str, user: User = Depends(get_current_user)):
+    return temas_principales(_get_or_404(project_id, user))
 
 
 @router.get("/api/projects/{project_id}/audit")
