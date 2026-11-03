@@ -65,7 +65,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
 | T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
-| T-040 | Editar el marco teórico desde la pantalla | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
+| T-040 | Editar el marco teórico desde la pantalla | 🟡 Publicada para revisión del responsable (PR #47) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -825,7 +825,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cómo se verificó:** el supervisor recorrió la pantalla en el navegador, sobre una base de datos desechable y sin IA: 25 de 25 comprobaciones correctas.
 - **Pruebas automáticas:** dos corridas fallaron en una prueba, distinta cada vez (380 de 381 pasaron), con el computador al 100 % de uso. Al repetirlas con el computador descargado, pasaron las 381.
 - **Pendiente:** que el responsable valide los criterios en la plataforma.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** publicada para revisión del responsable (PR #47).
 
 ---
 
