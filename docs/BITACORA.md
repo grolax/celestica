@@ -813,7 +813,13 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Resultado:** de 49 requerimientos funcionales, 20 están hechos. Quedan por terminar 6 de prioridad más alta: panel para lectores, asistente, perfil de organización, marca en informes, plantillas propias e informe integrado.
 - **Algo a tener en cuenta:** ningún cliente real ha validado todavía el producto. Hasta ahora, la validación ha sido técnica o del responsable.
 - **Decisiones del responsable:** aprobó el orden propuesto; el informe integrado usará una estructura única, sin esperar a las plantillas de informe; y en el panel para lectores, cada pregunta abierta tendrá su resumen en la misma pantalla.
-- **Estado:** publicado para revisión del responsable. Después sigue T-040.
+- **Estado:** incorporado a la versión oficial (PR #46).
+
+### 67. T-040 · Plan: editar el marco teórico desde la pantalla
+
+- **Qué se hace:** el resumen del proyecto tendrá una tarjeta "Marco teórico". Todos podrán leerlo completo, y los analistas y administradores podrán editarlo. Antes de guardar, la pantalla avisa que lo ya generado no cambia y que el próximo informe profundo volverá a gastar IA.
+- **Hallazgo al planificar:** la pestaña Auditoría corta el detalle de cada evento a 300 caracteres. Un marco largo habría ocultado parte del texto y quién hizo el cambio, así que T-040 lo muestra completo para estos eventos.
+- **Estado:** en desarrollo.
 
 ---
 

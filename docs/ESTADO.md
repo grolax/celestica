@@ -52,7 +52,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (fusionada, PR #45) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #45). `docs/BACKLOG.md` en la rama `docs/backlog`, con PR abierto: **espera el merge del usuario**. **Después:** T-040, la pantalla para editar el marco; luego sigue el orden de `docs/BACKLOG.md`.
+- **Situación al 2026-11-02:** `main` al día (último merge: PR #46, backlog). **En curso:** T-040, la pantalla para editar el marco (`tarea/T-040-pantalla-marco`). **Después:** sigue el orden de `docs/BACKLOG.md` (RF-43).
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
   - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).
