@@ -64,7 +64,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-034 | Alertas agrupadas y etiqueta "Poco respondida" | ✅ Incorporada a la versión oficial |
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
-| T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | 🟡 Aprobada por el supervisor; publicada, espera la aprobación del responsable |
+| T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -797,7 +797,23 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Después de cambiar el marco, el siguiente informe profundo rehace sus análisis intermedios y vuelve a gastar IA. Es lo correcto, para no reutilizar análisis hechos con el marco anterior.
   - La portada del PDF y del Word muestra el marco actual. Si se edita sin regenerar el informe, puede no coincidir con el marco con que se generó. El responsable decidió dejarlo como pendiente.
 - **Probado:** 381 pruebas automáticas, incluidas las de permisos y de separación entre organizaciones.
-- **Estado:** aprobada por el supervisor y publicada para revisión. Espera la aprobación del responsable.
+- **Estado:** incorporada a la versión oficial (PR #45).
+
+---
+
+### 66. Backlog del producto
+
+- **Qué se hizo:** a pedido del responsable, se creó `docs/BACKLOG.md`, que reúne en un solo lugar:
+  - 7 **épicas**, con su avance real;
+  - un **backlog priorizado**, con lo pendiente en orden;
+  - **historias de usuario** para los próximos 7 trabajos y una línea para cada uno de los demás;
+  - **criterios de validación** escritos desde quien usa la plataforma;
+  - qué tareas construyeron cada requerimiento ya hecho.
+- **Por qué:** los requerimientos, las prioridades y los criterios existían, pero repartidos, y no había historias de usuario. Algunos pedidos surgidos al revisar la plataforma tampoco tenían un requerimiento propio; ahora tienen un código `PED-xx`.
+- **Resultado:** de 49 requerimientos funcionales, 20 están hechos. Quedan por terminar 6 de prioridad más alta: panel para lectores, asistente, perfil de organización, marca en informes, plantillas propias e informe integrado.
+- **Algo a tener en cuenta:** ningún cliente real ha validado todavía el producto. Hasta ahora, la validación ha sido técnica o del responsable.
+- **Decisiones del responsable:** aprobó el orden propuesto; el informe integrado usará una estructura única, sin esperar a las plantillas de informe; y en el panel para lectores, cada pregunta abierta tendrá su resumen en la misma pantalla.
+- **Estado:** publicado para revisión del responsable. Después sigue T-040.
 
 ---
 
