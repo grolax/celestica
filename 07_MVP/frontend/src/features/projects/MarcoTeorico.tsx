@@ -18,8 +18,10 @@ export default function MarcoTeorico() {
   const [texto, setTexto] = useState("");
   const { busy, error, setError, run } = useAsync();
 
+  // El marco creado desde el formulario se guarda con \r\n; el textarea siempre entrega \n.
+  const actual = project.marco_teorico.replace(/\r\n/g, "\n");
   const limpio = texto.trim();
-  const abrir = () => { setTexto(project.marco_teorico); setError(""); setEditando(true); };
+  const abrir = () => { setTexto(actual); setError(""); setEditando(true); };
   const guardar = async () => {
     const r = await run(() => projectsApi.updateMarco(project.id, limpio));
     if (!r) return; // el error queda junto al editor y el texto se conserva
@@ -47,7 +49,7 @@ export default function MarcoTeorico() {
           </div>
           {error && <div className="alert alert-error" role="alert">{error}</div>}
           <div style={{ display: "flex", gap: 8 }}>
-            <Button busy={busy} disabled={limpio === project.marco_teorico.trim()} onClick={guardar}>Guardar</Button>
+            <Button busy={busy} disabled={limpio === actual.trim()} onClick={guardar}>Guardar</Button>
             <Button variant="secondary" disabled={busy} onClick={() => setEditando(false)}>Cancelar</Button>
           </div>
         </>
