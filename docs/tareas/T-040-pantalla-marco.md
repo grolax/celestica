@@ -86,3 +86,9 @@ No toques el backend: guardar `\r\n` al crear queda como deuda técnica.
   - Corrida 2: falla `test_rendimiento_10000_filas_por_30_columnas` (380 pasan). Exige menos de 2 s; repetida sola 3 veces, falló 2 (2,16 s y 2,24 s).
 - La CPU estaba al 100 % por otras aplicaciones y la suite tardó de 4 a 5 min, en vez de unos 2. Es la causa probable, no confirmada: no se vio el motivo de la falla de `test_fase3`.
 - **Falta:** una corrida completa en verde con el equipo descargado.
+
+## Revisión
+2026-11-03 · **Aprobada.**
+- `python -m pytest tests -q` con la CPU cerca del 35 %: 381 pasan en 1 min 29 s, sobre `4a50e94`. La misma suite, sin cambios en el backend, falló con la CPU al 100 %.
+- Los criterios de aceptación y el build quedan como en la revisión 2. Desde entonces solo cambiaron documentos.
+- Pendiente de validar por el responsable en la plataforma: los criterios de PED-01 en `docs/BACKLOG.md`.

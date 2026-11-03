@@ -50,9 +50,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 | T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (fusionada, PR #45) |
+| T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (aprobada, pendiente de subir) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #46, backlog). **En curso:** T-040, la pantalla para editar el marco (`tarea/T-040-pantalla-marco`): código revisado y verificado en el navegador; falta una corrida completa de pytest en verde con el equipo descargado. **Después:** sigue el orden de `docs/BACKLOG.md` (RF-43).
+- **Situación al 2026-11-02:** `main` al día (último merge: PR #46, backlog). **Aprobada, pendiente de subir:** T-040 (`tarea/T-040-pantalla-marco`). **Después:** sigue el orden de `docs/BACKLOG.md` (RF-43).
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
   - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).
@@ -97,7 +98,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
-- Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada) (T-040).
+- Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada); con la CPU cerca del 35 % pasan las 381 en 1 min 29 s (T-040).
 - Marco creado desde el formulario: se guarda con `\r\n` porque viaja en `FormData`; normalizarlo al crear en el backend. La pantalla ya lo tolera (T-040).
 - Tarjeta "Marco teórico" (T-040): al cerrar el editor, el foco no vuelve a "Editar" (`Button` no acepta `ref`); tras guardar se ve un instante el marco anterior y "Recomendaciones" parpadea al recargar.
 - Portada del PDF y Word (T-039): muestra el marco actual; si se editó sin regenerar el informe, puede no coincidir con el marco con que se generó (RNF-07). Guardar el marco junto al informe si se decide corregirlo.

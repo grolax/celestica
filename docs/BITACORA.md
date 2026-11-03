@@ -4,7 +4,7 @@
 
 **Quién lo actualiza:** el supervisor técnico (Claude), cada vez que se hace un cambio. El responsable del proyecto (Israel) aprueba qué se publica.
 
-**Última actualización:** 2 de noviembre de 2026
+**Última actualización:** 3 de noviembre de 2026
 
 ---
 
@@ -65,6 +65,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
 | T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
+| T-040 | Editar el marco teórico desde la pantalla | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -822,8 +823,9 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué quedó:** la tarjeta funciona como se planificó, y Auditoría muestra completos el texto anterior, el nuevo y quién hizo el cambio.
 - **Error encontrado en la revisión:** un marco de varias líneas creado desde el formulario se guarda con saltos de línea de Windows. Por eso "Guardar" se activaba aunque solo se agregara un espacio, y habría dejado en Auditoría un cambio sin contenido real, imposible de borrar. Se corrigió en la pantalla.
 - **Cómo se verificó:** el supervisor recorrió la pantalla en el navegador, sobre una base de datos desechable y sin IA: 25 de 25 comprobaciones correctas.
-- **Pendiente:** dos corridas de las pruebas automáticas fallaron en una prueba, distinta cada vez (380 de 381 pasan), con el computador al 100 % de uso. Hay que repetirlas con el computador descargado antes de aprobar.
-- **Estado:** revisada, aún sin aprobar.
+- **Pruebas automáticas:** dos corridas fallaron en una prueba, distinta cada vez (380 de 381 pasaron), con el computador al 100 % de uso. Al repetirlas con el computador descargado, pasaron las 381.
+- **Pendiente:** que el responsable valide los criterios en la plataforma.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
