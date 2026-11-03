@@ -50,10 +50,11 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 | T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (fusionada, PR #45) |
-| T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (aprobada, PR #47 abierto) |
+| T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (fusionada, PR #47) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #46, backlog). **Espera el merge del usuario:** T-040 (PR #47). **Después:** sigue el orden de `docs/BACKLOG.md` (RF-43).
+- **Situación al 2026-11-03:** `main` al día (último merge: PR #47). **En curso:** RF-43, panel de resultados para lectores: T-041 temas principales con citas (servidor, `tarea/T-041-temas-principales`) → T-042 pantalla "Resultados".
+- Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
   - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).

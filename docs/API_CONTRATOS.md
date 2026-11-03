@@ -616,3 +616,58 @@ Decisión del usuario (2026-11-01): el cliente puede modificar lo que trae la pl
   - 400 `"El marco teórico no puede superar los 5.000 caracteres."`
   - 400 `"Este proyecto no tiene preguntas abiertas, así que no usa marco teórico."`
   - 403 (lector); 404 `"Proyecto no encontrado"` (incluida otra organización).
+
+## RF-43 · Temas principales para el panel de resultados (T-041)
+
+Decisiones del usuario (2026-11-03): cada pregunta abierta tiene su resumen en la misma pantalla; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando en las cifras. Las citas se mantienen textuales: no se enmascaran ni se recortan.
+
+### `GET /api/projects/{id}/temas-principales`
+- **Roles:** lector, analista, admin.
+- **Solo lectura y sin IA:** no escribe en la base ni en la auditoría. Las cifras se calculan en Python desde las codificaciones guardadas.
+- **Respuesta 200:**
+
+```json
+{
+  "preguntas": [
+    {
+      "pregunta_id": "q_28",
+      "titulo": "28. ¿Qué tendría que cambiar…?",
+      "n_respuestas": 484,
+      "n_codificadas": 480,
+      "n_temas": 7,
+      "temas": [
+        { "category_id": "cat_1", "nombre": "Precio", "definicion": "Menciones al costo…",
+          "personas": 120, "porcentaje": 25.0,
+          "citas": ["Texto exacto de una respuesta.", "Texto exacto de otra respuesta."] }
+      ]
+    }
+  ]
+}
+```
+
+- **`preguntas`:** una entrada por pregunta abierta, en el orden del proyecto. Un proyecto sin abiertas devuelve `[]`.
+- **Conteos de cada pregunta:**
+  - `n_respuestas`: respuestas no vacías de esa pregunta.
+  - `n_codificadas`: respuestas con una entrada en `codings`, incluidas las `SIN_CATEGORIA` y las que tienen la lista vacía. Es la base del porcentaje.
+  - `n_temas`: total de categorías `validada` con al menos una persona, antes de aplicar el máximo.
+  - Se ignoran las codificaciones de respuestas que ya no existan.
+- **`temas`:** máximo 5, por `personas` de mayor a menor y, en un empate, por `nombre`.
+  - Solo categorías con `status` `validada`. Nunca `propuesta`, `descartada` ni `SIN_CATEGORIA`.
+  - Sin temas, la lista queda vacía. Esto incluye una pregunta sin codificar.
+  - `personas`: respuestas distintas asignadas a la categoría (una respuesta cuenta una vez por categoría).
+  - `porcentaje`: `personas / n_codificadas × 100`, con 1 decimal. Una respuesta puede tener varios temas, así que los porcentajes pueden sumar más de 100.
+  - La confianza **no** filtra los conteos (RNF-06).
+- **`citas`:** máximo 2 por tema. Cada cita es el `text` exacto de una respuesta asignada a esa categoría.
+  - **Nunca se elige** una respuesta que contenga:
+    - un correo: algo con la forma `texto@dominio.ext`;
+    - un RUT: 7 u 8 dígitos, con o sin puntos, seguidos de guion y dígito o K;
+    - un teléfono u otro número largo: 8 o más dígitos seguidos, aunque estén separados por espacios, puntos o guiones, con o sin `+`.
+  - Un falso positivo solo deja fuera la cita.
+  - **Orden de preferencia:**
+    1. Primero, las respuestas de 5 palabras o más y hasta 400 caracteres.
+    2. Dentro de cada grupo, `source` `analista` antes que `claude`.
+    3. Luego, mayor `confidence`.
+    4. Por último, el orden de las respuestas. El resultado es siempre el mismo con los mismos datos.
+  - Dentro de una pregunta, una respuesta ya citada en un tema anterior solo se repite si el tema no tiene otra elegible.
+  - Si no hay ninguna elegible, `citas` queda vacía y el tema se muestra igual.
+- **Errores:** 404 `"Proyecto no encontrado"` (incluida otra organización); 401 sin sesión.
