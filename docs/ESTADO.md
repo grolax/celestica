@@ -49,10 +49,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-036 Selector "Pregunta" en Preguntas cerradas, Excel con `ver` y "Ver este cruce" en Recomendaciones | frontend | RF-31, RF-41, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-036-pantalla-cruce-dos-preguntas` (fusionada, PR #41) |
 | T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
-| T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (aprobada, pendiente de subir) |
+| T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (aprobada, PR abierto) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #44), sin PR abiertos. T-039 aprobada en `tarea/T-039-editar-marco`, **pendiente de subir (se le preguntó al usuario)**. **Después:** T-040, la pantalla para editar el marco; luego RF-43 (panel de resultados para lectores).
+- **Situación al 2026-11-02:** `main` al día (último merge: PR #44), sin PR abiertos. T-039 aprobada en `tarea/T-039-editar-marco`, con PR abierto: **espera el merge del usuario**. **Después:** T-040, la pantalla para editar el marco; luego RF-43 (panel de resultados para lectores).
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
   - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).

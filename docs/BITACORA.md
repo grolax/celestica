@@ -64,7 +64,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-034 | Alertas agrupadas y etiqueta "Poco respondida" | ✅ Incorporada a la versión oficial |
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
-| T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | 🟡 Aprobada por el supervisor; falta autorizar su publicación |
+| T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | 🟡 Aprobada por el supervisor; publicada, espera la aprobación del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -797,7 +797,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Después de cambiar el marco, el siguiente informe profundo rehace sus análisis intermedios y vuelve a gastar IA. Es lo correcto, para no reutilizar análisis hechos con el marco anterior.
   - La portada del PDF y del Word muestra el marco actual. Si se edita sin regenerar el informe, puede no coincidir con el marco con que se generó. El responsable decidió dejarlo como pendiente.
 - **Probado:** 381 pruebas automáticas, incluidas las de permisos y de separación entre organizaciones.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** aprobada por el supervisor y publicada para revisión. Espera la aprobación del responsable.
 
 ---
 
