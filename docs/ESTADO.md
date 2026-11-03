@@ -51,9 +51,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 | T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (fusionada, PR #45) |
 | T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (fusionada, PR #47) |
+| T-041 Temas principales con citas para el panel | backend | RF-43, RNF-01, RNF-02, RNF-05, RNF-06, RNF-07, RNF-10 | 2026-11-03 | `tarea/T-041-temas-principales` (aprobada, pendiente de subir) |
 
 ## En curso
-- **Situación al 2026-11-03:** `main` al día (último merge: PR #47). **En curso:** RF-43, panel de resultados para lectores: T-041 temas principales con citas (servidor, `tarea/T-041-temas-principales`) → T-042 pantalla "Resultados".
+- **Situación al 2026-11-03:** `main` al día (último merge: PR #47). **En curso:** RF-43, panel de resultados para lectores: T-041 temas principales con citas (servidor, aprobada, pendiente de subir) → T-042 pantalla "Resultados".
 - Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
@@ -99,6 +100,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Temas principales (T-041): por regex, un número de 8 o más dígitos como "2020-2021" deja fuera la cita; los nombres de personas no se detectan hasta RNF-05. Sin probar con codificaciones reales.
 - Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada); con la CPU cerca del 35 % pasan las 381 en 1 min 29 s (T-040).
 - Marco creado desde el formulario: se guarda con `\r\n` porque viaja en `FormData`; normalizarlo al crear en el backend. La pantalla ya lo tolera (T-040).
 - Tarjeta "Marco teórico" (T-040): al cerrar el editor, el foco no vuelve a "Editar" (`Button` no acepta `ref`); tras guardar se ve un instante el marco anterior y "Recomendaciones" parpadea al recargar.

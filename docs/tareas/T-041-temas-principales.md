@@ -54,3 +54,15 @@ Cada punto lleva su prueba en pytest, con mongomock.
 - Una respuesta recodificada a mano puede tener la lista vacía: cuenta en `n_codificadas`, pero en ningún tema.
 - Una asignación puede venir sin `confidence`: trátala como la de menor prioridad, sin que falle.
 - Ninguna pregunta de la base local tiene codificaciones, así que las pruebas usan datos armados a mano. No generes codificaciones en la base local.
+
+## Revisión
+2026-11-03 · **Aprobada.**
+- Diff dentro del alcance: servicio nuevo (71 líneas), ruta en `analysis.py`, pruebas, y un párrafo en `COMO_FUNCIONA.md`. No toca `thematic.py`, `store.py` ni el frontend.
+- `python -m pytest tests -q` con el equipo descargado: 406 pasan en 1 min 27 s.
+- Contrato: forma del 200, máximo de temas y citas, orden de preferencia y exclusión de datos personales.
+- Aislamiento y permisos: lee con `_get_or_404` (filtro por organización en `store`); otra organización recibe 404 y el lector, 200. Ruta agregada a ambas pruebas de cobertura.
+- Principios: sin IA, cifras en Python, citas idénticas al texto, solo categorías validadas, la confianza no filtra conteos y no escribe en la auditoría.
+- Verificación del supervisor sobre los 25 proyectos locales, solo en memoria: sin errores y base sin cambios. Con codificación simulada: 229 citas, todas textuales y sin datos personales. Ninguna respuesta local activó el filtro; ese caso lo cubren las pruebas.
+- Decisión aceptada: si un tema tiene alguna respuesta aún sin citar, cita solo de esas, aunque quede con 1 cita.
+- Rendimiento medido: 0,15 s con 10.000 respuestas codificadas. Sin migración: el esquema no cambia.
+- No probado con codificaciones reales: no hay ninguna en la base local.
