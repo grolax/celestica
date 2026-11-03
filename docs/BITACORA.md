@@ -64,6 +64,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-034 | Alertas agrupadas y etiqueta "Poco respondida" | ✅ Incorporada a la versión oficial |
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
+| T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | 🟡 Aprobada por el supervisor; falta autorizar su publicación |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -781,6 +782,22 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - El documento de producto y las guías técnicas siguen con datos antiguos; por ejemplo, dicen 12 plantillas y hay 19. Están fuera de `docs/`, así que quedaron anotados en el estado.
   - La base local conserva proyectos de pruebas anteriores. El responsable decide si se borran.
 - **Siguiente:** editar el marco teórico después de crear el proyecto; luego, el panel de resultados para lectores. Ninguna de las dos está empezada.
+
+---
+
+### 65. T-039 · Editar el marco teórico de un proyecto ya creado (servidor)
+
+- **Pedido del responsable:** poder modificar el marco teórico después de crear el proyecto, también cuando viene de una plantilla. Cada proyecto mantiene su propio marco, porque cada cliente y cada encuesta necesitan un análisis distinto.
+- **Qué quedó (servidor; la pantalla llega en T-040):**
+  - Un analista o administrador puede cambiar el marco. Cada cambio queda en la auditoría, con el texto anterior, el nuevo y quién lo hizo.
+  - **Lo ya generado no cambia:** categorías, codificaciones e informes se conservan. El marco nuevo se usa desde la próxima vez que se trabaje con IA, y editarlo no gasta IA.
+  - El marco admite hasta 5.000 caracteres, porque entra en cada llamada a la IA. Puede quedar vacío.
+  - No se puede editar en proyectos con solo preguntas cerradas, porque ahí no se usa IA.
+- **A tener en cuenta:**
+  - Después de cambiar el marco, el siguiente informe profundo rehace sus análisis intermedios y vuelve a gastar IA. Es lo correcto, para no reutilizar análisis hechos con el marco anterior.
+  - La portada del PDF y del Word muestra el marco actual. Si se edita sin regenerar el informe, puede no coincidir con el marco con que se generó. El responsable decidió dejarlo como pendiente.
+- **Probado:** 381 pruebas automáticas, incluidas las de permisos y de separación entre organizaciones.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

@@ -39,3 +39,15 @@ Permitir que un analista o administrador cambie el marco teórico de un proyecto
 - Reutilizar `store.set_project_field(project_id, user.org_id, "marco_teorico", ...)`, `store.pregunta_abierta(project)` y `store.log_event`, como las rutas vecinas.
 - El límite de 5.000 caracteres se valida después de quitar los espacios. El marco entra en cada llamada a la IA; el más largo guardado hoy tiene 1.566 caracteres.
 - No hace falta bloqueo: los procesos en curso ya recibieron su marco como parámetro al empezar.
+
+## Revisión
+2026-11-02 · **Aprobada.**
+- Diff dentro del alcance: la ruta en `projects.py` (+25), 12 casos en `test_editar_marco_pytest.py`, la ruta agregada a aislamiento y permisos, y un párrafo de `COMO_FUNCIONA.md`. No toca `thematic.py`, `store.py` ni el frontend.
+- Contrato: forma del 200, mensajes exactos, marco vacío permitido, límite de 5.000 caracteres sin contar los espacios de los extremos, y mismo texto sin escritura ni auditoría.
+- Aislamiento: la escritura usa `set_project_field`, que filtra por organización; otra organización recibe 404 y el documento no cambia. Permisos: el lector recibe 403.
+- Principios: no llama a la IA; lo ya generado queda idéntico (salvo `marco_teorico` y `audit_log`); la auditoría solo crece.
+- `python -m pytest tests -q`: 381 pasan.
+- Decisiones aceptadas: orden de validación 403, 404, proyecto sin abiertas y largo; un cuerpo sin el campo da el 422 estándar.
+- Sin migración: el esquema no cambia.
+- No se probó contra MongoDB real: es un `$set` de primer nivel con una función que ya usa `apply-template`.
+- Decisión del usuario (2026-11-02): se mantienen las sugerencias del contrato y la portada del PDF y Word queda como deuda.
