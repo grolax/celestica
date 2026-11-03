@@ -33,6 +33,7 @@ TPL = "evaluacion_docente_cna"
 ROUTES = [
     ("GET", "/api/projects/{project_id}", {}),
     ("DELETE", "/api/projects/{project_id}", {}),
+    ("PATCH", "/api/projects/{project_id}", {"json": {"marco_teorico": "Marco ajeno"}}),
     ("GET", "/api/projects/{project_id}/responses", {}),
     ("POST", "/api/projects/{project_id}/apply-template", {"params": {"template": TPL}}),
     ("GET", "/api/projects/{project_id}/lexical", {}),

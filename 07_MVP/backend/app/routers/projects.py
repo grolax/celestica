@@ -291,6 +291,31 @@ def recommendations(project_id: str, user: User = Depends(get_current_user)):
     return recomendar(_get_or_404(project_id, user))
 
 
+class MarcoBody(BaseModel):
+    marco_teorico: str
+
+
+MAX_MARCO = 5000
+
+
+@router.patch("/api/projects/{project_id}")
+def editar_marco(project_id: str, body: MarcoBody, user: User = Depends(require_role("analista"))):
+    """RF-41: cambia el marco teórico del proyecto. No toca lo ya generado: el caché del informe profundo
+    se invalida solo porque su huella incluye el marco."""
+    project = _get_or_404(project_id, user)
+    if store.pregunta_abierta(project) is None:
+        raise HTTPException(400, "Este proyecto no tiene preguntas abiertas, así que no usa marco teórico.")
+    nuevo = body.marco_teorico.strip()
+    if len(nuevo) > MAX_MARCO:
+        raise HTTPException(400, "El marco teórico no puede superar los 5.000 caracteres.")
+    antes = project.get("marco_teorico") or ""
+    if nuevo != antes.strip():
+        store.set_project_field(project_id, user.org_id, "marco_teorico", nuevo)
+        store.log_event(project, "analista", "cambio_marco_teorico",
+                        {"antes": antes, "despues": nuevo, "usuario": user.email})
+    return {"marco_teorico": nuevo}
+
+
 @router.delete("/api/projects/{project_id}")
 def delete_project(project_id: str, user: User = Depends(require_role("analista"))):
     if not store.delete_project(project_id, user.org_id):

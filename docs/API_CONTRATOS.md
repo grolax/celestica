@@ -592,3 +592,27 @@ Decisión del usuario (2026-11-01): solo se cambia **entre tipos cerrados** (`es
   - 400 `"Las respuestas de esta pregunta no son números, así que no puede ser «{etiqueta}»."` (etiquetas: Escala, NPS, Numérica)
   - 400 `"Para ser NPS, las respuestas deben ser números del 0 al 10."`
   - 403 (lector); 404 `"Proyecto no encontrado"` (incluida otra organización); 404 `"Pregunta no encontrada"`.
+
+## RF-41 · Editar el marco teórico después de crear el proyecto (T-039)
+
+Decisión del usuario (2026-11-01): el cliente puede modificar lo que trae la plantilla, incluido el marco teórico, después de crear el proyecto. El marco es **uno por proyecto** y vale para todas sus preguntas abiertas.
+
+### `PATCH /api/projects/{id}`
+- **Roles:** analista, admin. El lector recibe 403.
+- **Cuerpo:** `{ "marco_teorico": "Texto del marco" }`. Se quitan los espacios de los extremos. Puede quedar vacío: la IA usa entonces el análisis temático inductivo, como hoy.
+- **Respuesta 200:**
+
+```json
+{ "marco_teorico": "Texto del marco" }
+```
+
+- **Efecto:**
+  - Se guarda el marco nuevo, y las próximas llamadas a la IA lo usan.
+  - **Lo ya generado no cambia:** categorías, codificaciones, léxico e informes se conservan. No se llama a la IA ni se recalcula nada.
+  - La próxima generación del informe profundo rehace sus análisis intermedios, porque su caché depende del marco. Esto tiene costo de IA y solo ocurre si el usuario genera ese informe.
+  - Queda un evento en la auditoría: `cambio_marco_teorico`, actor `analista`, con `{ "antes": "...", "despues": "...", "usuario": "<email>" }`.
+  - Si el texto es el mismo que ya tenía: 200, sin escribir nada ni registrar en la auditoría.
+- **Errores** (mensajes para la UI):
+  - 400 `"El marco teórico no puede superar los 5.000 caracteres."`
+  - 400 `"Este proyecto no tiene preguntas abiertas, así que no usa marco teórico."`
+  - 403 (lector); 404 `"Proyecto no encontrado"` (incluida otra organización).

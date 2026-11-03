@@ -49,10 +49,10 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-036 Selector "Pregunta" en Preguntas cerradas, Excel con `ver` y "Ver este cruce" en Recomendaciones | frontend | RF-31, RF-41, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-036-pantalla-cruce-dos-preguntas` (fusionada, PR #41) |
 | T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
+| T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (aprobada, PR abierto) |
 
 ## En curso
-- **Situación al 2026-11-02 (verificada tras un cierre forzoso):** código en `main` al día (último merge: PR #43), sin PR abiertos, sin trabajo perdido: 368 pruebas pytest y build sin errores. **Pendiente de subir:** rama `docs/estado-2026-11-02`, solo con cambios en `docs/`; hasta que se fusione, `ESTADO.md` y `BITACORA.md` de `main` no incluyen este resumen. **Siguiente, sin empezar (sin contrato ni orden de trabajo):** editar el marco teórico después de crear el proyecto (backend + frontend); luego RF-43 (panel de resultados para lectores).
-- **Avance de la sesión 2026-11-01 (T-028 → T-038, PR #33 a #43, todos fusionados):**
+- **Situación al 2026-11-02:** `main` al día (último merge: PR #44), sin PR abiertos. T-039 aprobada en `tarea/T-039-editar-marco`, con PR abierto: **espera el merge del usuario**. **Después:** T-040, la pantalla para editar el marco; luego RF-43 (panel de resultados para lectores).
   - Excel de cerradas descargable desde la pantalla (T-028).
   - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
   - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).
@@ -68,6 +68,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
 - Decisión (usuario, 2026-10-31): los proyectos con solo cerradas entregan, por ahora, un **Excel con los resultados de las cerradas** (sin IA); el informe integrado llega con RF-51 (iteración 5).
 - Decisión (usuario, 2026-10-31): el Excel incluye los grupos de Ver por y gráficos que tengan sentido (de tendencia): líneas en grupos ordenados (tramos), barras en grupos sin orden. La tendencia en el tiempo requiere olas (RF-27/RF-37).
+- Decisiones T-039 (usuario, 2026-11-02): el marco teórico sigue siendo propio de cada proyecto o encuesta; editarlo no toca lo ya generado; máximo 5.000 caracteres; no se edita en proyectos sin abiertas; la portada del PDF y Word queda como deuda.
 - Pendiente posterior (usuario): convertir escalas con palabras a 1–5 (el usuario ordena las etiquetas en "Revisa las preguntas").
 
 - Iteración 2 (encuestas completas), plan aprobado por el usuario 2026-10-30: T-010 detección de tipos (fusionada) → T-011a preguntas en el proyecto (aprobada; incluye informe y exportaciones por pregunta, así que T-011b no hace falta) → T-012 paso "Revisa las preguntas" (aprobada) → T-013 selector de pregunta (aprobada). **Iteración 2 completa.**
@@ -95,6 +96,7 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Portada del PDF y Word (T-039): muestra el marco actual; si se editó sin regenerar el informe, puede no coincidir con el marco con que se generó (RNF-07). Guardar el marco junto al informe si se decide corregirlo.
 - `CONTEXTO_SOFTINSIGHT.md` desactualizado (el supervisor no escribe fuera de `docs/`; lo actualiza el usuario o una orden de trabajo): §4 marca como 🆕 requerimientos ya hechos (por ejemplo RF-02, RF-03, RF-22, RF-30); §3.1 describe el flujo v1.1; §10 mantiene abiertas las decisiones 1 (un usuario, una organización; solo asesores en varias) y 5 (nombre Celestica); falta la ampliación de RF-51.
 - `07_MVP/README.md` (líneas 5 y 103) y `07_MVP/COMO_FUNCIONA.md` (línea 296) dicen 12 plantillas; hay 19, y `COMO_FUNCIONA.md` no menciona Retail ni Municipal (T-031). Corregir en una tarea de backend.
 - Base MongoDB local: 14 de 25 proyectos parecen de verificaciones (nombres con T-0xx, "Supervisor" o "Demo"). No se tocaron; el usuario decide si limpiarlos.
