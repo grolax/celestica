@@ -60,3 +60,18 @@ En el resumen del proyecto, cualquiera puede leer el marco teórico completo, y 
 - El límite lo valida el servidor. No dupliques su mensaje en la pantalla.
 - Si el texto no cambió, el servidor responde 200 sin registrar nada; por eso "Guardar" queda deshabilitado en ese caso.
 - `TextArea` no asocia `error` con el campo mediante `aria-describedby`. No lo modifiques aquí: usa un `alert alert-error` con `role="alert"` dentro de la tarjeta.
+
+## Revisión 1
+2026-11-02 · **Con cambios (una observación).** El resto del diff está bien.
+
+**`features/projects/MarcoTeorico.tsx`, línea de `abrir` y `disabled` de "Guardar": un marco con saltos de línea de Windows se ve como modificado sin estarlo.**
+- **Causa:** al crear el proyecto, el marco viaja en un `FormData`, y el navegador convierte sus saltos de línea a `\r\n`. El servidor lo guarda así (comprobado: `'Linea uno\r\nLinea dos'`; también está en 1 de los 25 proyectos de la base local). El `textarea` entrega siempre `\n`, así que tras cualquier edición el texto ya no es igual a `project.marco_teorico`.
+- **Cómo se reproduce:** crea un proyecto con un marco de dos líneas desde el formulario, pulsa "Editar" y agrega un espacio al final.
+- **Qué falla:**
+  - "Guardar" se habilita aunque el texto no cambió.
+  - Al guardar, el servidor lo toma como distinto y registra un `cambio_marco_teorico` sin cambio real. La auditoría solo crece, así que ese evento no se puede quitar.
+  - Antes de editar, el contador cuenta cada salto de línea como 2 caracteres.
+- **Qué se espera:** normaliza `\r\n` a `\n` en un solo lugar de `MarcoTeorico.tsx`, tanto para el texto inicial del editor como para la comparación de "Guardar". El marco mostrado en la tarjeta y el evento de auditoría no cambian.
+- **Verificación:** basta con `npm run build`. El supervisor repite la prueba en el navegador; los puertos 8000 y 5173 ya están ocupados por sus servidores, así que no levantes otros.
+
+No toques el backend: guardar `\r\n` al crear queda como deuda técnica.
