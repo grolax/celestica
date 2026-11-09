@@ -66,7 +66,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
 | T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
 | T-040 | Editar el marco teórico desde la pantalla | ✅ Incorporada a la versión oficial (PR #47) |
-| T-041 | Temas principales con citas para el panel de resultados (servidor) | 🟡 Publicada para revisión del responsable (PR #48) |
+| T-041 | Temas principales con citas para el panel de resultados (servidor) | ✅ Incorporada a la versión oficial (PR #48) |
+| T-042 | Pantalla "Resultados" para lectores | 🟡 En desarrollo |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -850,7 +851,19 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Protección de datos:** las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando en las cifras. Los nombres de personas todavía pueden aparecer.
 - **Cómo se verificó:** 406 pruebas automáticas pasan. El supervisor corrió el cálculo sobre los 25 proyectos locales, solo en memoria y sin cambiar la base, sin errores. Con 10.000 respuestas tarda 0,15 segundos.
 - **Pendiente:** probarlo con una encuesta realmente codificada, porque la base local no tiene ninguna.
-- **Estado:** publicada para revisión del responsable (PR #48, 8 de noviembre). Las 406 pruebas se repitieron ese día, todas en verde. **Espera su aprobación.**
+- **Estado:** incorporada a la versión oficial (PR #48, 8 de noviembre). Las 406 pruebas se repitieron ese día, todas en verde.
+
+---
+
+## 8 de noviembre de 2026
+
+### 70. T-042 · Plan: la pantalla "Resultados"
+
+- **Qué se hace:** una pestaña nueva, **"Resultados"**, la primera de cada proyecto. Reúne en una pantalla las alertas generales de la encuesta, el NPS y hasta 6 preguntas de escala o sí/no, y los temas principales de cada pregunta abierta con sus citas textuales. Se puede imprimir y leer en tablet y celular.
+- **Cómo se entra:** el lector llega ahí desde la lista de proyectos. Sigue pudiendo abrir el Dashboard; por eso no se usó una redirección automática, que se lo habría impedido. El analista entra como hoy.
+- **Qué no gasta:** no usa IA. Todos los datos ya los calcula el servidor.
+- **Alertas:** solo se muestran las que afectan a toda la encuesta, como "muy pocas respuestas". Las de cada pregunta son de método y siguen en el Dashboard.
+- **Estado:** en desarrollo.
 
 ---
 
