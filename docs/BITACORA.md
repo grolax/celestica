@@ -67,7 +67,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
 | T-040 | Editar el marco teórico desde la pantalla | ✅ Incorporada a la versión oficial (PR #47) |
 | T-041 | Temas principales con citas para el panel de resultados (servidor) | ✅ Incorporada a la versión oficial (PR #48) |
-| T-042 | Pantalla "Resultados" para lectores | 🟡 En desarrollo |
+| T-042 | Pantalla "Resultados" para lectores | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -863,7 +863,22 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cómo se entra:** el lector llega ahí desde la lista de proyectos. Sigue pudiendo abrir el Dashboard; por eso no se usó una redirección automática, que se lo habría impedido. El analista entra como hoy.
 - **Qué no gasta:** no usa IA. Todos los datos ya los calcula el servidor.
 - **Alertas:** solo se muestran las que afectan a toda la encuesta, como "muy pocas respuestas". Las de cada pregunta son de método y siguen en el Dashboard.
-- **Estado:** en desarrollo.
+- **Estado:** aprobada (ver entrada 71).
+
+### 71. T-042 · Resultado: la pantalla "Resultados"
+
+- **Qué quedó:** cada proyecto tiene como primera pestaña **"Resultados"**, con:
+  - las alertas generales de la encuesta;
+  - las cifras clave: NPS y hasta 6 preguntas de escala o sí/no, con un enlace al resto;
+  - un selector "Ver por…" con los grupos sugeridos, que marca los de "Pocos datos";
+  - los temas principales de cada pregunta abierta, con citas textuales y una nota de que la IA ayudó a clasificar;
+  - un botón "Imprimir".
+- **Cómo se entra:** el lector llega ahí desde la lista de proyectos y puede seguir abriendo el Dashboard. El analista entra como antes.
+- **Cómo se verificó:** las 406 pruebas automáticas pasan y las pantallas se construyen sin errores. El supervisor recorrió la pantalla en un navegador automático, sobre una base de datos desechable y sin IA: 27 de 27 comprobaciones correctas, con computador, celular, teclado y vista de impresión.
+- **Corrección en la revisión:** con una sola pregunta restante, el enlace decía "Ver las otras 1 preguntas". Ahora dice "Ver la otra pregunta".
+- **Error encontrado (ya existía):** la plataforma no reconoce como NPS una pregunta escrita con "recomiendes", como "¿Qué tan probable es que nos recomiendes?". Queda como escala y muestra un promedio. Hoy se corrige a mano con "Cambiar tipo". El arreglo espera la decisión del responsable.
+- **Pendiente:** probarla en papel y en una tablet real, y con una encuesta codificada de verdad.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 

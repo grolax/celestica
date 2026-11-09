@@ -108,3 +108,13 @@ Sin cambios. Consume:
 - `npm run build` sin errores y `python -m pytest tests -q`: 406 pasan.
 - En Chrome, sobre una base desechable ya borrada y sin IA: 25 de 25 comprobaciones. Incluyen lo que quedó sin ver en la entrega: barras sí/no, personas sin grupo, recorrido con teclado y título largo a 375 px. También, la entrada del lector y que siga pudiendo abrir el Dashboard.
 - Separar por una pregunta sí/no quita su propia tarjeta: el servidor no devuelve la pregunta de `por`.
+
+## Revisión
+2026-11-08 · **Aprobada.**
+- Corrección de la revisión 1 (`661e442`): una línea en `ResultsPanel.tsx`. Con una sola pregunta restante, el enlace dice "Ver la otra pregunta" y lleva a Preguntas cerradas.
+- Diff total de la aplicación: 7 archivos de frontend, 228 líneas agregadas y 7 quitadas. No toca el backend, `shared/components` ni `features/analysis/closed`.
+- `npm run build` sin errores. `python -m pytest tests -q`: 406 pasan, sobre el código previo a esta línea de texto de frontend.
+- Verificación del supervisor en Chrome headless, sobre una base desechable ya borrada y sin IA: 27 de 27 comprobaciones.
+- Contrato: `getTemasPrincipales` y sus tipos coinciden con `docs/API_CONTRATOS.md`. Usa `shared/api/client.ts`.
+- Principios: citas idénticas a las de la API, cifras del servidor, solo temas validados y la nota de IA visible (RNF-06).
+- No probado: impresión en papel, tablet física y temas con una codificación real hecha por IA. El NPS con datos lo vio el programador, no el supervisor: en su prueba la columna se detectó como escala (ver la deuda en `docs/ESTADO.md`).
