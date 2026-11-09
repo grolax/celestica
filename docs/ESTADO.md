@@ -50,20 +50,13 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-037 Cambiar el tipo de una pregunta cerrada (PATCH preguntas/{id}, validación y auditoría) | backend | RF-25, RF-30, RNF-01, RNF-02, RNF-07 | 2026-11-01 | `tarea/T-037-cambiar-tipo-cerrada` (fusionada, PR #42) |
 | T-038 "Cambiar tipo" en cada pregunta de Preguntas cerradas | frontend | RF-25, RF-30, RNF-13, RNF-14 | 2026-11-01 | `tarea/T-038-pantalla-cambiar-tipo` (fusionada, PR #43) |
 | T-039 Editar el marco teórico después de crear el proyecto (PATCH del proyecto, validación y auditoría) | backend | RF-41, RNF-01, RNF-02, RNF-06 | 2026-11-02 | `tarea/T-039-editar-marco` (fusionada, PR #45) |
-| T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (aprobada, PR #47 abierto) |
+| T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (fusionada, PR #47) |
+| T-041 Temas principales con citas para el panel | backend | RF-43, RNF-01, RNF-02, RNF-05, RNF-06, RNF-07, RNF-10 | 2026-11-03 | `tarea/T-041-temas-principales` (aprobada, PR #48 abierto, falta el merge) |
 
 ## En curso
-- **Situación al 2026-11-02:** `main` al día (último merge: PR #46, backlog). **Espera el merge del usuario:** T-040 (PR #47). **Después:** sigue el orden de `docs/BACKLOG.md` (RF-43).
-  - Excel de cerradas descargable desde la pantalla (T-028).
-  - El léxico y la propuesta de categorías no se lanzan dos veces ni se pierden al cambiar de pestaña (T-029, T-030).
-  - Plantillas Retail (4) y Municipal (3), RF-17 (T-031).
-  - Recomendaciones automáticas sin IA, RF-41: alertas de calidad, cruces sugeridos y plantilla sugerida (T-032, T-033).
-  - Ajustes tras la revisión del usuario:
-    - alertas agrupadas por tipo y etiqueta "Poco respondida" (T-034);
-    - cruce de 2 preguntas con selector "Pregunta" y pares sugeridos (T-035, T-036);
-    - cambiar el tipo de una pregunta cerrada después de crear el proyecto (T-037, T-038).
-  - Verificación final del supervisor sobre la rama acumulada: 368 pruebas pytest, build sin errores, fusión sin conflictos y 26/26 chequeos en el navegador.
-- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, fusionada) → T-029 léxico y propuesta una sola vez a la vez (backend, fusionada) → T-030 retomarlos al volver a la pestaña (pantalla, fusionada) → T-031 plantillas Retail y Municipal, RF-17 (backend, fusionada) → T-032 recomendaciones RF-41 (backend, fusionada) → T-033 tarjeta "Recomendaciones" (pantalla, fusionada) → **ajustes tras la revisión del usuario: T-034 alertas compactas (pantalla, fusionada) → T-035 cruce de 2 preguntas y pares sugeridos (servidor, fusionada) → T-036 su pantalla (fusionada) → T-037 cambiar el tipo entre cerradas (servidor, fusionada) → T-038 su pantalla (fusionada)** → **editar el marco teórico (siguiente)** → RF-43. Más adelante: sugerir la plantilla al crear el proyecto (paso 3 de RF-40).
+- **Situación al 2026-11-08:** `main` al día (último merge: PR #47). **En curso:** RF-43, panel de resultados para lectores: T-041 temas principales con citas (servidor) aprobada, en PR #48, con 406 pruebas en verde → T-042 pantalla "Resultados", sin empezar. **Después:** RF-40, siguiendo el orden de `docs/BACKLOG.md`.
+- Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
+- Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, fusionada) → T-029 léxico y propuesta una sola vez a la vez (backend, fusionada) → T-030 retomarlos al volver a la pestaña (pantalla, fusionada) → T-031 plantillas Retail y Municipal, RF-17 (backend, fusionada) → T-032 recomendaciones RF-41 (backend, fusionada) → T-033 tarjeta "Recomendaciones" (pantalla, fusionada) → **ajustes tras la revisión del usuario: T-034 alertas compactas (pantalla, fusionada) → T-035 cruce de 2 preguntas y pares sugeridos (servidor, fusionada) → T-036 su pantalla (fusionada) → T-037 cambiar el tipo entre cerradas (servidor, fusionada) → T-038 su pantalla (fusionada)** → editar el marco teórico (T-039 y T-040, fusionadas) → **RF-43 (en curso)**. Más adelante: sugerir la plantilla al crear el proyecto (paso 3 de RF-40).
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
 - Decisiones T-022 (usuario, 2026-10-31): los tramos de edad que elige el cliente valen solo para ese análisis (no se guardan, ni por proyecto ni por organización); cruzar temas de preguntas abiertas por grupo queda para una tarea posterior.
 - Decisión (usuario, 2026-10-31): el cliente puede juntar grupos ya hechos (tramos de edad, comunas en zonas) según su preferencia, solo para ese análisis (T-023 servidor, T-024 pantalla).
@@ -95,9 +88,13 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## Bloqueado / requiere decisión del usuario
 
+- T-041: PR #48 abierto (2026-11-08), falta el merge del usuario. T-042 depende de esta rama.
+- PED-01 (T-040): fusionada; falta que el usuario valide en la plataforma los criterios de `docs/BACKLOG.md`.
+- RF-43: para validarlo con datos reales hay que codificar una encuesta, lo que gasta IA; la base local no tiene ninguna codificación. Sin eso, se revisa con datos de ejemplo en una base desechable.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Temas principales (T-041): por regex, un número de 8 o más dígitos como "2020-2021" deja fuera la cita; los nombres de personas no se detectan hasta RNF-05. Sin probar con codificaciones reales.
 - Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada); con la CPU cerca del 35 % pasan las 381 en 1 min 29 s (T-040).
 - Marco creado desde el formulario: se guarda con `\r\n` porque viaja en `FormData`; normalizarlo al crear en el backend. La pantalla ya lo tolera (T-040).
 - Tarjeta "Marco teórico" (T-040): al cerrar el editor, el foco no vuelve a "Editar" (`Button` no acepta `ref`); tras guardar se ve un instante el marco anterior y "Recomendaciones" parpadea al recargar.

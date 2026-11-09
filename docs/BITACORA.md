@@ -4,7 +4,7 @@
 
 **Quién lo actualiza:** el supervisor técnico (Claude), cada vez que se hace un cambio. El responsable del proyecto (Israel) aprueba qué se publica.
 
-**Última actualización:** 3 de noviembre de 2026
+**Última actualización:** 8 de noviembre de 2026
 
 ---
 
@@ -65,7 +65,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-035 y T-036 | Cruce de 2 preguntas y pares sugeridos | ✅ Incorporadas a la versión oficial |
 | T-037 y T-038 | Corregir el tipo de una pregunta cerrada después de crear el proyecto | ✅ Incorporadas a la versión oficial |
 | T-039 | Editar el marco teórico de un proyecto ya creado (servidor) | ✅ Incorporada a la versión oficial |
-| T-040 | Editar el marco teórico desde la pantalla | 🟡 Publicada para revisión del responsable (PR #47) |
+| T-040 | Editar el marco teórico desde la pantalla | ✅ Incorporada a la versión oficial (PR #47) |
+| T-041 | Temas principales con citas para el panel de resultados (servidor) | 🟡 Publicada para revisión del responsable (PR #48) |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -825,7 +826,31 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cómo se verificó:** el supervisor recorrió la pantalla en el navegador, sobre una base de datos desechable y sin IA: 25 de 25 comprobaciones correctas.
 - **Pruebas automáticas:** dos corridas fallaron en una prueba, distinta cada vez (380 de 381 pasaron), con el computador al 100 % de uso. Al repetirlas con el computador descargado, pasaron las 381.
 - **Pendiente:** que el responsable valide los criterios en la plataforma.
-- **Estado:** publicada para revisión del responsable (PR #47).
+- **Estado:** incorporada a la versión oficial (PR #47).
+
+---
+
+## 3 de noviembre de 2026
+
+### 68. RF-43 · Panel de resultados para lectores: decisiones y plan
+
+- **Qué se busca:** que un gerente, alcalde o director entienda los resultados de una encuesta en una sola pantalla, sin saber de análisis.
+- **Decisiones del responsable:**
+  - Será una pestaña nueva, **"Resultados"**, la primera. El lector entra ahí por defecto; el analista sigue entrando al Dashboard.
+  - Muestra el NPS y hasta 6 escalas o preguntas sí/no, en el orden de la encuesta, con un enlace al resto.
+  - Por defecto no separa por grupos. Un selector "Ver por…" ofrece los grupos sugeridos (máximo 3), con la etiqueta "Pocos datos".
+  - Las respuestas con RUT, correo o teléfono **no se eligen como cita**, aunque siguen contando en las cifras. Las citas se mantienen textuales.
+- **Límite conocido:** los nombres de personas no se detectan de forma confiable con reglas, así que pueden aparecer en una cita hasta que exista la anonimización (RNF-05).
+- **Cómo se organizó:** T-041 calcula los temas principales con sus citas, sin IA (servidor). T-042 construye la pantalla.
+- **Estado:** T-041 aprobada (ver entrada 69).
+
+### 69. T-041 · Temas principales con citas (servidor)
+
+- **Qué quedó (la pantalla llega en T-042):** para cada pregunta abierta, el servidor entrega hasta 5 temas validados con su número de personas, su porcentaje y hasta 2 citas textuales. No usa IA y no escribe nada.
+- **Protección de datos:** las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando en las cifras. Los nombres de personas todavía pueden aparecer.
+- **Cómo se verificó:** 406 pruebas automáticas pasan. El supervisor corrió el cálculo sobre los 25 proyectos locales, solo en memoria y sin cambiar la base, sin errores. Con 10.000 respuestas tarda 0,15 segundos.
+- **Pendiente:** probarlo con una encuesta realmente codificada, porque la base local no tiene ninguna.
+- **Estado:** publicada para revisión del responsable (PR #48, 8 de noviembre). Las 406 pruebas se repitieron ese día, todas en verde. **Espera su aprobación.**
 
 ---
 

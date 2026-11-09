@@ -35,8 +35,8 @@ El avance cuenta solo requerimientos funcionales: hechos / total.
 
 | # | ID | Qué | Prioridad | Épica | Lado | Depende de | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | PED-01 | Pantalla para editar el marco teórico | Pedido | E2 | Frontend (T-040) | T-039 | 🟡 Servidor listo |
-| 2 | RF-43 | Panel de resultados para lectores | P0 | E5 | Frontend, quizá backend | RF-30, RF-31 | ⬜ |
+| 1 | PED-01 | Pantalla para editar el marco teórico | Pedido | E2 | Frontend (T-040) | T-039 | ✅ Fusionado (PR #47); falta tu validación funcional |
+| 2 | RF-43 | Panel de resultados para lectores | P0 | E5 | Ambos (T-041, T-042) | RF-30, RF-31 | 🟡 En curso |
 | 3 | RF-40 | Terminar el asistente de creación (plantilla sugerida al crear) | P0 | E5 | Ambos | RF-41 | 🟡 |
 | 4 | RF-10 | Perfil de organización | P0 | E2 | Ambos | RF-02 | ⬜ |
 | 5 | RF-11 | Marca de la organización en PDF y Word | P0 | E2 | Backend | RF-10 | ⬜ |
@@ -213,7 +213,7 @@ Las historias son de una línea. Los criterios de validación se escriben cuando
 
 | ID | Qué | Tareas | Estado |
 | --- | --- | --- | --- |
-| PED-01 | Editar el marco teórico después de crear el proyecto | T-039, T-040 | 🟡 Servidor hecho |
+| PED-01 | Editar el marco teórico después de crear el proyecto | T-039, T-040 | ✅ Fusionado; falta la validación del responsable |
 | PED-02 | Excel de cerradas con grupos y gráficos | T-027, T-028 | ✅ Visual aprobada por el responsable (T-027) |
 | PED-03 | No lanzar dos veces el léxico ni la propuesta, y retomarlos al volver | T-029, T-030 | ✅ |
 | PED-04 | Alertas agrupadas y etiqueta "Poco respondida" | T-034 | ✅ |
