@@ -165,7 +165,7 @@ export default function ResultsPanel() {
           {otras > 0 && (
             <p className="no-print">
               <Link to={`/proyectos/${project.id}/cerradas${pregunta ? `?pregunta=${encodeURIComponent(pregunta)}` : ""}`}>
-                Ver las otras {otras} preguntas
+                {otras === 1 ? "Ver la otra pregunta" : `Ver las otras ${otras} preguntas`}
               </Link>
             </p>
           )}
