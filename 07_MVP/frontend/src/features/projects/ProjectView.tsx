@@ -6,6 +6,7 @@ import { CERRADAS } from "./questionGroups";
 import { ProjectAbierta } from "./types";
 
 const TABS: [string, string][] = [
+  ["resultados", "Resultados"],
   ["", "Dashboard"],
   ["cerradas", "Preguntas cerradas"],
   ["lexico", "Análisis léxico"],
@@ -18,7 +19,7 @@ const TABS: [string, string][] = [
 ];
 
 // Sin preguntas abiertas (RF-24) solo sirven estas pestañas.
-const SOLO_CERRADAS = ["cerradas", "auditoria"];
+const SOLO_CERRADAS = ["resultados", "cerradas", "auditoria"];
 
 const corto = (t: string) => (t.length > 70 ? `${t.slice(0, 70)}…` : t);
 
@@ -29,6 +30,7 @@ export default function ProjectView() {
   const urlPregunta = params.get("pregunta") ?? undefined;
   const { project, error, refresh } = useProjectData(id, urlPregunta);
   const canEdit = puede(useAuth().user, "analista");
+  const enResultados = subruta === "resultados"; // cubre todas las preguntas: sin selector ni línea de pregunta
   const search = urlPregunta ? `?pregunta=${encodeURIComponent(urlPregunta)}` : "";
 
   if (error) return (
@@ -51,13 +53,13 @@ export default function ProjectView() {
     <ProjectContext.Provider value={{ project: project as ProjectAbierta, refresh }}>
       <div style={{ marginBottom: 4 }}>
         <h1 style={{ marginBottom: 2 }}>{project.name}{!canEdit && <> <span className="pill neutro">Solo lectura</span></>}</h1>
-        <p className="muted small">
+        {!enResultados && <p className="muted small">
           {soloCerradas ? `${project.n_responses} personas · Solo preguntas cerradas`
             : `${project.n_responses} respuestas · Pregunta: ${actual?.titulo ?? project.text_column}`}
           {project.marco_teorico && <> · Marco: {project.marco_teorico.slice(0, 110)}{project.marco_teorico.length > 110 ? "…" : ""}</>}
-        </p>
+        </p>}
       </div>
-      {abiertas.length >= 2 && (
+      {abiertas.length >= 2 && !enResultados && (
         <div className="pregunta-selector">
           <label className="field-label" htmlFor="pregunta-select">Pregunta que estás analizando</label>
           <select id="pregunta-select" value={project.pregunta ?? ""} title={actual?.titulo}

@@ -12,6 +12,7 @@ import NewProject from "@/features/projects/NewProject";
 import ProjectView from "@/features/projects/ProjectView";
 import ProjectDashboard from "@/features/projects/ProjectDashboard";
 import LexicalAnalysis from "@/features/analysis/lexical/LexicalAnalysis";
+import ResultsPanel from "@/features/analysis/results/ResultsPanel";
 import ClosedResults from "@/features/analysis/closed/ClosedResults";
 import Codebook from "@/features/analysis/codebook/Codebook";
 import Coding from "@/features/analysis/coding/Coding";
@@ -78,6 +79,7 @@ export default function App() {
             <Route path="/proyectos/nuevo" element={<RequireRole min="analista"><NewProject /></RequireRole>} />
             <Route path="/proyectos/:id" element={<ProjectView />}>
               <Route index element={<ProjectDashboard />} />
+              <Route path="resultados" element={<ResultsPanel />} />
               <Route path="cerradas" element={<ClosedResults />} />
               <Route path="lexico" element={<LexicalAnalysis />} />
               <Route path="codigos" element={<Codebook />} />

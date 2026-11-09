@@ -1,7 +1,7 @@
 import { jsonBody, req } from "@/shared/api/client";
 import {
   AnalysisStatus, AuditEvent, Category, ClosedResultsData, CategoryComment, CodifyProgress, Coding,
-  ClaudeUsage, ClosedOpciones, LexicalResult, ProjectStats, ReportProgress, ResponseItem,
+  ClaudeUsage, ClosedOpciones, LexicalResult, ProjectStats, ReportProgress, ResponseItem, TemasPrincipalesData,
 } from "./types";
 
 /** Parámetro `?pregunta=` que el contrato RF-23 exige en toda operación de análisis. */
@@ -64,6 +64,9 @@ export const analysisApi = {
   // Preguntas cerradas (RF-30): no recibe `pregunta`. RF-31: `por`, `cortes` y `unir` separan en grupos.
   getClosedResults: (id: string, o?: ClosedOpciones) =>
     req<ClosedResultsData>(`/projects/${id}/closed-results${closedQuery(o)}`),
+
+  // Panel de resultados (RF-43): solo lectura y sin IA
+  getTemasPrincipales: (id: string) => req<TemasPrincipalesData>(`/projects/${id}/temas-principales`),
 
   // Informe cualitativo
   /** forceFull: ignora el caché del análisis por respondente (Prompt 1) y

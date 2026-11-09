@@ -140,3 +140,12 @@ export interface ClosedResultsData {
   n_sin_grupo?: number;
   grupos?: ClosedGrupo[];
 }
+
+/** RF-43: GET /projects/{id}/temas-principales (contrato en docs/API_CONTRATOS.md). */
+export interface TemaPrincipal { category_id: string; nombre: string; definicion: string; personas: number; porcentaje: number; citas: string[] }
+export interface TemasDePregunta {
+  pregunta_id: string; titulo: string;
+  n_respuestas: number; n_codificadas: number; n_temas: number;
+  temas: TemaPrincipal[];
+}
+export interface TemasPrincipalesData { preguntas: TemasDePregunta[] }
