@@ -54,6 +54,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-041 Temas principales con citas para el panel | backend | RF-43, RNF-01, RNF-02, RNF-05, RNF-06, RNF-07, RNF-10 | 2026-11-03 | `tarea/T-041-temas-principales` (fusionada, PR #48) |
 
 ## En curso
+- **Decisión de proceso (usuario, 2026-11-08):** al iniciar sesión, el supervisor lee solo las últimas 10 entradas de `docs/BITACORA.md` (y su tabla de resumen, si hace falta); esto reemplaza el "léela completa" de `.claude/agents/supervisor.md`. Las decisiones vigentes están en este archivo.
+- **Decisión (usuario, 2026-11-08):** `graphify-out/` no se agrega a `.gitignore`. Queda sin seguimiento, así que nada de `git add .`: siempre agregar por ruta.
 - **Situación al 2026-11-08:** `main` al día (último merge: PR #48). **En curso:** RF-43, panel de resultados para lectores: T-041 temas principales con citas (servidor, fusionada) → T-042 pantalla "Resultados", en desarrollo en `tarea/T-042-panel-resultados`. **Después:** RF-40, siguiendo el orden de `docs/BACKLOG.md`.
 - Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
 - Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, fusionada) → T-029 léxico y propuesta una sola vez a la vez (backend, fusionada) → T-030 retomarlos al volver a la pestaña (pantalla, fusionada) → T-031 plantillas Retail y Municipal, RF-17 (backend, fusionada) → T-032 recomendaciones RF-41 (backend, fusionada) → T-033 tarjeta "Recomendaciones" (pantalla, fusionada) → **ajustes tras la revisión del usuario: T-034 alertas compactas (pantalla, fusionada) → T-035 cruce de 2 preguntas y pares sugeridos (servidor, fusionada) → T-036 su pantalla (fusionada) → T-037 cambiar el tipo entre cerradas (servidor, fusionada) → T-038 su pantalla (fusionada)** → editar el marco teórico (T-039 y T-040, fusionadas) → **RF-43 (en curso)**. Más adelante: sugerir la plantilla al crear el proyecto (paso 3 de RF-40).
@@ -88,13 +90,12 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## Bloqueado / requiere decisión del usuario
 
-- `graphify-out/` (grafo local generado con `/graphify`, unos 4 MB) está sin seguimiento: ¿se agrega a `.gitignore`? Mientras tanto, nada de `git add .`.
-- ¿El supervisor puede leer solo las últimas entradas de `docs/BITACORA.md` al iniciar sesión? (propuesto 2026-11-08; hoy las instrucciones piden leerla completa).
 - PED-01 (T-040): fusionada; falta que el usuario valide en la plataforma los criterios de `docs/BACKLOG.md`.
 - RF-43: para validarlo con datos reales hay que codificar una encuesta, lo que gasta IA; la base local no tiene ninguna codificación. Sin eso, se revisa con datos de ejemplo en una base desechable.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Detección de NPS (encontrada en T-042): `question_types.py:148` busca `recomend`, que no coincide con "recomiendes" ni "recomiendas". Una columna 0–10 titulada "¿Qué tan probable es que nos recomiendes?" queda como `escala`, y el panel muestra un promedio en vez del NPS. Se corrige a mano con "Cambiar tipo"; arreglarlo requiere una tarea de backend.
 - Temas principales (T-041): por regex, un número de 8 o más dígitos como "2020-2021" deja fuera la cita; los nombres de personas no se detectan hasta RNF-05. Sin probar con codificaciones reales.
 - Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada); con la CPU cerca del 35 % pasan las 381 en 1 min 29 s (T-040).
 - Marco creado desde el formulario: se guarda con `\r\n` porque viaja en `FormData`; normalizarlo al crear en el backend. La pantalla ya lo tolera (T-040).

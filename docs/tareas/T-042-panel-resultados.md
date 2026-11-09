@@ -90,3 +90,21 @@ Sin cambios. Consume:
 - El diff debería quedar bajo unas 400 líneas. Si se pasa, explica por qué en tu resumen.
 - `graphify-out/` está sin seguimiento y **no debe entrar en ningún commit**: agrega solo tus archivos, por ruta, sin `git add .`.
 - Los nombres de personas pueden aparecer en las citas hasta RNF-05. Es un límite conocido y aceptado.
+
+## Revisión 1
+2026-11-08 · **Con cambios (una observación).** El resto del diff está bien.
+
+**`features/analysis/results/ResultsPanel.tsx`, línea 168: con una sola pregunta restante, el enlace dice "Ver las otras 1 preguntas".**
+- **Cómo se reproduce:** un proyecto con exactamente una pregunta cerrada sin mostrar.
+- **Qué se espera:** con `otras === 1`, el enlace dice "Ver la otra pregunta". Con más de una, sigue igual.
+- **Verificación:** basta con `npm run build`. No levantes servidores: el supervisor lo comprueba en el navegador.
+
+**Desviaciones revisadas y aceptadas:**
+- La frase "Porcentajes sobre N respuestas analizadas…" no sale con `temas: []`.
+- En las tarjetas, el porcentaje va grande y las personas en la etiqueta.
+- La tercera columna de las barras se amplió solo dentro de `.results-panel`.
+
+**Verificación del supervisor hasta aquí:**
+- `npm run build` sin errores y `python -m pytest tests -q`: 406 pasan.
+- En Chrome, sobre una base desechable ya borrada y sin IA: 25 de 25 comprobaciones. Incluyen lo que quedó sin ver en la entrega: barras sí/no, personas sin grupo, recorrido con teclado y título largo a 375 px. También, la entrada del lector y que siga pudiendo abrir el Dashboard.
+- Separar por una pregunta sí/no quita su propia tarjeta: el servidor no devuelve la pregunta de `por`.
