@@ -68,7 +68,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-040 | Editar el marco teórico desde la pantalla | ✅ Incorporada a la versión oficial (PR #47) |
 | T-041 | Temas principales con citas para el panel de resultados (servidor) | ✅ Incorporada a la versión oficial (PR #48) |
 | T-042 | Pantalla "Resultados" para lectores | ✅ Incorporada a la versión oficial (PR #49) |
-| T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
+| T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | 🟡 Publicada para revisión (PR #50); espera la aprobación del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -900,7 +900,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Resultado:** funciona como se planificó. Las preguntas de 0 a 10 con cualquier forma de "recomendar" se reconocen como NPS, y las de 1 a 5 o 1 a 7 ya no. Las 414 pruebas automáticas pasan.
 - **Corrección durante el trabajo:** la instrucción escrita por el supervisor tenía un error que habría dejado de reconocer "recomendarías". El programador lo corrigió.
 - **Límite conocido:** una pregunta muy corta como "¿Recomendarías este curso?" con notas de 1 a 5 queda como grupo, por una regla anterior que asocia "curso" con año cursado. Ya no da un NPS falso, y se corrige en "Revisa las preguntas".
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** publicada para revisión del responsable (PR #50: https://github.com/grolax/celestica/pull/50). **Espera su aprobación.**
 
 ---
 
