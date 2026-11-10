@@ -31,6 +31,9 @@ export default function ProjectList() {
     }
   }
 
+  // El lector entra por "Resultados"; analista y admin, como siempre.
+  const abrir = (p: ProjectSummary) => navigate(`/proyectos/${p.id}${canEdit ? "" : "/resultados"}`);
+
   return (
     <>
       <PageHeader title="Mis proyectos" help="Aquí están tus encuestas en análisis. Abre una para continuar o crea un proyecto nuevo.">
@@ -58,7 +61,7 @@ export default function ProjectList() {
         <Card>
           <Table headers={["Proyecto", "Respuestas", "Análisis", "Estado", ""]}>
             {projects.map((p) => (
-              <tr key={p.id} style={{ cursor: "pointer" }} onClick={() => navigate(`/proyectos/${p.id}`)}>
+              <tr key={p.id} style={{ cursor: "pointer" }} onClick={() => abrir(p)}>
                 <td>
                   <strong>{p.name}</strong>
                   <br />
@@ -78,7 +81,7 @@ export default function ProjectList() {
                 </td>
                 <td onClick={(e) => e.stopPropagation()}>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <Button size="sm" variant="secondary" onClick={() => navigate(`/proyectos/${p.id}`)}>Abrir</Button>
+                    <Button size="sm" variant="secondary" onClick={() => abrir(p)}>Abrir</Button>
                     {canEdit && <Button size="sm" variant="danger" onClick={() => remove(p)}>Eliminar</Button>}
                   </div>
                 </td>
