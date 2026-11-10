@@ -55,3 +55,14 @@ El administrador edita el nombre, el rubro y el color de su organización, y sub
 - Decisiones del usuario (2026-11-10): rubro de lista cerrada; el color es solo un acento, nunca cambia la paleta; logo PNG o JPG hasta 500 KB.
 - No levantes servidores ni corras Playwright: el supervisor recorre la pantalla con un backend y una base desechables. A ti te basta con `npm run build`.
 - El desborde de la barra superior a 375 px es una deuda anterior (T-021): no la arregles aquí, solo no la empeores.
+
+## Revisión
+2026-11-10 · **Aprobada.**
+- Commit `e0edcbf`: 6 archivos de frontend, 184 líneas agregadas y 16 quitadas. No toca backend, `shared/components` ni `client.ts`.
+- `npm run build` sin errores.
+- Verificación del supervisor en Chrome headless, con backend y base desechables ya borrados y sin IA: **35 de 35 comprobaciones.** Cubren el formulario del administrador (guardar, color inválido con mensaje del servidor, "Sin color"), el logo (subir PNG, reemplazar por JPG, archivo grande frenado sin llamar al servidor, SVG renombrado con mensaje del servidor, quitar con confirmación), la barra superior actualizada sin recargar y tras recargar, la lectura del analista, que la organización B no ve nada de A, el logo oculto a 375 px, teclado y ausencia de errores de JS.
+- Contrato: consume las rutas de T-046 tal cual; `RUBROS` con el texto exacto. El color solo se aplica en `.org-dot`: los botones y enlaces conservan la paleta.
+- Decisiones del programador aceptadas: el bloque del logo va fuera del formulario; el selector de color muestra `#ffffff` mientras el texto está vacío, pero lo que se envía es el campo de texto; `confirm` "¿Quitar el logo de la organización?".
+- Observación menor, sin cambio: el campo del nombre lleva `required`, así que un nombre vacío lo frena el navegador con su propio aviso y el texto del contrato no llega a mostrarse. Cumple el criterio ("se puede frenar en la pantalla") y el servidor sigue validando.
+- Observación menor, heredada: el botón nativo de elegir archivo sale en el idioma del navegador ("Choose File"), igual que en "Sube tu encuesta".
+- No probado: un logo real de tamaño normal (se usó un PNG de 1×1), tablet física, y la carrera al reemplazar el logo dos veces muy seguidas que anotó el programador.

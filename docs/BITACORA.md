@@ -72,7 +72,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | ✅ Incorporada a la versión oficial (PR #51) |
 | T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
 | T-046 | Perfil de la organización (servidor) | ✅ Incorporada a la versión oficial (PR #53) |
-| T-047 | Perfil de la organización (pantalla) y logo en la barra superior | 🔵 En curso |
+| T-047 | Perfil de la organización (pantalla) y logo en la barra superior | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -952,6 +952,14 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se busca:** que el administrador edite el nombre, el rubro, el color y el logo desde Configuración, y que el logo se vea en la barra superior.
 - **Decisiones de diseño:** una tarjeta "Organización" en Configuración, con formulario para el administrador y solo lectura para los demás. El logo se sube al elegir el archivo; quitarlo pide confirmación. El color aparece como un punto junto al nombre de la organización y no cambia los colores de la plataforma.
 - **Cambio de proceso:** desde hoy el equipo trabaja con el modelo Fable, por decisión del responsable.
+
+### 79. T-047 · Resultado: la pantalla del perfil de la organización
+
+- **Qué quedó:** en Configuración hay una tarjeta "Organización". El administrador cambia el nombre, el rubro y el color, y sube, reemplaza o quita el logo. Analistas y lectores ven los mismos datos sin poder editarlos. El logo y un punto con el color aparecen en la barra superior, junto al nombre de la organización, y se actualizan al instante.
+- **Cuidados:** un archivo de más de 500 KB se frena antes de enviarlo; los demás errores muestran el mensaje del servidor; quitar el logo pide confirmación; en celular el logo de la barra se oculta para no empeorar un desborde ya anotado.
+- **Cómo se verificó:** las pantallas se construyen sin errores. El supervisor recorrió Configuración en un navegador automático, con una base desechable ya borrada y sin IA: 35 de 35 comprobaciones correctas, incluida la de que una organización no ve los datos ni el logo de otra.
+- **Primera tarea con el modelo Fable:** sin diferencias de calidad respecto de las anteriores; cumplió la orden completa sin rondas de corrección.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
