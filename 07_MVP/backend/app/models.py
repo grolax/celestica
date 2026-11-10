@@ -7,7 +7,11 @@ dependencia (`user: User = Depends(get_current_user)`) y acceden a sus
 atributos (user.id, user.email, ...).
 
 Colecciones en Mongo:
-- `organizations`: {_id: "org_<10 hex>", nombre, created_at}
+- `organizations`: {_id: "org_<10 hex>", nombre, created_at, rubro, color}
+                  (`rubro`: uno de store.RUBROS; `color`: "#rrggbb"; ambos faltan en las anteriores a T-046 y se
+                   leen como null, sin migración)
+- `org_logos`:     {_id: org_id, tipo: "image/png"|"image/jpeg", datos: bytes, updated_at}
+                  (aparte para que `organizations` y `/auth/me` no carguen la imagen; `tiene_logo` = existe el documento)
 - `users`:        {_id, email, password_hash, nombre, empresa, created_at, integrations, org_id, rol,
                    activo, debe_cambiar_password}
                   (una sola organización por usuario; `rol`: admin | analista | lector, ver app/deps.py;

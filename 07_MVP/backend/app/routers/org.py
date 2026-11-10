@@ -1,16 +1,18 @@
-"""Gestión de miembros de la organización (RF-03, T-007). Solo admin."""
+"""Miembros (RF-03, T-007) y perfil de la organización (RF-10, T-046). Escribe solo el admin."""
 from __future__ import annotations
 
+import base64
+import re
 import secrets
 import uuid
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, EmailStr, model_validator
 from pymongo.errors import DuplicateKeyError
 
 from app import store
-from app.auth import hash_password
+from app.auth import get_current_user, hash_password
 from app.database import get_db
 from app.deps import require_role
 from app.models import User, user_from_doc, user_to_doc
@@ -96,3 +98,64 @@ def patch_member(user_id: str, body: MemberPatch, admin: User = Depends(require_
         store.log_org_event(admin.org_id, admin.id, "miembro_reactivado" if activo else "miembro_desactivado",
                             {"email": m.email, "rol": rol})
     return _member_out(store.get_member(admin.org_id, m.id))
+
+
+# ---------- Perfil y logo (RF-10, T-046) ----------
+
+LOGO_MAX = 512_000
+_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
+_MAGIC = ((bytes.fromhex("89504e470d0a1a0a"), "image/png"), (bytes.fromhex("ffd8ff"), "image/jpeg"))
+
+
+class ProfileBody(BaseModel):
+    nombre: str = ""
+    rubro: Optional[str] = None
+    color: Optional[str] = None
+
+
+@router.put("/profile")
+def put_profile(body: ProfileBody, admin: User = Depends(require_role("admin"))):
+    nombre = body.nombre.strip()
+    if not nombre:
+        raise HTTPException(422, "Escribe el nombre de la organización.")
+    if len(nombre) > 100:
+        raise HTTPException(422, "El nombre puede tener hasta 100 caracteres.")
+    if body.rubro is not None and body.rubro not in store.RUBROS:
+        raise HTTPException(422, "Elige un rubro de la lista.")
+    if body.color is not None and not _COLOR.fullmatch(body.color):
+        raise HTTPException(422, "El color debe tener el formato #RRGGBB, por ejemplo #1F6FEB.")
+    nuevo = {"nombre": nombre, "rubro": body.rubro, "color": body.color and body.color.lower()}
+    antes = store.org_out(admin.org_id)
+    cambios = {k: {"antes": antes[k], "despues": v} for k, v in nuevo.items() if antes[k] != v}
+    if cambios:
+        store.update_org_profile(admin.org_id, nuevo)
+        store.log_org_event(admin.org_id, admin.id, "organizacion_editada", cambios)
+    return store.org_out(admin.org_id)
+
+
+@router.put("/logo")
+async def put_logo(file: UploadFile = File(...), admin: User = Depends(require_role("admin"))):
+    datos = await file.read(LOGO_MAX + 1)  # un byte de más basta para saber que se pasa
+    tipo = next((t for firma, t in _MAGIC if datos.startswith(firma)), None)
+    if not tipo:
+        raise HTTPException(422, "El logo debe ser una imagen PNG o JPG.")
+    if len(datos) > LOGO_MAX:
+        raise HTTPException(422, "El logo pesa más de 500 KB. Usa una imagen más liviana.")
+    store.set_org_logo(admin.org_id, tipo, datos)
+    store.log_org_event(admin.org_id, admin.id, "logo_actualizado", {"tipo": tipo, "bytes": len(datos)})
+    return store.org_out(admin.org_id)
+
+
+@router.get("/logo")
+def get_logo(user: User = Depends(get_current_user)):
+    logo = store.get_org_logo(user.org_id)
+    if not logo:
+        raise HTTPException(404, "Tu organización no tiene logo.")
+    return {"logo": f"data:{logo['tipo']};base64,{base64.b64encode(logo['datos']).decode()}"}
+
+
+@router.delete("/logo")
+def delete_logo(admin: User = Depends(require_role("admin"))):
+    if store.delete_org_logo(admin.org_id):
+        store.log_org_event(admin.org_id, admin.id, "logo_eliminado", {})
+    return store.org_out(admin.org_id)

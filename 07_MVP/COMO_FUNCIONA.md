@@ -77,7 +77,9 @@ MongoDB (base "softinsight")
 | activo, debe_cambiar_password | estado de la cuenta (ver sección 4.2); si faltan, se leen como `true` / `false`, así que las cuentas anteriores a T-007 no necesitaron migración |
 | integrations | credenciales de integraciones **cifradas** (ej: `integrations.qualtrics.token_enc`) |
 
-**`organizations`** — `{_id: "org_<10 hex>", nombre, created_at}`. Al registrarse se crea una organización nueva (nombre = `empresa`, o "Organización de <nombre|email>") y el usuario queda como `admin`. Los proyectos pertenecen a la organización, no al usuario.
+**`organizations`** — `{_id: "org_<10 hex>", nombre, created_at, rubro, color}`. Al registrarse se crea una organización nueva (nombre = `empresa`, o "Organización de <nombre|email>") y el usuario queda como `admin`. Los proyectos pertenecen a la organización, no al usuario. `rubro` (uno de `store.RUBROS`) y `color` (`#rrggbb` en minúsculas) los edita el admin (RF-10, T-046); faltan en las organizaciones anteriores y se leen como `null`, sin migración.
+
+**`org_logos`** — `{_id: org_id, tipo, datos (bytes), updated_at}`: el logo de la organización (PNG o JPG, hasta 512.000 bytes). Vive aparte para que `organizations` y `/auth/me` no carguen la imagen; `organizacion.tiene_logo` sale de si existe el documento.
 
 **`projects`** — un documento por proyecto, con `_id` = id del proyecto y `org_id` como clave del multi-tenant (indexado). `user_id` se conserva con el significado "creado por" y **no** se usa para filtrar acceso. El documento es el proyecto completo:
 
@@ -184,6 +186,8 @@ Los comentarios guardan `author_id` (id del usuario); los antiguos no lo tienen 
 ### 4.2 Miembros y estados de cuenta (RF-03, T-007)
 
 El admin gestiona su organización en `app/routers/org.py` (`require_role("admin")`, persistencia en `store.py`): `GET /api/org/members`, `POST /api/org/members` y `PATCH /api/org/members/{user_id}`. Un miembro de otra organización responde 404 "Miembro no encontrado".
+
+**Perfil y logo (RF-10, T-046).** En el mismo router: `PUT /api/org/profile` (nombre, rubro, color; admin), `PUT`/`DELETE /api/org/logo` (admin) y `GET /api/org/logo` (cualquier miembro, devuelve un data URL). Las rutas actúan siempre sobre `user.org_id`; ninguna recibe un id de organización, así que no hay forma de tocar otra. El objeto `organizacion` de `/auth/signup`, `/auth/login` y `/auth/me` sale de `store.org_out()` y trae `rubro`, `color` y `tiene_logo`. El tipo del logo se decide por los primeros bytes (PNG `89 50 4E 47 0D 0A 1A 0A`, JPG `FF D8 FF`), no por el nombre ni el tipo declarado; se leen como mucho 512.001 bytes para rechazar los demasiado grandes sin cargarlos enteros. Los 422 son texto en `detail`, tal como los muestra la pantalla.
 
 - **Alta.** El servidor genera una contraseña temporal con `secrets` (12 caracteres sin `0 O o 1 l I`, formato `xxxx-xxxx-xxxx`), guarda **solo su hash** (PBKDF2, igual que cualquier contraseña) y la devuelve **una sola vez** en la respuesta 201. El usuario nace con `debe_cambiar_password: true`.
 - **Quitar = desactivar** (`activo: false`): se conservan sus proyectos (`user_id`), comentarios y auditoría. Reactivar es `activo: true`.
@@ -341,7 +345,7 @@ Cada acción relevante pasa por `store.log_event()`, que registra **timestamp** 
 
 Acciones auditadas: creación de proyecto (con fuente), **importaciones** (encuesta/planilla + n° de respuestas), análisis léxico, aplicación de plantilla, cada categoría propuesta por la IA, cada validación/edición/descarte humano, categorías manuales, comentarios, la codificación del corpus, cada re-codificación (antes/después) y la generación del informe.
 
-**Auditoría de organización (T-007).** Las acciones que no pertenecen a un proyecto se insertan con `store.log_org_event()` en `audit_events` con `project_id: null`, `org_id`, `user_id` de quien actúa, `actor: "analista"` y `detail` con el email y rol afectados, **nunca contraseñas**: `miembro_creado`, `miembro_rol_cambiado`, `miembro_desactivado`, `miembro_reactivado` y `cambio_password`. Un PATCH que no cambia nada no genera evento.
+**Auditoría de organización (T-007).** Las acciones que no pertenecen a un proyecto se insertan con `store.log_org_event()` en `audit_events` con `project_id: null`, `org_id`, `user_id` de quien actúa, `actor: "analista"` y `detail` con el email y rol afectados, **nunca contraseñas**: `miembro_creado`, `miembro_rol_cambiado`, `miembro_desactivado`, `miembro_reactivado` y `cambio_password`. Un PATCH que no cambia nada no genera evento. T-046 agrega `organizacion_editada` (`detail`: `{"campo": {"antes", "despues"}}` solo de los campos cambiados; sin cambios no registra), `logo_actualizado` (`{"tipo", "bytes"}`) y `logo_eliminado` (`{}`; no se registra si no había logo).
 
 No hay endpoint para borrar ni editar eventos: el log solo crece.
 

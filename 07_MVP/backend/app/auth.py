@@ -125,9 +125,8 @@ class ChangePasswordBody(BaseModel):
 
 
 def _user_out(user: User) -> dict:
-    org = get_db().organizations.find_one({"_id": user.org_id}) or {}
     return {"id": user.id, "email": user.email, "nombre": user.nombre, "empresa": user.empresa,
-            "rol": user.rol, "organizacion": {"id": user.org_id, "nombre": org.get("nombre", "")},
+            "rol": user.rol, "organizacion": store.org_out(user.org_id),
             "debe_cambiar_password": user.debe_cambiar_password}
 
 

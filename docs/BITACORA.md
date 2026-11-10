@@ -70,7 +70,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-042 | Pantalla "Resultados" para lectores | ✅ Incorporada a la versión oficial (PR #49) |
 | T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | ✅ Incorporada a la versión oficial (PR #50) |
 | T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | ✅ Incorporada a la versión oficial (PR #51) |
-| T-045 | Paso "Elige una plantilla" al crear un proyecto | 🟡 Publicada para revisión (PR #52); espera la aprobación del responsable |
+| T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
+| T-046 | Perfil de la organización (servidor) | 🟡 Publicada para revisión (PR #53); espera la aprobación del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -922,7 +923,28 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Dos arreglos:** al cambiar de plantilla, el marco teórico ahora cambia con ella, salvo que la persona lo haya editado. Además, las tarjetas de plantillas ya se pueden usar con el teclado.
 - **Cómo se verificó:** las pantallas se construyen sin errores y las 423 pruebas automáticas pasan. El supervisor recorrió el asistente en un navegador automático, sobre una base de datos desechable ya borrada y sin IA: 44 de 45 comprobaciones correctas. La que falló no viene de este cambio: en celular se sale de la pantalla el nombre del usuario en la barra superior, algo ya anotado.
 - **Pendiente:** probarlo con una encuesta real.
-- **Estado:** aprobada por el supervisor y publicada para revisión (PR #52). Espera que el responsable la incorpore a la versión oficial.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #52). Con esto queda terminado RF-40.
+
+### 76. RF-10 · Plan: el perfil de la organización
+
+- **Qué se busca:** que el administrador configure el nombre, el rubro, el logo y el color de su organización.
+- **Decisiones del responsable:**
+  - El rubro se elige de una lista: las industrias de las plantillas, más "Otro".
+  - El color no cambia los colores de la plataforma. Se usa solo como acento junto al logo y, más adelante, en los informes. Así nunca deja la plataforma ilegible.
+  - El logo es PNG o JPG de hasta 500 KB. SVG no se acepta, porque puede traer código oculto.
+  - El rubro pone primero sus plantillas en la lista y desempata la sugerencia, pero no inventa una sugerencia por sí solo.
+- **Cómo se organizó:** T-046 hace el servidor, T-047 la pantalla y T-048 el efecto del rubro en las plantillas.
+
+### 77. T-046 · Resultado: el perfil de la organización en el servidor
+
+- **Qué quedó:** el administrador ya puede cambiar el nombre, el rubro y el color de su organización, y subir o quitar su logo. Todos los miembros reciben esos datos al entrar y pueden ver el logo. Analistas y lectores no pueden cambiar nada.
+- **Cuidados:**
+  - El logo se reconoce por su contenido, no por el nombre del archivo. Un archivo de texto renombrado como `.png` se rechaza.
+  - Cada error trae un mensaje en lenguaje simple.
+  - Cada cambio queda en el registro de auditoría.
+- **Cómo se verificó:** 451 pruebas automáticas pasan. 28 son nuevas, e incluyen una que comprueba que una organización no ve ni toca el perfil ni el logo de otra.
+- **Pendiente detectado:** el servidor recibe un archivo grande completo antes de rechazarlo. Ocurre también con las encuestas. Conviene ponerle un tope antes de publicar la plataforma.
+- **Estado:** aprobada por el supervisor y publicada para revisión (PR #53). Espera que el responsable la incorpore a la versión oficial.
 
 ---
 
