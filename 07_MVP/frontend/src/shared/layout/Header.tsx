@@ -4,7 +4,8 @@ import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 
 export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
-  const { user, logout } = useAuth();
+  const { user, logo, logout } = useAuth();
+  const org = user?.organizacion;
   const initials = (user?.nombre || user?.email || "?")
     .split(/[\s@]/)
     .filter(Boolean)
@@ -27,11 +28,15 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         <span>Celestica</span>
       </Link>
       <div className="header-user">
+        {logo && org && <img src={logo} alt={org.nombre} className="header-logo" />}
         <div className="avatar" title={user?.email}>{initials}</div>
         <div className="small" style={{ lineHeight: 1.3 }}>
           <strong>{user?.nombre || user?.email}</strong>
-          {(user?.organizacion?.nombre || user?.empresa) && (
-            <div className="muted">{user?.organizacion?.nombre || user?.empresa}</div>
+          {(org?.nombre || user?.empresa) && (
+            <div className="muted">
+              {org?.color && <span className="org-dot" style={{ background: org.color }} aria-hidden="true" />}
+              {org?.nombre || user?.empresa}
+            </div>
           )}
         </div>
         <Button variant="ghost" size="sm" onClick={logout}>Salir</Button>

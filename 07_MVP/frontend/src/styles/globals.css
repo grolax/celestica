@@ -121,6 +121,14 @@ code {
   font-weight: 700;
   font-size: 13px;
 }
+/* Logo y acento de color de la organización (RF-10): solo junto al nombre, nunca en la paleta. */
+.header-logo { max-height: 28px; max-width: 90px; object-fit: contain; }
+@media (max-width: 640px) { .header-logo { display: none; } }
+.org-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); margin-right: 5px; vertical-align: middle; }
+.org-logo-preview { display: block; max-height: 64px; max-width: 200px; object-fit: contain; margin-bottom: 8px; }
+.org-color-row { display: flex; gap: 8px; align-items: center; }
+.org-color-row input[type="text"] { max-width: 140px; }
+input[type="color"] { width: 44px; height: 38px; padding: 2px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer; }
 
 .sidebar {
   position: fixed;

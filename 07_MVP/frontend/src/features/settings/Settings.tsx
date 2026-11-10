@@ -1,10 +1,12 @@
-import { Fragment, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, Fragment, useEffect, useState } from "react";
 import { adminApi, AdminHealth, PromptEntry, PromptsData, UsageProject } from "./api";
 import { ClaudeUsageTotals } from "@/features/analysis/types";
 import { projectsApi } from "@/features/projects/api";
+import { orgApi, RUBROS } from "@/features/org/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/useAuth";
-import { puede, ROL_LABEL } from "@/features/auth/api";
+import { Organizacion, puede, ROL_LABEL } from "@/features/auth/api";
+import { useAsync } from "@/shared/hooks/useAsync";
 import Button from "@/shared/components/Button";
 import PageHeader from "@/shared/components/PageHeader";
 import Card from "@/shared/components/Card";
@@ -32,20 +34,21 @@ export default function Settings() {
 
   return (
     <>
-      <PageHeader title="Configuración" help="Ajusta los textos que guían a la IA y revisa el consumo." />
+      <PageHeader title="Configuración" help="Los datos de tu organización, tu cuenta y los ajustes del equipo." />
       {error && <div className="alert alert-error">{error}</div>}
       {passwordChanged && <div className="alert alert-success">Tu contraseña se cambió.</div>}
 
       <Card title="Mi cuenta">
         <p><strong>{user?.nombre || "—"}</strong> · {user?.email}</p>
-        {user && (
-          <>
-            <p className="muted">Organización: {user.organizacion?.nombre || user.empresa}</p>
-            <p className="muted">Rol: {ROL_LABEL[user.rol] ?? user.rol}</p>
-          </>
-        )}
+        {user && <p className="muted">Rol: {ROL_LABEL[user.rol] ?? user.rol}</p>}
         <Button variant="secondary" onClick={() => navigate("/cambiar-contrasena")}>Cambiar contraseña</Button>
       </Card>
+
+      {user?.organizacion && (
+        <Card title="Organización">
+          {puede(user, "admin") ? <OrgForm org={user.organizacion} /> : <OrgReadOnly org={user.organizacion} />}
+        </Card>
+      )}
 
       {puede(user, "analista") && <Card title="Importar proyectos antiguos">
         <p className="muted">
@@ -61,6 +64,109 @@ export default function Settings() {
       </Card>}
 
       <AdminPrompts />
+    </>
+  );
+}
+
+/* ---- Organización (RF-10): nombre, rubro, color y logo ---- */
+
+const HEX = /^#[0-9a-f]{6}$/i;
+const LOGO_MAX_BYTES = 512_000;
+
+function OrgReadOnly({ org }: { org: Organizacion }) {
+  const { logo } = useAuth();
+  return (
+    <>
+      {logo && <img src={logo} alt={`Logo de ${org.nombre}`} className="org-logo-preview" />}
+      <p><strong>{org.nombre}</strong></p>
+      <p className="muted">Rubro: {org.rubro ?? "Sin rubro"}</p>
+      <p className="muted">
+        Color: {org.color ? <><span className="org-dot" style={{ background: org.color }} aria-hidden="true" />{org.color}</> : "Sin color"}
+      </p>
+      <p className="muted small">Solo un administrador puede cambiar estos datos.</p>
+    </>
+  );
+}
+
+function OrgForm({ org }: { org: Organizacion }) {
+  const { logo, setOrganizacion } = useAuth();
+  const inicial = { nombre: org.nombre, rubro: org.rubro ?? "", color: org.color ?? "" };
+  const [form, setForm] = useState(inicial);
+  const [saved, setSaved] = useState(false);
+  const guardar = useAsync();
+  const logoOp = useAsync();
+
+  useEffect(() => setForm({ nombre: org.nombre, rubro: org.rubro ?? "", color: org.color ?? "" }), [org]);
+
+  const dirty = form.nombre !== inicial.nombre || form.rubro !== inicial.rubro || form.color !== inicial.color;
+  const set = (k: keyof typeof form) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm({ ...form, [k]: e.target.value });
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setSaved(false);
+    if (!form.nombre.trim()) { guardar.setError("Escribe el nombre de la organización."); return; }
+    const updated = await guardar.run(() =>
+      orgApi.updateProfile({ nombre: form.nombre.trim(), rubro: form.rubro || null, color: form.color || null }));
+    if (updated) { setOrganizacion(updated); setSaved(true); }
+  }
+
+  async function subirLogo(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // permite volver a elegir el mismo archivo tras un error
+    if (!file) return;
+    if (file.size > LOGO_MAX_BYTES) { logoOp.setError("El logo pesa más de 500 KB. Usa una imagen más liviana."); return; }
+    const updated = await logoOp.run(() => orgApi.uploadLogo(file));
+    if (updated) setOrganizacion(updated, true);
+  }
+
+  async function quitarLogo() {
+    if (!confirm("¿Quitar el logo de la organización?")) return;
+    const updated = await logoOp.run(() => orgApi.deleteLogo());
+    if (updated) setOrganizacion(updated, true);
+  }
+
+  return (
+    <>
+      <form onSubmit={save} style={{ maxWidth: 440 }}>
+        {guardar.error && <div className="alert alert-error">{guardar.error}</div>}
+        {saved && <div className="alert alert-success">Los datos de la organización se guardaron.</div>}
+        <Input label="Nombre de la organización" required maxLength={100} value={form.nombre} onChange={set("nombre")} />
+        <div>
+          <label className="field-label" htmlFor="org_rubro">Rubro</label>
+          <select id="org_rubro" value={form.rubro} onChange={set("rubro")}>
+            <option value="">Sin rubro</option>
+            {RUBROS.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <p className="muted small" style={{ margin: "4px 0 0" }}>El rubro ordena las plantillas que te sugerimos.</p>
+        </div>
+        <div>
+          <label className="field-label" htmlFor="org_color">Color de la organización</label>
+          <div className="org-color-row">
+            <label htmlFor="org_color_pick" className="sr-only">Elegir color</label>
+            <input type="color" id="org_color_pick" value={HEX.test(form.color) ? form.color : "#ffffff"} onChange={set("color")} />
+            <input type="text" id="org_color" value={form.color} placeholder="#1F6FEB" maxLength={7} onChange={set("color")} />
+            <Button type="button" variant="ghost" size="sm" disabled={!form.color} onClick={() => setForm({ ...form, color: "" })}>
+              Sin color
+            </Button>
+          </div>
+          <p className="muted small" style={{ margin: "4px 0 0" }}>
+            Se usa como acento junto al logo y, más adelante, en los informes. No cambia los colores de la plataforma.
+          </p>
+        </div>
+        <div style={{ marginTop: 14 }}><Button type="submit" busy={guardar.busy} disabled={!dirty}>Guardar</Button></div>
+      </form>
+
+      <div style={{ borderTop: "1px solid var(--border-soft)", marginTop: 16, paddingTop: 12, maxWidth: 440 }}>
+        {logoOp.error && <div className="alert alert-error">{logoOp.error}</div>}
+        {logo && <img src={logo} alt={`Logo de ${org.nombre}`} className="org-logo-preview" />}
+        <label className="field-label" htmlFor="org_logo" style={{ marginTop: 0 }}>{org.tiene_logo ? "Reemplazar logo" : "Subir logo"}</label>
+        <input type="file" id="org_logo" accept="image/png,image/jpeg" disabled={logoOp.busy} onChange={subirLogo} />
+        <p className="muted small" style={{ margin: "4px 0 8px" }}>PNG o JPG de hasta 500 KB.</p>
+        {org.tiene_logo && (
+          <Button type="button" variant="danger" size="sm" disabled={logoOp.busy} onClick={quitarLogo}>Quitar logo</Button>
+        )}
+      </div>
     </>
   );
 }
