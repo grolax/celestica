@@ -32,3 +32,11 @@ Sin cambios. La respuesta de la detección mantiene su forma; solo cambia el tip
 - Sin migración: no cambia el esquema. La detección corre solo al importar, así que los proyectos ya creados conservan su tipo y se corrigen con "Cambiar tipo".
 - Una encuesta NPS con muy pocas respuestas y ninguna sobre 7 quedará como `escala`. Se acepta: es poco probable y se corrige con "Cambiar tipo", mientras que el error contrario publicaría un NPS falso.
 - La razón que acompaña al tipo ("el título menciona "recomendar"") sigue siendo correcta; no la cambies.
+
+## Revisión
+2026-11-10 · **Aprobada, con una desviación aceptada.**
+- Commit `3b41c2f`: 2 archivos, 17 líneas agregadas y 1 quitada. No toca rutas, consultas, esquema ni frontend.
+- `python -m pytest tests -q`: 414 pasan (8 nuevas). El supervisor comprobó `detectar` con 14 combinaciones de título y valores: 0 a 10 con cualquier forma de "recomendar" es `nps`; 1 a 5 y 1 a 7 ya no lo son; 0 a 10 sin palabra clave sigue siendo `escala`.
+- **Error de la orden, corregido por el programador:** la expresión indicada, `recom[ei]end`, no coincide con "recomend" y habría roto "recomendarías". La implementada, `recomi?end`, cubre ambas formas.
+- **Desviación aceptada:** "¿Recomendarías este curso?" con 1 a 5 o 1 a 7 da `segmento`, no `escala`. La causa es la regla previa `hint_anio` (título corto con "curso"), fuera del alcance. El criterio buscaba evitar un NPS falso, y eso se cumple. La prueba usa "¿Recomendarías este taller?". Anotado como deuda en `docs/ESTADO.md`.
+- No probado: una importación completa desde la pantalla. El cambio está en una función que ya cubren las pruebas de detección.
