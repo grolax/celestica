@@ -671,3 +671,34 @@ Decisiones del usuario (2026-11-03): cada pregunta abierta tiene su resumen en l
   - Dentro de una pregunta, una respuesta ya citada en un tema anterior solo se repite si el tema no tiene otra elegible.
   - Si no hay ninguna elegible, `citas` queda vacía y el tema se muestra igual.
 - **Errores:** 404 `"Proyecto no encontrado"` (incluida otra organización); 401 sin sesión.
+
+## RF-40 · Plantilla sugerida al crear el proyecto (T-044)
+
+### `POST /api/projects/suggest-template`
+Sugiere una plantilla antes de crear el proyecto, a partir de las preguntas que la persona confirmó en "Revisa las preguntas". Reglas fijas, **sin IA**. No lee ni escribe en la base ni en la auditoría.
+
+- **Roles:** analista, admin (lector → 403, como la vista previa).
+- **Entrada:** solo las preguntas incluidas.
+
+```json
+{
+  "preguntas": [
+    { "titulo": "¿Qué mejorarías del profesor?", "tipo": "abierta" },
+    { "titulo": "Evaluación de la clase", "tipo": "escala" }
+  ]
+}
+```
+
+- **Límites:** entre 0 y 1.000 preguntas; cada `titulo` hasta 2.000 caracteres. `tipo` es un texto; solo importa si es `"abierta"`.
+- **Respuesta 200:**
+
+```json
+{
+  "plantilla": { "key": "evaluacion_docente_cna", "nombre": "Evaluación Docente (marco CNA)", "industria": "Educación Superior",
+                 "motivo": "La encuesta menciona «profesor», «clase» y «evaluación»." }
+}
+```
+
+- `plantilla` usa la **misma regla** que `plantilla` en `GET /api/projects/{id}/recommendations` (RF-41), aplicada solo a los títulos recibidos, porque el proyecto aún no tiene nombre ni marco.
+- Es `null` si no hay ninguna pregunta `abierta` o si ninguna plantilla llega a 2 coincidencias.
+- **Errores:** 401 sin sesión · 403 `"Tu rol (Lector) no permite esta acción."` · 422 si el cuerpo no cumple el formato o los límites. La pantalla no ofrece sugerencia cuando la llamada falla: la creación del proyecto sigue igual.
