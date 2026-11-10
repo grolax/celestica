@@ -495,6 +495,12 @@ table.si tbody tr:hover { background: var(--primary-soft); }
 .empty-state .icon { margin-bottom: 10px; color: var(--text-muted); }
 
 .template-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
   border: 1.5px solid var(--border);
   border-radius: 10px;
   padding: 13px 15px;
