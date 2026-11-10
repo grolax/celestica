@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { projectsApi } from "./api";
-import { FrameworkTemplate, VistaPrevia } from "./types";
+import { FrameworkTemplate, Recomendaciones, VistaPrevia } from "./types";
 import QuestionReview from "./QuestionReview";
 import { aPreguntas, Fila, filasIniciales, CERRADAS, hayAbierta, hayCerrada, SIN_CONTEXTO } from "./questionGroups";
 import Button from "@/shared/components/Button";
@@ -13,7 +13,13 @@ import QualtricsSection from "@/features/integrations/QualtricsSection";
 
 type Origin = "file" | "qualtrics" | "gforms";
 
-const STEPS = ["Sube tu encuesta", "Revisa las preguntas", "Datos del proyecto"];
+const STEPS = ["Sube tu encuesta", "Revisa las preguntas", "Elige una plantilla", "Datos del proyecto"];
+const AYUDA = [
+  "Sube el archivo de tu encuesta o impórtala desde Qualtrics o Google Forms.",
+  "Revisa qué detectamos en cada pregunta y corrige lo que no calce.",
+  "Una plantilla trae un enfoque de análisis y categorías de partida, que tu equipo revisa antes de usarlas.",
+  "Ponle nombre a tu proyecto y confirma qué se va a analizar.",
+];
 
 const ORIGINS: [Origin, string][] = [
   ["file", "Subir archivo"],
@@ -34,7 +40,9 @@ export default function NewProject() {
   const [templateKey, setTemplateKey] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [sugerida, setSugerida] = useState<Recomendaciones["plantilla"]>(null);
+  const [verOtras, setVerOtras] = useState(false);
   const [preview, setPreview] = useState<VistaPrevia | null>(null);
   const [filas, setFilas] = useState<Fila[]>([]);
   const [reviewedKey, setReviewedKey] = useState("");
@@ -43,19 +51,16 @@ export default function NewProject() {
     projectsApi.listTemplates().then(setTemplates).catch(() => {});
   }, []);
 
-  function pickTemplate(key: string) {
-    if (templateKey === key) {
-      setTemplateKey("");
-      return;
-    }
+  // key "" = sin plantilla. El marco cambia solo si está vacío o sigue igual al de la plantilla anterior.
+  function elegir(key: string) {
+    const marcoDe = (k: string) => templates.find((t) => t.key === k)?.marco_teorico ?? "";
+    if (!marco || marco === marcoDe(templateKey)) setMarco(marcoDe(key));
     setTemplateKey(key);
-    const tpl = templates.find((t) => t.key === key);
-    if (tpl && !marco) setMarco(tpl.marco_teorico);
   }
 
-  // Agrupar plantillas por industria preservando el orden del backend
+  // Agrupar las demás plantillas por industria preservando el orden del backend
   const industries: [string, FrameworkTemplate[]][] = [];
-  for (const t of templates) {
+  for (const t of templates.filter((t) => t.key !== sugerida?.key)) {
     const ind = t.industria ?? "General";
     const entry = industries.find(([name]) => name === ind);
     if (entry) entry[1].push(t);
@@ -85,6 +90,22 @@ export default function NewProject() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function continuar() {
+    setError("");
+    if (!hayAbierta(filas)) return setStep(4);
+    setBusy(true);
+    let p: Recomendaciones["plantilla"] = null;
+    try {
+      p = (await projectsApi.suggestTemplate(aPreguntas(filas).map(({ titulo, tipo }) => ({ titulo, tipo })))).plantilla;
+    } catch {
+      // Sin sugerencia: la persona sigue igual y elige de la lista.
+    }
+    setSugerida(p);
+    setVerOtras(templateKey !== "" && templateKey !== p?.key); // que la plantilla ya elegida no quede escondida
+    setBusy(false);
+    setStep(3);
   }
 
   async function crear() {
@@ -126,20 +147,24 @@ export default function NewProject() {
   const nCerradas = incluidas.filter((f) => CERRADAS.includes(f.tipo)).length;
   const cuenta = (n: number, uno: string, varias: string) => (n === 1 ? `1 ${uno}` : `${n} ${varias}`);
   const contexto = incluidas.filter((f) => f.contexto && !SIN_CONTEXTO.includes(f.tipo)).map((f) => `«${f.titulo}»`);
-  const errorDePreguntas = step === 3 && /pregunta|columna|identificaci/i.test(error);
+  const errorDePreguntas = step === 4 && /pregunta|columna|identificaci/i.test(error);
+
+  // Revisadas las preguntas y sin abiertas, no hay plantilla que elegir: el paso 3 se salta.
+  const sinPlantilla = step > 1 && !hayAbierta(filas);
+  const pasos = STEPS.map((label, i) => ({ label, n: i + 1 })).filter((p) => !(sinPlantilla && p.n === 3));
+  const otrasAbiertas = !sugerida || verOtras;
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (step === 3) crear(); else if (step === 1) revisar(); }}
+    <form onSubmit={(e) => { e.preventDefault(); if (step === 4) crear(); else if (step === 1) revisar(); }}
           style={{ maxWidth: step === 2 ? 1000 : 760 }}>
-      <PageHeader title="Nuevo proyecto de análisis"
-                  help="Sube tu encuesta, revisa las preguntas que detectamos y ponle nombre a tu proyecto." />
+      <PageHeader title="Nuevo proyecto de análisis" help={AYUDA[step - 1]} />
       <ol className="steps" aria-label="Pasos para crear el proyecto">
-        {STEPS.map((label, i) => (
-          <li key={label} aria-current={step === i + 1 ? "step" : undefined}
-              className={step > i + 1 ? "done" : ""}>
-            <span className="steps-n" aria-hidden="true">{step > i + 1 ? "✓" : i + 1}</span>
+        {pasos.map(({ label, n }, i) => (
+          <li key={label} aria-current={step === n ? "step" : undefined}
+              className={step > n ? "done" : ""}>
+            <span className="steps-n" aria-hidden="true">{step > n ? "✓" : i + 1}</span>
             {label}
-            {step === i + 1 && <span className="sr-only"> (paso actual)</span>}
+            {step === n && <span className="sr-only"> (paso actual)</span>}
           </li>
         ))}
       </ol>
@@ -209,7 +234,7 @@ export default function NewProject() {
                           nColumnas={preview.preguntas.length} advertencias={preview.advertencias} />
           <div className="qr-nav">
             <Button type="button" variant="secondary" size="lg" onClick={() => setStep(1)}>← Volver</Button>
-            <Button type="button" size="lg" disabled={!hayAbierta(filas) && !hayCerrada(filas)} onClick={() => { setError(""); setStep(3); }}>
+            <Button type="button" size="lg" busy={busy} disabled={!hayAbierta(filas) && !hayCerrada(filas)} onClick={continuar}>
               Continuar →
             </Button>
           </div>
@@ -217,6 +242,79 @@ export default function NewProject() {
       )}
 
       {step === 3 && (
+      <>
+      {sugerida && (
+        <Card title="Te sugerimos esta plantilla">
+          {(() => {
+            const t = templates.find((x) => x.key === sugerida.key);
+            return (
+              <>
+                <strong>{sugerida.nombre}</strong>{" "}
+                <span className="pill">{sugerida.industria}</span>{t && <> <span className="pill">{t.n_categorias} categorías</span></>}
+                <p className="small muted" style={{ margin: "6px 0 0" }}>{sugerida.motivo}</p>
+                {t && <p className="small muted" style={{ margin: "4px 0 0" }}>{t.descripcion}</p>}
+              </>
+            );
+          })()}
+          <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            {templateKey === sugerida.key ? (
+              <>
+                <span className="small" style={{ color: "var(--success)", fontWeight: 600 }}>✓ Plantilla elegida</span>
+                <Button type="button" size="sm" variant="secondary" onClick={() => elegir("")}>Quitar plantilla</Button>
+              </>
+            ) : (
+              <Button type="button" size="sm" onClick={() => elegir(sugerida.key)}>Usar esta plantilla</Button>
+            )}
+          </div>
+        </Card>
+      )}
+
+      <Card title="Marco teórico"
+            actions={<span className="pill claude">ancla el análisis temático</span>}>
+        {!sugerida && (
+          <p className="small muted">
+            No encontramos una plantilla que calce claramente con tu encuesta. Puedes elegir una de la lista o continuar sin plantilla.
+          </p>
+        )}
+        {sugerida && industries.length > 0 && (
+          <Button type="button" size="sm" variant="secondary" aria-expanded={otrasAbiertas}
+                  onClick={() => setVerOtras(!verOtras)}>
+            Ver otras plantillas
+          </Button>
+        )}
+        {otrasAbiertas && industries.map(([industria, group]) => (
+          <div key={industria} style={{ margin: "10px 0 14px" }}>
+            <p className="small" style={{ fontWeight: 600, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--primary)" }}>
+              {industria}
+            </p>
+            <div style={{ display: "grid", gap: 10 }}>
+              {group.map((t) => (
+                <button key={t.key} type="button" aria-pressed={templateKey === t.key}
+                        className={`template-option ${templateKey === t.key ? "selected" : ""}`}
+                        onClick={() => elegir(templateKey === t.key ? "" : t.key)}>
+                  <strong>{t.nombre}</strong>{" "}
+                  <span className="pill">{t.n_categorias} categorías</span>
+                  <span className="small muted" style={{ display: "block", margin: "4px 0 0" }}>{t.descripcion}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+        <TextArea label="Marco teórico del proyecto" rows={4} value={marco}
+                  onChange={(e) => setMarco(e.target.value)}
+                  placeholder="Ej: Modelo de competencias docentes — dominio disciplinar, metodología, evaluación de aprendizajes, relación pedagógica. Las categorías propuestas por la IA se anclarán a este marco." />
+        <p className="small muted" style={{ marginTop: 6 }}>Elegir otra plantilla cambia este texto, salvo que lo hayas editado.</p>
+      </Card>
+
+      <div className="qr-nav">
+        <Button type="button" variant="secondary" size="lg" onClick={() => setStep(2)}>← Volver</Button>
+        <Button type="button" size="lg" onClick={() => { setError(""); setStep(4); }}>Continuar →</Button>
+        <Button type="button" variant="ghost" size="lg" onClick={() => navigate("/proyectos")}>Cancelar</Button>
+      </div>
+      </>
+      )}
+
+      {step === 4 && (
       <>
       <Card title="Datos del proyecto">
         <Input label="Nombre del proyecto" type="text" value={name} onChange={(e) => setName(e.target.value)}
@@ -231,46 +329,14 @@ export default function NewProject() {
         </p>
       </Card>
 
-      {nAbiertas > 0 && (
-      <Card title="Marco teórico"
-            actions={<span className="pill claude">ancla el análisis temático</span>}>
-        {templates.length > 0 && (
-          <>
-            <p className="small muted">Parte de una plantilla (opcional) — crea el marco y categorías base que tu equipo valida después:</p>
-            {industries.map(([industria, group]) => (
-              <div key={industria} style={{ marginBottom: 14 }}>
-                <p className="small" style={{ fontWeight: 600, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--primary)" }}>
-                  {industria}
-                </p>
-                <div style={{ display: "grid", gap: 10 }}>
-                  {group.map((t) => (
-                    <div key={t.key}
-                         className={`template-option ${templateKey === t.key ? "selected" : ""}`}
-                         onClick={() => pickTemplate(t.key)}>
-                      <strong>{t.nombre}</strong>{" "}
-                      <span className="pill">{t.n_categorias} categorías</span>
-                      <p className="small muted" style={{ margin: "4px 0 0" }}>{t.descripcion}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-        <TextArea label="Marco teórico del proyecto" rows={4} value={marco}
-                  onChange={(e) => setMarco(e.target.value)}
-                  placeholder="Ej: Modelo de competencias docentes — dominio disciplinar, metodología, evaluación de aprendizajes, relación pedagógica. Las categorías propuestas por la IA se anclarán a este marco." />
-      </Card>
-      )}
-
       <div className="qr-nav">
-        <Button type="button" variant="secondary" size="lg" onClick={() => setStep(2)}>← Volver</Button>
+        <Button type="button" variant="secondary" size="lg" onClick={() => setStep(hayAbierta(filas) ? 3 : 2)}>← Volver</Button>
         <Button type="submit" busy={busy} size="lg">Crear proyecto</Button>
         <Button type="button" variant="ghost" size="lg" onClick={() => navigate("/proyectos")}>Cancelar</Button>
       </div>
       </>
       )}
-      {step !== 3 && step !== 2 && (
+      {step === 1 && (
         <div style={{ marginTop: 12 }}>
           <Button type="button" variant="ghost" onClick={() => navigate("/proyectos")}>Cancelar</Button>
         </div>

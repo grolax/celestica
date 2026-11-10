@@ -31,6 +31,9 @@ export const projectsApi = {
 
   // Plantillas de marcos teóricos
   listTemplates: () => req<FrameworkTemplate[]>("/framework-templates"),
+  // Reglas fijas, sin IA y sin guardar nada; solo analista/admin. Solo `titulo` y `tipo` de cada pregunta.
+  suggestTemplate: (preguntas: { titulo: string; tipo: TipoPregunta }[]) =>
+    req<{ plantilla: Recomendaciones["plantilla"] }>("/projects/suggest-template", { method: "POST", ...jsonBody({ preguntas }) }),
   applyTemplate: (id: string, pregunta: string, template: string) =>
     req<{ marco_teorico: string; categories: Category[] }>(
       `/projects/${id}/apply-template?template=${encodeURIComponent(template)}&${qp(pregunta)}`, { method: "POST" }),
