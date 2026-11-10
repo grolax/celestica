@@ -83,6 +83,21 @@ def test_nps_con_palabra_clave_y_sin_ella():
     assert p["tipo"] == "escala" and p["escala"] == {"min": 0, "max": 10}
 
 
+@pytest.mark.parametrize("titulo", [
+    "¿Qué tan probable es que nos recomiendes?", "¿Nos recomiendas?", "¿Recomendarías este servicio?", "RECOMIENDE",
+])
+def test_nps_formas_de_recomendar(titulo):
+    p = tipo(titulo, [i % 11 for i in range(N)])
+    assert p["tipo"] == "nps" and p["escala"] == {"min": 0, "max": 10}
+
+
+@pytest.mark.parametrize("titulo", ["¿Qué tanto recomiendas este curso?", "¿Recomendarías este taller?"])  # con "este curso" (3 palabras) TITULO_ANIO lo vuelve segmento, ajeno a T-043
+@pytest.mark.parametrize("maximo", [5, 7])
+def test_recomendar_en_escala_corta_no_es_nps(titulo, maximo):
+    p = tipo(titulo, [1 + i % maximo for i in range(N)])
+    assert p["tipo"] == "escala" and p["escala"] == {"min": 1, "max": maximo}
+
+
 def test_si_no_con_mayusculas_y_tildes():
     p = tipo("¿Volvería?", ["Sí", "NO", "si", "No", "SÍ", "no"] * 6)
     assert p["tipo"] == "si_no" and {o["valor"] for o in p["opciones"]} == {"Sí", "NO", "si", "No", "SÍ", "no"}

@@ -145,7 +145,8 @@ def _clasificar(col: str, vals: pd.Series, vc: pd.Series, n: int) -> tuple[str, 
         return "identificador", "Casi todos los valores son distintos, cortos y sin espacios.", {}
 
     # 4. NPS
-    if enteros and num.min() >= 0 and num.max() <= 10 and re.search(r"recomend|nps", _sin_tildes(col)):
+    if enteros and num.min() >= 0 and num.max() <= 10 and num.max() > 7 \
+            and re.search(r"recomi?end|nps", titulo):  # >7: una escala 1-5 o 1-7 que dice "recomendar" no es NPS
         return "nps", 'Números enteros entre 0 y 10 y el título menciona "recomendar".', {"escala": {"min": 0, "max": 10}}
 
     # 5. sí/no
