@@ -71,7 +71,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | ✅ Incorporada a la versión oficial (PR #50) |
 | T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | ✅ Incorporada a la versión oficial (PR #51) |
 | T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
-| T-046 | Perfil de la organización (servidor) | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
+| T-046 | Perfil de la organización (servidor) | 🟡 Publicada para revisión (PR #53); espera la aprobación del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -944,7 +944,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - Cada cambio queda en el registro de auditoría.
 - **Cómo se verificó:** 451 pruebas automáticas pasan. 28 son nuevas, e incluyen una que comprueba que una organización no ve ni toca el perfil ni el logo de otra.
 - **Pendiente detectado:** el servidor recibe un archivo grande completo antes de rechazarlo. Ocurre también con las encuestas. Conviene ponerle un tope antes de publicar la plataforma.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
+- **Estado:** aprobada por el supervisor y publicada para revisión (PR #53). Espera que el responsable la incorpore a la versión oficial.
 
 ---
 
