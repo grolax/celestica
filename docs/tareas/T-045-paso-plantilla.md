@@ -64,3 +64,13 @@ Depende de: T-044 (fusionada, PR #51)
 - `crear()` ya no envía `template` ni marco sin abiertas: mantenlo.
 - Los servidores locales de desarrollo están corriendo en los puertos 8000 y 5173: no los detengas ni levantes otros. El supervisor recorre la pantalla en el navegador; a ti te basta con `npm run build`.
 - Limitación existente, no la cambies: el servidor aplica las categorías de la plantilla solo a la primera pregunta abierta.
+
+## Revisión
+2026-11-10 · **Aprobada.**
+- Commit `885acbf`: 3 archivos de frontend, 131 líneas agregadas y 56 quitadas. No toca backend ni `shared/components`.
+- `npm run build` sin errores. `python -m pytest tests -q`: 423 pasan.
+- Verificación del supervisor en Chrome headless, con backend y base desechables ya borrados y sin IA: 44 de 45 comprobaciones. Cubren los 4 pasos y sus textos, sugerencia sin marcar, usar y quitar, teclado (Tab, Enter y Espacio con foco visible), marco editado respetado, recálculo, falla de `suggest-template`, creación con y sin plantilla (revisada en la API), "Volver a revisar las preguntas" y encuesta sin abiertas.
+- **La comprobación que falló no es de esta tarea:** a 375 px solo se sale de la pantalla el usuario de la barra superior, también en "Mis proyectos" (deuda ya anotada desde T-021). El contenido del paso cabe.
+- Contrato: el cuerpo lleva solo `titulo` y `tipo`. Usa `shared/api/client.ts`.
+- Decisiones del programador aceptadas: la sugerida no se repite en la lista; la lista se abre sola si la plantilla elegida deja de ser la sugerida; "Quitar plantilla" va solo en la tarjeta sugerida, y las de la lista se quitan con otro clic. La sugerencia no se marca como IA porque sale de reglas fijas.
+- No probado: una encuesta real, Qualtrics y Google Forms (comparten el mismo flujo desde el paso 2) y tablet física.
