@@ -69,7 +69,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-041 | Temas principales con citas para el panel de resultados (servidor) | ✅ Incorporada a la versión oficial (PR #48) |
 | T-042 | Pantalla "Resultados" para lectores | ✅ Incorporada a la versión oficial (PR #49) |
 | T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | ✅ Incorporada a la versión oficial (PR #50) |
-| T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | 🟡 Publicada para revisión (PR #51); espera la aprobación del responsable |
+| T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | ✅ Incorporada a la versión oficial (PR #51) |
+| T-045 | Paso "Elige una plantilla" al crear un proyecto | 🟡 En desarrollo |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -910,7 +911,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **De paso:** las plantillas de NPS también reconocerán la palabra "recomiendes".
 - **Resultado de T-044:** el servidor ya sugiere la plantilla a partir de los títulos que la persona confirmó, con la misma regla de las Recomendaciones. Solo analistas y administradores pueden pedirla. Las 423 pruebas automáticas pasan.
 - **Decisiones del responsable para la pantalla (T-045):** "Elige una plantilla" será un paso propio, así que el asistente tendrá 4 pasos, y las encuestas sin preguntas abiertas se lo saltan. La plantilla sugerida no viene marcada: la persona aprieta "Usar esta plantilla".
-- **Estado:** T-044 publicada para revisión del responsable (PR #51: https://github.com/grolax/celestica/pull/51). **Espera su aprobación.**
+- **Estado:** T-044 incorporada a la versión oficial por el responsable (PR #51). T-045 en desarrollo.
 
 ---
 
