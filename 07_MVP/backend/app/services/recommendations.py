@@ -84,7 +84,7 @@ def _cruces(preguntas: list[dict], segmentos: list[dict]) -> list[dict]:
             for i, j in pares[:MAX_CRUCES]]
 
 
-def _plantilla(project: dict) -> dict | None:
+def plantilla_sugerida(project: dict) -> dict | None:
     preguntas = project.get("preguntas", [])
     marco = (project.get("marco_teorico") or "").strip()
     if not any(q["tipo"] == "abierta" for q in preguntas) or any(marco == t["marco_teorico"].strip() for t in FRAMEWORK_TEMPLATES.values()):
@@ -107,4 +107,4 @@ def recomendar(project: dict) -> dict:
     preguntas, respondentes = project.get("preguntas", []), project.get("respondentes", [])
     candidatos = _candidatos(preguntas, respondentes)
     return {"alertas": _alertas(preguntas, respondentes), "segmentos": candidatos[:MAX_SEGMENTOS],
-            "cruces": _cruces(preguntas, candidatos), "plantilla": _plantilla(project)}
+            "cruces": _cruces(preguntas, candidatos), "plantilla": plantilla_sugerida(project)}

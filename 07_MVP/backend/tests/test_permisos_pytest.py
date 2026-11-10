@@ -70,6 +70,7 @@ OPS = [
     ("POST", "/api/projects/preview", "analista", _file),
     ("POST", "/api/projects/preview/qualtrics", "analista", lambda: {"json": {"survey_id": "SV_1"}}),
     ("POST", "/api/projects/preview/google-forms", "analista", lambda: {"json": {"sheet_url": "https://x"}}),
+    ("POST", "/api/projects/suggest-template", "analista", lambda: {"json": {"preguntas": []}}),
     ("POST", "/api/projects/import-legacy", "analista", dict),
     ("POST", P + "/apply-template", "analista", lambda: {"params": {"template": "evaluacion_docente_cna"}}),
     ("POST", P + "/lexical", "analista", dict),
