@@ -702,3 +702,66 @@ Sugiere una plantilla antes de crear el proyecto, a partir de las preguntas que 
 - `plantilla` usa la **misma regla** que `plantilla` en `GET /api/projects/{id}/recommendations` (RF-41), aplicada solo a los títulos recibidos, porque el proyecto aún no tiene nombre ni marco.
 - Es `null` si no hay ninguna pregunta `abierta` o si ninguna plantilla llega a 2 coincidencias.
 - **Errores:** 401 sin sesión · 403 `"Tu rol (Lector) no permite esta acción."` · 422 si el cuerpo no cumple el formato o los límites. La pantalla no ofrece sugerencia cuando la llamada falla: la creación del proyecto sigue igual.
+
+## RF-10 · Perfil de organización (T-046)
+
+Decisiones del usuario (2026-11-10): rubro de una lista cerrada; el color **no** cambia la paleta de la plataforma, es solo un acento junto al logo y, después, en los informes (RF-11); logo PNG o JPG de hasta 500 KB guardado en la base, sin SVG.
+
+Todas las rutas actúan **solo sobre la organización de quien llama** (`user.org_id`): ninguna recibe un id de organización.
+
+**Rubros válidos** (texto exacto): `"Educación Superior"`, `"Estudios de Mercado"`, `"Organizaciones y B2B"`, `"Sector Público"`, `"Salud"`, `"Retail"`, `"Municipal"`, `"Otro"`. Son las industrias de las plantillas más "Otro". La pantalla usa esta misma lista.
+
+### Objeto `organizacion`
+Se amplía el objeto `organizacion` que ya devuelven `POST /auth/signup`, `POST /auth/login` y `GET /auth/me`. Los campos que ya existían no cambian.
+
+```json
+{ "id": "org_1a2b3c4d5e", "nombre": "Universidad del Sur", "rubro": "Educación Superior", "color": "#1f6feb", "tiene_logo": true }
+```
+
+- `rubro`: uno de la lista o `null` si nunca se eligió.
+- `color`: `#rrggbb` en minúsculas o `null`.
+- `tiene_logo`: `true` si la organización subió un logo. La imagen se pide aparte, para no cargarla en cada pantalla.
+- Las organizaciones existentes quedan con `rubro: null`, `color: null` y `tiene_logo: false`, sin migración.
+
+### `PUT /api/org/profile`
+Edita nombre, rubro y color. Reemplaza los tres campos.
+
+- **Roles:** solo admin.
+- **Entrada:**
+
+```json
+{ "nombre": "Universidad del Sur", "rubro": "Educación Superior", "color": "#1F6FEB" }
+```
+
+- `nombre`: obligatorio; se quitan los espacios de los extremos; de 1 a 100 caracteres.
+- `rubro`: uno de la lista, o `null`.
+- `color`: `#` y 6 dígitos hexadecimales, en mayúsculas o minúsculas, o `null`. Se guarda en minúsculas.
+- **Respuesta 200:** el objeto `organizacion` actualizado.
+- **Auditoría:** evento de organización `organizacion_editada`, con `detail` de los campos cambiados: `{"campo": {"antes": …, "despues": …}}`. Sin cambios, no registra nada.
+- **Errores:** 401 sin sesión · 403 `"Tu rol (…) no permite esta acción."` · 422 con estos mensajes:
+  - `"Escribe el nombre de la organización."` (vacío tras quitar espacios)
+  - `"El nombre puede tener hasta 100 caracteres."`
+  - `"Elige un rubro de la lista."`
+  - `"El color debe tener el formato #RRGGBB, por ejemplo #1F6FEB."`
+
+### `PUT /api/org/logo`
+Sube o reemplaza el logo. `multipart/form-data` con el campo `file`.
+
+- **Roles:** solo admin.
+- **Validación:** el tipo se decide por los primeros bytes del archivo, no por el nombre ni por el tipo que declara el navegador. PNG empieza con `89 50 4E 47 0D 0A 1A 0A`; JPG con `FF D8 FF`. Máximo 500 KB (512.000 bytes).
+- **Respuesta 200:** el objeto `organizacion`, con `tiene_logo: true`.
+- **Auditoría:** `logo_actualizado`, con `{"tipo": "image/png", "bytes": 48213}`.
+- **Errores:** 401 · 403 · 422:
+  - `"El logo debe ser una imagen PNG o JPG."` (incluye archivo vacío, SVG, GIF, PDF)
+  - `"El logo pesa más de 500 KB. Usa una imagen más liviana."`
+
+### `GET /api/org/logo`
+- **Roles:** cualquier miembro (lector incluido).
+- **Respuesta 200:** `{ "logo": "data:image/png;base64,iVBORw0KGgo..." }`
+- **Errores:** 401 · 404 `"Tu organización no tiene logo."`
+
+### `DELETE /api/org/logo`
+- **Roles:** solo admin.
+- **Respuesta 200:** el objeto `organizacion`, con `tiene_logo: false`. Si no había logo responde igual y no registra nada.
+- **Auditoría:** `logo_eliminado`, con `{}`.
+- **Errores:** 401 · 403.
