@@ -32,7 +32,8 @@ from app.services import thematic  # noqa: E402
 
 P = "/api/projects/{project_id}"
 CAT = P + "/categories/{category_id}"
-CSV = "id_respuesta,respuesta\n" + "\n".join(f"E{i:03d},El curso fue bueno ({i})" for i in range(1, 6))
+PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 20
+CSV = "id_respuesta,respuesta\n" +"\n".join(f"E{i:03d},El curso fue bueno ({i})" for i in range(1, 6))
 
 
 def _file():
@@ -90,6 +91,10 @@ OPS = [
     ("GET", "/api/org/members", "admin", dict),
     ("POST", "/api/org/members", "admin", lambda: {"json": {"email": "x@x.cl", "rol": "lector"}}),
     ("PATCH", "/api/org/members/{user_id}", "admin", lambda: {"json": {"rol": "lector"}}),
+    ("PUT", "/api/org/profile", "admin", lambda: {"json": {"nombre": "Otro nombre"}}),
+    ("PUT", "/api/org/logo", "admin", lambda: {"files": {"file": ("l.png", io.BytesIO(PNG), "image/png")}}),
+    ("GET", "/api/org/logo", "lector", dict),
+    ("DELETE", "/api/org/logo", "admin", dict),
 ]
 PERMISOS = {(m, p): rol for m, p, rol, _ in OPS}
 ANALISTA = [o for o in OPS if o[2] == "analista"]

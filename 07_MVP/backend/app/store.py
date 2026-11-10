@@ -432,6 +432,37 @@ def count_active_admins(org_id: str, excluding: str = "") -> int:
                                            "_id": {"$ne": excluding}})
 
 
+# ---------- Perfil de la organización (RF-10) ----------
+
+RUBROS = ("Educación Superior", "Estudios de Mercado", "Organizaciones y B2B", "Sector Público",
+          "Salud", "Retail", "Municipal", "Otro")
+
+
+def org_out(org_id: str) -> dict:
+    """Objeto `organizacion` del contrato; las organizaciones anteriores a T-046 salen con rubro/color null."""
+    db = get_db()
+    org = db.organizations.find_one({"_id": org_id}) or {}
+    return {"id": org_id, "nombre": org.get("nombre", ""), "rubro": org.get("rubro"), "color": org.get("color"),
+            "tiene_logo": db.org_logos.count_documents({"_id": org_id}, limit=1) > 0}
+
+
+def update_org_profile(org_id: str, fields: dict) -> None:
+    get_db().organizations.update_one({"_id": org_id}, {"$set": fields})
+
+
+def set_org_logo(org_id: str, tipo: str, datos: bytes) -> None:
+    get_db().org_logos.replace_one({"_id": org_id}, {"_id": org_id, "tipo": tipo, "datos": datos,
+                                                     "updated_at": now_iso()}, upsert=True)
+
+
+def get_org_logo(org_id: str) -> Optional[dict]:
+    return get_db().org_logos.find_one({"_id": org_id})
+
+
+def delete_org_logo(org_id: str) -> bool:
+    return get_db().org_logos.delete_one({"_id": org_id}).deleted_count > 0
+
+
 # ---------- Importación de proyectos antiguos ----------
 
 def import_legacy_projects(org_id: str, created_by: str) -> int:
