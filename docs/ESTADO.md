@@ -56,11 +56,12 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-043 Detectar NPS con todas las formas de "recomendar" | backend | RF-22, RF-30, RF-43 | 2026-11-10 | `tarea/T-043-deteccion-nps` (fusionada, PR #50) |
 | T-044 Sugerir la plantilla antes de crear el proyecto | backend | RF-40, RF-41, RNF-02, RNF-18 | 2026-11-10 | `tarea/T-044-sugerir-plantilla` (fusionada, PR #51) |
 | T-045 Paso "Elige una plantilla" en el asistente de creación | frontend | RF-40, RF-41, RNF-13, RNF-14 | 2026-11-10 | `tarea/T-045-paso-plantilla` (fusionada, PR #52) |
+| T-046 Perfil de organización (servidor) | backend | RF-10, RF-02, RNF-01 | 2026-11-10 | `tarea/T-046-perfil-organizacion` (aprobada, pendiente de subir) |
 
 ## En curso
 - **Decisión de proceso (usuario, 2026-11-08):** al iniciar sesión, el supervisor lee solo las últimas 10 entradas de `docs/BITACORA.md` (y su tabla de resumen, si hace falta); esto reemplaza el "léela completa" de `.claude/agents/supervisor.md`. Las decisiones vigentes están en este archivo.
 - **Decisión (usuario, 2026-11-08):** `graphify-out/` no se agrega a `.gitignore`. Queda sin seguimiento, así que nada de `git add .`: siempre agregar por ruta.
-- **Situación al 2026-11-10:** `main` al día (último merge: PR #52). **RF-40 completo** (T-044 y T-045 fusionadas). **En curso:** RF-10, perfil de organización: T-046 servidor (en curso, `tarea/T-046-perfil-organizacion`) → T-047 pantalla (sección "Organización" en Configuración y logo en la barra superior) → T-048 el rubro ordena y desempata las plantillas (servidor).
+- **Situación al 2026-11-10:** `main` al día (último merge: PR #52). **RF-40 completo** (T-044 y T-045 fusionadas). **En curso:** RF-10, perfil de organización: T-046 servidor (aprobada en `tarea/T-046-perfil-organizacion`, solo en local) → T-047 pantalla (sección "Organización" en Configuración y logo en la barra superior) → T-048 el rubro ordena y desempata las plantillas (servidor).
 - Decisiones RF-10 (usuario, 2026-11-10): rubro de una lista cerrada (las industrias de las plantillas más "Otro"); el color no cambia la paleta, es solo un acento junto al logo y en los informes; logo PNG o JPG hasta 500 KB en la base, sin SVG; el rubro pone primero sus plantillas en la lista y desempata la sugerencia, pero no inventa una sugerencia sola. **Después:** RF-11, siguiendo el orden de `docs/BACKLOG.md`.
 - Decisiones RF-40 (usuario, 2026-11-10): paso propio "Elige una plantilla" (4 pasos; las encuestas sin abiertas se lo saltan); la plantilla sugerida no viene marcada, la persona aprieta "Usar esta plantilla".
 - Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
@@ -95,12 +96,13 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
   - Cambio de tipo después de crear el proyecto: **solo entre tipos cerrados**.
 
 ## Bloqueado / requiere decisión del usuario
-
+- T-046: ¿se sube a GitHub y se abre el pull request hacia `main`? (pedido el 2026-11-10).
 - PED-01 (T-040): fusionada; falta que el usuario valide en la plataforma los criterios de `docs/BACKLOG.md`.
 - RF-43: para validarlo con datos reales hay que codificar una encuesta, lo que gasta IA; la base local no tiene ninguna codificación. Sin eso, se revisa con datos de ejemplo en una base desechable.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
+- Subidas (T-046): el servidor recibe el archivo completo antes de rechazar un logo de más de 500 KB o una encuesta de más de 20 MB. Falta un tope del tamaño del cuerpo en el servidor; conviene resolverlo antes de publicar.
 - Detección (T-043): un título corto con "curso", "edad" o "año" y números de pocos valores queda como `segmento` por `hint_anio`, aunque sea una escala ("¿Recomendarías este curso?" con 1 a 5). Se corrige en "Revisa las preguntas".
 - Plantillas al crear: las categorías de la plantilla se aplican solo a la primera pregunta abierta (`_create_project_from_df`); las demás se completan después desde Libro de códigos.
 - Temas principales (T-041): por regex, un número de 8 o más dígitos como "2020-2021" deja fuera la cita; los nombres de personas no se detectan hasta RNF-05. Sin probar con codificaciones reales.

@@ -38,3 +38,14 @@ El administrador puede editar el nombre, el rubro y el color de su organización
 - [ ] Las 4 rutas declaradas en `OPS` de `test_permisos_pytest.py`.
 - [ ] `python -m pytest tests -q` en verde, sin llamadas a la IA real.
 - [ ] `COMO_FUNCIONA.md` y el docstring de `models.py` describen los campos nuevos y `org_logos`.
+
+## Revisión
+2026-11-10 · **Aprobada.**
+- Commit `bbd0165`: 6 archivos de backend y `COMO_FUNCIONA.md`. No toca frontend, plantillas ni exportaciones.
+- `python -m pytest tests -q`: 451 pasan (28 nuevas entre perfil y permisos), sin IA real.
+- Contrato: rutas, roles, objeto `organizacion` y los 6 mensajes 422 al pie de la letra. El logo se valida por los primeros bytes.
+- Aislamiento: las funciones del `store` filtran por `org_id` y ninguna ruta recibe un id de organización. Hay prueba en ambos sentidos entre dos organizaciones.
+- Auditoría solo inserta, con eventos solo cuando algo cambia.
+- Decisiones del programador aceptadas: el tipo se valida antes que el tamaño, y un `PUT` que omite `rubro` o `color` los deja en `null`, porque el contrato dice que reemplaza los tres.
+- Deuda anotada: el servidor recibe el archivo completo antes de rechazar uno de más de 500 KB. Falta un tope del cuerpo a nivel de servidor, igual que en la subida de encuestas.
+- Detalle menor sin efecto: `test_permisos_pytest.py` perdió un espacio en la línea `CSV = ... +"\n"`.

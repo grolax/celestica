@@ -71,7 +71,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | ✅ Incorporada a la versión oficial (PR #50) |
 | T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | ✅ Incorporada a la versión oficial (PR #51) |
 | T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
-| T-046 | Perfil de la organización (servidor) | 🔵 En curso |
+| T-046 | Perfil de la organización (servidor) | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -934,6 +934,17 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
   - El logo es PNG o JPG de hasta 500 KB. SVG no se acepta, porque puede traer código oculto.
   - El rubro pone primero sus plantillas en la lista y desempata la sugerencia, pero no inventa una sugerencia por sí solo.
 - **Cómo se organizó:** T-046 hace el servidor, T-047 la pantalla y T-048 el efecto del rubro en las plantillas.
+
+### 77. T-046 · Resultado: el perfil de la organización en el servidor
+
+- **Qué quedó:** el administrador ya puede cambiar el nombre, el rubro y el color de su organización, y subir o quitar su logo. Todos los miembros reciben esos datos al entrar y pueden ver el logo. Analistas y lectores no pueden cambiar nada.
+- **Cuidados:**
+  - El logo se reconoce por su contenido, no por el nombre del archivo. Un archivo de texto renombrado como `.png` se rechaza.
+  - Cada error trae un mensaje en lenguaje simple.
+  - Cada cambio queda en el registro de auditoría.
+- **Cómo se verificó:** 451 pruebas automáticas pasan. 28 son nuevas, e incluyen una que comprueba que una organización no ve ni toca el perfil ni el logo de otra.
+- **Pendiente detectado:** el servidor recibe un archivo grande completo antes de rechazarlo. Ocurre también con las encuestas. Conviene ponerle un tope antes de publicar la plataforma.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla.
 
 ---
 
