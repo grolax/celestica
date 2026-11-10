@@ -112,7 +112,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "satisfaccion_clientes_nps": {
         "nombre": "Satisfacción de Clientes (verbatims NPS)",
         "industria": "Estudios de Mercado",
-        "palabras_clave": ["cliente", "recomend", "nps", "promotor", "detractor", "csat", "satisfaccion", "fidelidad"],
+        "palabras_clave": ["cliente", "recomend", "recomiend", "nps", "promotor", "detractor", "csat", "satisfaccion", "fidelidad"],
         "descripcion": "Para analizar los comentarios abiertos de encuestas NPS/CSAT: qué explica que un cliente sea promotor, pasivo o detractor.",
         "marco_teorico": (
             "Modelo de drivers de satisfacción y lealtad de clientes: calidad del producto o servicio, "
@@ -441,7 +441,7 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
     "retail_post_compra_nps": {
         "nombre": "Post-compra y NPS",
         "industria": "Retail",
-        "palabras_clave": ["compra", "recomend", "nps", "postcompra", "volveria", "recompra", "producto"],
+        "palabras_clave": ["compra", "recomend", "recomiend", "nps", "postcompra", "volveria", "recompra", "producto"],
         "descripcion": "Para los comentarios abiertos de la encuesta NPS que se envía después de una compra, en tienda o en línea: qué hace que un cliente recomiende o no la marca.",
         "marco_teorico": (
             "Modelo de lealtad del cliente después de comprar: qué tal es lo que compró (producto), cómo fue "

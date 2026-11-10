@@ -68,7 +68,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-040 | Editar el marco teórico desde la pantalla | ✅ Incorporada a la versión oficial (PR #47) |
 | T-041 | Temas principales con citas para el panel de resultados (servidor) | ✅ Incorporada a la versión oficial (PR #48) |
 | T-042 | Pantalla "Resultados" para lectores | ✅ Incorporada a la versión oficial (PR #49) |
-| T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | 🟡 Publicada para revisión (PR #50); espera la aprobación del responsable |
+| T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | ✅ Incorporada a la versión oficial (PR #50) |
+| T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | 🟡 Publicada para revisión (PR #51); espera la aprobación del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -900,7 +901,16 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Resultado:** funciona como se planificó. Las preguntas de 0 a 10 con cualquier forma de "recomendar" se reconocen como NPS, y las de 1 a 5 o 1 a 7 ya no. Las 414 pruebas automáticas pasan.
 - **Corrección durante el trabajo:** la instrucción escrita por el supervisor tenía un error que habría dejado de reconocer "recomendarías". El programador lo corrigió.
 - **Límite conocido:** una pregunta muy corta como "¿Recomendarías este curso?" con notas de 1 a 5 queda como grupo, por una regla anterior que asocia "curso" con año cursado. Ya no da un NPS falso, y se corrige en "Revisa las preguntas".
-- **Estado:** publicada para revisión del responsable (PR #50: https://github.com/grolax/celestica/pull/50). **Espera su aprobación.**
+- **Estado:** incorporada a la versión oficial por el responsable (PR #50).
+
+### 74. RF-40 · Plan: sugerir la plantilla al crear el proyecto
+
+- **Qué se busca:** que quien no conoce los marcos teóricos reciba una plantilla sugerida, con su motivo, justo después de revisar las preguntas de su encuesta. Podrá aceptarla, elegir otra o seguir sin plantilla.
+- **Cómo se organizó:** T-044 entrega la sugerencia desde el servidor, con la misma regla de las Recomendaciones, sin IA y sin guardar nada. T-045 construye la pantalla.
+- **De paso:** las plantillas de NPS también reconocerán la palabra "recomiendes".
+- **Resultado de T-044:** el servidor ya sugiere la plantilla a partir de los títulos que la persona confirmó, con la misma regla de las Recomendaciones. Solo analistas y administradores pueden pedirla. Las 423 pruebas automáticas pasan.
+- **Decisiones del responsable para la pantalla (T-045):** "Elige una plantilla" será un paso propio, así que el asistente tendrá 4 pasos, y las encuestas sin preguntas abiertas se lo saltan. La plantilla sugerida no viene marcada: la persona aprieta "Usar esta plantilla".
+- **Estado:** T-044 publicada para revisión del responsable (PR #51: https://github.com/grolax/celestica/pull/51). **Espera su aprobación.**
 
 ---
 

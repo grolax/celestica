@@ -8,14 +8,14 @@ from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app import store, templates
 from app.auth import get_current_user
 from app.deps import _get_or_404, _get_vista, _vista_or_404, require_role
 from app.models import User
 from app.services import quantitative
-from app.services.recommendations import recomendar
+from app.services.recommendations import plantilla_sugerida, recomendar
 from app.services.question_types import TIPOS, contexto_por_defecto, detectar
 
 router = APIRouter()
@@ -197,6 +197,21 @@ def preview_df(df: pd.DataFrame) -> dict:
 @router.post("/api/projects/preview")
 async def preview_file(file: UploadFile = File(...), user: User = Depends(require_role("analista"))):
     return preview_df(_leer_archivo(await file.read(), file.filename))
+
+
+class PreguntaSugerida(BaseModel):
+    titulo: str = Field(max_length=2000)
+    tipo: str
+
+
+class SugerirPlantillaBody(BaseModel):
+    preguntas: list[PreguntaSugerida] = Field(max_length=1000)
+
+
+@router.post("/api/projects/suggest-template")
+def suggest_template(body: SugerirPlantillaBody, user: User = Depends(require_role("analista"))):
+    """RF-40: misma regla que RF-41 sobre las preguntas confirmadas, antes de crear el proyecto. No lee ni escribe nada."""
+    return {"plantilla": plantilla_sugerida({"preguntas": [q.model_dump() for q in body.preguntas]})}
 
 
 @router.post("/api/projects")

@@ -53,12 +53,14 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-040 Tarjeta "Marco teórico" editable y cambio completo en Auditoría | frontend | PED-01, RF-41, RNF-13, RNF-14 | 2026-11-03 | `tarea/T-040-pantalla-marco` (fusionada, PR #47) |
 | T-041 Temas principales con citas para el panel | backend | RF-43, RNF-01, RNF-02, RNF-05, RNF-06, RNF-07, RNF-10 | 2026-11-03 | `tarea/T-041-temas-principales` (fusionada, PR #48) |
 | T-042 Pantalla "Resultados" para lectores | frontend | RF-43, RNF-06, RNF-13, RNF-14, RNF-15 | 2026-11-08 | `tarea/T-042-panel-resultados` (fusionada, PR #49) |
-| T-043 Detectar NPS con todas las formas de "recomendar" | backend | RF-22, RF-30, RF-43 | 2026-11-10 | `tarea/T-043-deteccion-nps` (PR #50 abierto, espera merge del usuario) |
+| T-043 Detectar NPS con todas las formas de "recomendar" | backend | RF-22, RF-30, RF-43 | 2026-11-10 | `tarea/T-043-deteccion-nps` (fusionada, PR #50) |
+| T-044 Sugerir la plantilla antes de crear el proyecto | backend | RF-40, RF-41, RNF-02, RNF-18 | 2026-11-10 | `tarea/T-044-sugerir-plantilla` (PR #51 abierto, espera merge del usuario) |
 
 ## En curso
 - **Decisión de proceso (usuario, 2026-11-08):** al iniciar sesión, el supervisor lee solo las últimas 10 entradas de `docs/BITACORA.md` (y su tabla de resumen, si hace falta); esto reemplaza el "léela completa" de `.claude/agents/supervisor.md`. Las decisiones vigentes están en este archivo.
 - **Decisión (usuario, 2026-11-08):** `graphify-out/` no se agrega a `.gitignore`. Queda sin seguimiento, así que nada de `git add .`: siempre agregar por ruta.
-- **Situación al 2026-11-10:** `main` al día (último merge: PR #49, RF-43 completo). **En curso:** T-043 detección de NPS (backend), PR #50 abierto, espera merge del usuario. **Después:** RF-40, siguiendo el orden de `docs/BACKLOG.md`.
+- **Situación al 2026-11-10:** `main` al día (último merge: PR #50). **En curso:** RF-40, terminar el asistente de creación: T-044 sugerir la plantilla (servidor, PR #51 abierto) → T-045 su pantalla (se empieza cuando se fusione el PR #51). **Después:** RF-10, siguiendo el orden de `docs/BACKLOG.md`.
+- Decisiones RF-40 (usuario, 2026-11-10): paso propio "Elige una plantilla" (4 pasos; las encuestas sin abiertas se lo saltan); la plantilla sugerida no viene marcada, la persona aprieta "Usar esta plantilla".
 - Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
 - Iteración 3 (plan aprobado por el usuario 2026-10-30): T-020 resultados de cerradas (fusionada) → T-021 pantalla "Preguntas cerradas" (fusionada) → T-022 cruces (backend, fusionada) → T-023 unir grupos (backend, fusionada) → T-024 pantalla de cruces (frontend, fusionada) → T-025 proyectos sin abiertas (backend, fusionada) → T-026 proyectos sin abiertas (pantalla, fusionada) → T-027 Excel de resultados de cerradas con grupos y gráficos (backend, fusionada) → T-028 botón de descarga (pantalla, fusionada) → T-029 léxico y propuesta una sola vez a la vez (backend, fusionada) → T-030 retomarlos al volver a la pestaña (pantalla, fusionada) → T-031 plantillas Retail y Municipal, RF-17 (backend, fusionada) → T-032 recomendaciones RF-41 (backend, fusionada) → T-033 tarjeta "Recomendaciones" (pantalla, fusionada) → **ajustes tras la revisión del usuario: T-034 alertas compactas (pantalla, fusionada) → T-035 cruce de 2 preguntas y pares sugeridos (servidor, fusionada) → T-036 su pantalla (fusionada) → T-037 cambiar el tipo entre cerradas (servidor, fusionada) → T-038 su pantalla (fusionada)** → editar el marco teórico (T-039 y T-040, fusionadas) → **RF-43 (en curso)**. Más adelante: sugerir la plantilla al crear el proyecto (paso 3 de RF-40).
 - Decisiones iteración 3 (usuario, 2026-10-30): % sobre quienes respondieron (N/A aparte; múltiple = % de personas); escalas con palabras como selección única por ahora; umbral fijo n < 10 (configurable por organización en iteración 4); tramos de edad 18–24, 25–34, 35–44, 45–54, 55–64, 65+ **modificables por el cliente** (en T-022/T-023); opciones por frecuencia salvo escalas y tramos.
@@ -92,14 +94,14 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 
 ## Bloqueado / requiere decisión del usuario
 
-- T-043: PR #50 espera el merge del usuario (https://github.com/grolax/celestica/pull/50).
+- T-044: PR #51 espera el merge del usuario (https://github.com/grolax/celestica/pull/51).
 - PED-01 (T-040): fusionada; falta que el usuario valide en la plataforma los criterios de `docs/BACKLOG.md`.
 - RF-43: para validarlo con datos reales hay que codificar una encuesta, lo que gasta IA; la base local no tiene ninguna codificación. Sin eso, se revisa con datos de ejemplo en una base desechable.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)
 
 ## Deuda técnica detectada
 - Detección (T-043): un título corto con "curso", "edad" o "año" y números de pocos valores queda como `segmento` por `hint_anio`, aunque sea una escala ("¿Recomendarías este curso?" con 1 a 5). Se corrige en "Revisa las preguntas".
-- Plantillas (encontrado al planificar T-043): las palabras clave usan `recomend`, igual que la detección de NPS; un título con "recomiendes" podría no sugerir las plantillas de NPS. Fuera de T-043.
+- Nuevo proyecto (a corregir en T-045): al cambiar de plantilla, las categorías cambian pero el marco teórico se queda con el de la primera; las tarjetas de plantillas no se pueden usar con teclado.
 - Temas principales (T-041): por regex, un número de 8 o más dígitos como "2020-2021" deja fuera la cita; los nombres de personas no se detectan hasta RNF-05. Sin probar con codificaciones reales.
 - Pruebas sensibles a la carga del equipo: con la CPU al 100 % fallaron `test_rendimiento_10000_filas_por_30_columnas` (límite fijo de 2 s) y una vez `test_fase3` (causa no confirmada); con la CPU cerca del 35 % pasan las 381 en 1 min 29 s (T-040).
 - Marco creado desde el formulario: se guarda con `\r\n` porque viaja en `FormData`; normalizarlo al crear en el backend. La pantalla ya lo tolera (T-040).
