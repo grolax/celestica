@@ -37,3 +37,13 @@ Exponer la sugerencia de plantilla de RF-41 para una encuesta que todavía no es
 - La función solo usa `preguntas`, `name` y `marco_teorico` del diccionario, así que basta pasarle `{"preguntas": [...]}`.
 - Valida los límites con el modelo Pydantic del cuerpo, como las demás rutas.
 - No hace falta migración: no cambia el esquema.
+
+## Revisión
+2026-11-10 · **Aprobada.**
+- Commit `3986deb`: 137 líneas agregadas y 6 quitadas, con un archivo de pruebas nuevo. Solo backend y un párrafo en `COMO_FUNCIONA.md`.
+- `python -m pytest tests -q`: 423 pasan (9 nuevas y la ruta en la tabla de permisos).
+- Contrato: ruta, roles, límites, respuesta y errores coinciden con `docs/API_CONTRATOS.md`.
+- Regla única: `plantilla_sugerida` la usan `recomendar` y la ruta nueva; hay prueba de que ambas dan lo mismo.
+- Aislamiento: la ruta no lee proyectos ni llama a `store`; las plantillas son globales. No corresponde prueba de acceso cruzado.
+- Principios: sin IA y sin escritura. La auditoría no se toca, porque la ruta no tiene ninguna llamada de escritura.
+- No probado: la sugerencia con una encuesta real; se verá en T-045.

@@ -69,7 +69,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-041 | Temas principales con citas para el panel de resultados (servidor) | ✅ Incorporada a la versión oficial (PR #48) |
 | T-042 | Pantalla "Resultados" para lectores | ✅ Incorporada a la versión oficial (PR #49) |
 | T-043 | Reconocer como NPS las preguntas escritas con "recomiendes" o "recomiendas" | ✅ Incorporada a la versión oficial (PR #50) |
-| T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | 🟡 En desarrollo |
+| T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -908,7 +908,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué se busca:** que quien no conoce los marcos teóricos reciba una plantilla sugerida, con su motivo, justo después de revisar las preguntas de su encuesta. Podrá aceptarla, elegir otra o seguir sin plantilla.
 - **Cómo se organizó:** T-044 entrega la sugerencia desde el servidor, con la misma regla de las Recomendaciones, sin IA y sin guardar nada. T-045 construye la pantalla.
 - **De paso:** las plantillas de NPS también reconocerán la palabra "recomiendes".
-- **Estado:** T-044 en desarrollo.
+- **Resultado de T-044:** el servidor ya sugiere la plantilla a partir de los títulos que la persona confirmó, con la misma regla de las Recomendaciones. Solo analistas y administradores pueden pedirla. Las 423 pruebas automáticas pasan.
+- **Estado:** T-044 aprobada por el supervisor. Espera que el responsable autorice publicarla. La pantalla (T-045) espera dos decisiones del responsable.
 
 ---
 
