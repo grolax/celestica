@@ -25,7 +25,7 @@ router = APIRouter()
 
 @router.get("/api/framework-templates")
 def framework_templates(user: User = Depends(get_current_user)):
-    return templates.list_templates()
+    return templates.list_templates(store.get_org_rubro(user.org_id))
 
 
 @router.post("/api/projects/{project_id}/apply-template")
@@ -211,7 +211,8 @@ class SugerirPlantillaBody(BaseModel):
 @router.post("/api/projects/suggest-template")
 def suggest_template(body: SugerirPlantillaBody, user: User = Depends(require_role("analista"))):
     """RF-40: misma regla que RF-41 sobre las preguntas confirmadas, antes de crear el proyecto. No lee ni escribe nada."""
-    return {"plantilla": plantilla_sugerida({"preguntas": [q.model_dump() for q in body.preguntas]})}
+    return {"plantilla": plantilla_sugerida({"preguntas": [q.model_dump() for q in body.preguntas]},
+                                            store.get_org_rubro(user.org_id))}
 
 
 @router.post("/api/projects")
@@ -303,7 +304,7 @@ def closed_results(project_id: str, por: Optional[str] = None, cortes: Optional[
 
 @router.get("/api/projects/{project_id}/recommendations")
 def recommendations(project_id: str, user: User = Depends(get_current_user)):
-    return recomendar(_get_or_404(project_id, user))
+    return recomendar(_get_or_404(project_id, user), store.get_org_rubro(user.org_id))
 
 
 class MarcoBody(BaseModel):
