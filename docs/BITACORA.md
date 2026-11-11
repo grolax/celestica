@@ -73,7 +73,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
 | T-046 | Perfil de la organización (servidor) | ✅ Incorporada a la versión oficial (PR #53) |
 | T-047 | Perfil de la organización (pantalla) y logo en la barra superior | ✅ Incorporada a la versión oficial (PR #54) |
-| T-048 | El rubro ordena las plantillas y desempata la sugerencia (servidor) | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
+| T-048 | El rubro ordena las plantillas y desempata la sugerencia (servidor) | 🟡 Publicada para revisión (PR #55); espera la aprobación del responsable |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -974,7 +974,14 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Qué quedó:** si la organización tiene rubro, sus plantillas aparecen primero en la lista al crear un proyecto. Y si dos plantillas empatan en la sugerencia automática, gana la del rubro, con el motivo explicado: "Entre plantillas parecidas, elegimos la de tu rubro." Sin rubro, o con "Otro", todo sigue igual.
 - **Precisión que se fijó en la revisión:** la frase aparece solo cuando el rubro cambió la elección. Si la plantilla que ya iba ganando era la del rubro, el motivo no cambia.
 - **Cómo se verificó:** 458 pruebas automáticas pasan, 7 nuevas, con tres organizaciones distintas para comprobar que el rubro de una no afecta a las otras. Se usó un empate real entre una plantilla de Estudios de Mercado y una de Retail.
-- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla. Cuando se incorpore, RF-10 queda completo.
+- **Estado:** aprobada por el supervisor y publicada para revisión (PR #55). Cuando el responsable la incorpore, RF-10 queda completo.
+
+### 82. Cierre de la jornada
+
+- **Lo que se logró hoy:** se cerró RF-40 (T-045, el paso "Elige una plantilla") y se construyó completo el perfil de la organización, RF-10, en tres tareas: el servidor (T-046), la pantalla con el logo en la barra superior (T-047) y el efecto del rubro en las plantillas (T-048). Cuatro pull requests publicados en el día; tres ya incorporados y el último (PR #55) esperando al responsable.
+- **Cambio de equipo:** desde la tarde, el supervisor y los programadores trabajan con el modelo Fable. Las dos tareas hechas con él (T-047 y T-048) se aprobaron sin rondas de corrección.
+- **Pendientes para la próxima sesión:** confirmar el merge del PR #55, marcar RF-10 como terminado en el backlog y empezar RF-11, la marca de la organización en los informes PDF y Word. Antes hay que decidir dónde va el color (títulos o solo una franja de la portada) y si el logo se repite en cada página.
+- **Deudas abiertas que conviene no olvidar:** el servidor recibe los archivos grandes completos antes de rechazarlos; el desborde de la barra superior en celular; el responsable aún no valida PED-01 ni RF-43 con una encuesta real.
 
 ---
 

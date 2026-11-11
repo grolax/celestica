@@ -38,7 +38,7 @@ El avance cuenta solo requerimientos funcionales: hechos / total.
 | 1 | PED-01 | Pantalla para editar el marco teórico | Pedido | E2 | Frontend (T-040) | T-039 | ✅ Fusionado (PR #47); falta tu validación funcional |
 | 2 | RF-43 | Panel de resultados para lectores | P0 | E5 | Ambos (T-041, T-042) | RF-30, RF-31 | 🟡 En curso |
 | 3 | RF-40 | Terminar el asistente de creación (plantilla sugerida al crear) | P0 | E5 | Ambos | RF-41 | ✅ Fusionado (T-044, T-045) |
-| 4 | RF-10 | Perfil de organización | P0 | E2 | Ambos | RF-02 | 🟡 Esperando decisiones |
+| 4 | RF-10 | Perfil de organización | P0 | E2 | Ambos | RF-02 | 🟡 T-046 y T-047 fusionadas; T-048 en PR #55 |
 | 5 | RF-11 | Marca de la organización en PDF y Word | P0 | E2 | Backend | RF-10 | ⬜ |
 | 6 | RF-12 | Plantillas como datos, globales y propias | P0 | E2 | Ambos | RF-02 | ⬜ |
 | 7 | RF-51 | Informe integrado de abiertas y cerradas | P0 | E6 | Ambos | RF-30, RF-31 | ⬜ |
