@@ -653,14 +653,16 @@ FRAMEWORK_TEMPLATES: dict[str, dict] = {
 }
 
 
-def list_templates() -> list[dict]:
-    return [
+def list_templates(rubro: Optional[str] = None) -> list[dict]:
+    out = [
         {"key": key, "nombre": t["nombre"], "descripcion": t["descripcion"],
          "industria": t.get("industria", "General"),
          "n_categorias": len(t["categorias_default"]),
          "marco_teorico": t["marco_teorico"]}
         for key, t in FRAMEWORK_TEMPLATES.items()
     ]
+    out.sort(key=lambda t: t["industria"] != rubro)  # estable: las del rubro primero, el resto en su orden (T-048)
+    return out
 
 
 def get_template(key: str) -> Optional[dict]:

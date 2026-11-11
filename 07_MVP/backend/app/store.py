@@ -446,6 +446,11 @@ def org_out(org_id: str) -> dict:
             "tiene_logo": db.org_logos.count_documents({"_id": org_id}, limit=1) > 0}
 
 
+def get_org_rubro(org_id: str) -> Optional[str]:
+    """Solo el rubro (T-048): lo leen las rutas de plantillas en cada llamada, sin cargar el resto."""
+    return (get_db().organizations.find_one({"_id": org_id}, {"rubro": 1}) or {}).get("rubro")
+
+
 def update_org_profile(org_id: str, fields: dict) -> None:
     get_db().organizations.update_one({"_id": org_id}, {"$set": fields})
 

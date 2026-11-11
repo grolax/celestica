@@ -765,3 +765,24 @@ Sube o reemplaza el logo. `multipart/form-data` con el campo `file`.
 - **Respuesta 200:** el objeto `organizacion`, con `tiene_logo: false`. Si no había logo responde igual y no registra nada.
 - **Auditoría:** `logo_eliminado`, con `{}`.
 - **Errores:** 401 · 403.
+
+## RF-10 · El rubro ordena y desempata las plantillas (T-048)
+
+Decisión del usuario (2026-11-10): el rubro de la organización pone primero sus plantillas en la lista y desempata la sugerencia automática, pero **no inventa una sugerencia** por sí solo. Sin rubro, o con rubro `"Otro"`, todo sigue igual que hoy. Tres rutas existentes cambian de comportamiento; ninguna cambia de forma.
+
+### `GET /api/framework-templates` (modificado)
+- Misma respuesta de siempre (lista de plantillas con `key`, `nombre`, `descripcion`, `industria`, `n_categorias`, `marco_teorico`).
+- **Orden:** primero las plantillas cuya `industria` es igual al `rubro` de la organización de quien llama, en su orden actual; después las demás, en su orden actual. La pantalla agrupa por industria respetando este orden, así que el grupo del rubro queda arriba sin cambios de frontend.
+
+### `POST /api/projects/suggest-template` y `GET /api/projects/{id}/recommendations` (modificados)
+- La regla de `plantilla` no cambia: gana la plantilla con más coincidencias y hacen falta al menos 2; si no, `null`.
+- **Desempate:** si dos o más plantillas empatan en el máximo de coincidencias y una de ellas es del rubro de la organización, gana esa. Si ninguna es del rubro, gana la primera, como hoy.
+- Cuando el rubro decidió el empate, es decir, cuando la ganadora **no** es la primera de las empatadas, `motivo` termina con la frase ` Entre plantillas parecidas, elegimos la de tu rubro.` Si la primera del empate ya es del rubro, el `motivo` queda como hoy. Ejemplo:
+
+```json
+{ "plantilla": { "key": "retail_post_compra_nps", "nombre": "Experiencia de compra (post-compra y NPS)", "industria": "Retail",
+                 "motivo": "La encuesta menciona «compra», «tienda» y «recomiend». Entre plantillas parecidas, elegimos la de tu rubro." } }
+```
+
+- El rubro se lee de la organización de quien llama (`user.org_id`); no se envía en el cuerpo ni en la URL.
+- Errores y roles: sin cambios.

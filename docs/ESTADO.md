@@ -57,13 +57,14 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
 | T-044 Sugerir la plantilla antes de crear el proyecto | backend | RF-40, RF-41, RNF-02, RNF-18 | 2026-11-10 | `tarea/T-044-sugerir-plantilla` (fusionada, PR #51) |
 | T-045 Paso "Elige una plantilla" en el asistente de creación | frontend | RF-40, RF-41, RNF-13, RNF-14 | 2026-11-10 | `tarea/T-045-paso-plantilla` (fusionada, PR #52) |
 | T-046 Perfil de organización (servidor) | backend | RF-10, RF-02, RNF-01 | 2026-11-10 | `tarea/T-046-perfil-organizacion` (fusionada, PR #53) |
-| T-047 Sección "Organización" en Configuración y logo en la barra superior | frontend | RF-10, RNF-13, RNF-14 | 2026-11-10 | `tarea/T-047-pantalla-organizacion` (aprobada, PR #54 abierto) |
+| T-047 Sección "Organización" en Configuración y logo en la barra superior | frontend | RF-10, RNF-13, RNF-14 | 2026-11-10 | `tarea/T-047-pantalla-organizacion` (fusionada, PR #54) |
+| T-048 El rubro ordena las plantillas y desempata la sugerencia | backend | RF-10, RF-41, RF-40 | 2026-11-10 | `tarea/T-048-rubro-plantillas` (aprobada, PR #55 abierto) |
 
 ## En curso
 - **Decisión de proceso (usuario, 2026-11-10):** los programadores se lanzan con el modelo `fable`; el supervisor también trabaja con Fable (cambiado por el usuario con `/model`).
 - **Decisión de proceso (usuario, 2026-11-08):** al iniciar sesión, el supervisor lee solo las últimas 10 entradas de `docs/BITACORA.md` (y su tabla de resumen, si hace falta); esto reemplaza el "léela completa" de `.claude/agents/supervisor.md`. Las decisiones vigentes están en este archivo.
 - **Decisión (usuario, 2026-11-08):** `graphify-out/` no se agrega a `.gitignore`. Queda sin seguimiento, así que nada de `git add .`: siempre agregar por ruta.
-- **Situación al 2026-11-10:** `main` al día (último merge: PR #53). **En curso:** RF-10, perfil de organización: T-046 servidor (fusionada) → T-047 pantalla (aprobada, PR #54 esperando el merge del usuario) → T-048 el rubro ordena y desempata las plantillas (servidor). **Después:** RF-11, siguiendo el orden de `docs/BACKLOG.md`.
+- **Situación al 2026-11-10:** `main` al día (último merge: PR #54). **En curso:** RF-10, perfil de organización: T-046 servidor (fusionada) → T-047 pantalla (fusionada) → T-048 el rubro ordena y desempata las plantillas (aprobada, PR #55 esperando el merge del usuario). Con T-048 fusionada, RF-10 queda completo. **Sesión cerrada el 2026-11-10 a pedido del usuario:** al retomar, verificar el merge del PR #55, `git switch main && git pull`, marcar RF-10 como ✅ en `docs/BACKLOG.md`, y empezar RF-11 (marca en PDF y Word: contrato → tarea de backend). Para RF-11 el logo está en `org_logos` y el color en `organizations.color`; decidir antes con el usuario si el color tiñe títulos o solo una franja de la portada. **Después:** RF-11 (marca en PDF y Word), siguiendo el orden de `docs/BACKLOG.md`.
 - Decisiones RF-10 (usuario, 2026-11-10): rubro de una lista cerrada (las industrias de las plantillas más "Otro"); el color no cambia la paleta, es solo un acento junto al logo y en los informes; logo PNG o JPG hasta 500 KB en la base, sin SVG; el rubro pone primero sus plantillas en la lista y desempata la sugerencia, pero no inventa una sugerencia sola. **Después:** RF-11, siguiendo el orden de `docs/BACKLOG.md`.
 - Decisiones RF-40 (usuario, 2026-11-10): paso propio "Elige una plantilla" (4 pasos; las encuestas sin abiertas se lo saltan); la plantilla sugerida no viene marcada, la persona aprieta "Usar esta plantilla".
 - Decisiones RF-43 (usuario, 2026-11-03): pestaña "Resultados", la primera, donde entra el lector por defecto (el analista sigue entrando al Dashboard); NPS y hasta 6 escalas o sí/no, en el orden de la encuesta, con enlace al resto; sin separar por defecto, con "Ver por…" limitado a los grupos sugeridos (máximo 3) y etiqueta "Pocos datos"; las respuestas con RUT, correo o teléfono no se eligen como cita, pero siguen contando. Los nombres de personas pueden aparecer hasta RNF-05.
@@ -98,7 +99,8 @@ Archivo mantenido por el agente `supervisor`. Una línea por entrada.
   - Cambio de tipo después de crear el proyecto: **solo entre tipos cerrados**.
 
 ## Bloqueado / requiere decisión del usuario
-- T-047: el PR #54 espera el merge del usuario en GitHub.
+- T-048: el PR #55 espera el merge del usuario en GitHub.
+- RF-11 (próxima): ¿el color de la organización tiñe los títulos del informe o solo una franja de la portada? ¿El logo va en la portada y en el encabezado de cada página, o solo en la portada? Se pregunta al retomar.
 - PED-01 (T-040): fusionada; falta que el usuario valide en la plataforma los criterios de `docs/BACKLOG.md`.
 - RF-43: para validarlo con datos reales hay que codificar una encuesta, lo que gasta IA; la base local no tiene ninguna codificación. Sin eso, se revisa con datos de ejemplo en una base desechable.
 - (Nombre interno `SoftInsight` en API, base de datos y logs se mantiene por ahora, decisión del usuario 2026-10-30. Correo `soporte@softinsight.cl`: se mantiene por ahora, decisión del usuario 2026-10-30.)

@@ -84,27 +84,32 @@ def _cruces(preguntas: list[dict], segmentos: list[dict]) -> list[dict]:
             for i, j in pares[:MAX_CRUCES]]
 
 
-def plantilla_sugerida(project: dict) -> dict | None:
+def plantilla_sugerida(project: dict, rubro: str | None = None) -> dict | None:
+    """Gana la plantilla con más coincidencias (mínimo 2). El rubro de la organización (T-048) solo desempata
+    entre las que alcanzan el máximo; si cambió la elegida, el motivo lo dice."""
     preguntas = project.get("preguntas", [])
     marco = (project.get("marco_teorico") or "").strip()
     if not any(q["tipo"] == "abierta" for q in preguntas) or any(marco == t["marco_teorico"].strip() for t in FRAMEWORK_TEMPLATES.values()):
         return None
     texto = _sin_tildes(" ".join([project.get("name") or "", marco, *(q["titulo"] for q in preguntas)]))
-    mejor, hallado = None, []
-    for key, t in FRAMEWORK_TEMPLATES.items():  # estricto >: en un empate gana la primera
-        h = [k for k in t["palabras_clave"] if re.search(r"\b" + re.escape(k), texto)]  # raíz al inicio de palabra
-        if len(h) > len(hallado):
-            mejor, hallado = key, h
-    if len(hallado) < 2:
+    hallados = {key: [k for k in t["palabras_clave"] if re.search(r"\b" + re.escape(k), texto)]  # raíz al inicio de palabra
+                for key, t in FRAMEWORK_TEMPLATES.items()}
+    maximo = max(map(len, hallados.values()))
+    if maximo < 2:
         return None
-    citadas = [f"«{k}»" for k in hallado[:3]]
+    empatadas = [key for key, h in hallados.items() if len(h) == maximo]
+    del_rubro = [key for key in empatadas if FRAMEWORK_TEMPLATES[key]["industria"] == rubro]
+    mejor = (del_rubro or empatadas)[0]
+    citadas = [f"«{k}»" for k in hallados[mejor][:3]]
+    motivo = f"La encuesta menciona {', '.join(citadas[:-1])} y {citadas[-1]}."
+    if mejor != empatadas[0]:
+        motivo += " Entre plantillas parecidas, elegimos la de tu rubro."
     t = FRAMEWORK_TEMPLATES[mejor]
-    return {"key": mejor, "nombre": t["nombre"], "industria": t["industria"],
-            "motivo": f"La encuesta menciona {', '.join(citadas[:-1])} y {citadas[-1]}."}
+    return {"key": mejor, "nombre": t["nombre"], "industria": t["industria"], "motivo": motivo}
 
 
-def recomendar(project: dict) -> dict:
+def recomendar(project: dict, rubro: str | None = None) -> dict:
     preguntas, respondentes = project.get("preguntas", []), project.get("respondentes", [])
     candidatos = _candidatos(preguntas, respondentes)
     return {"alertas": _alertas(preguntas, respondentes), "segmentos": candidatos[:MAX_SEGMENTOS],
-            "cruces": _cruces(preguntas, candidatos), "plantilla": plantilla_sugerida(project)}
+            "cruces": _cruces(preguntas, candidatos), "plantilla": plantilla_sugerida(project, rubro)}
