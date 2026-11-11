@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { getToken, setToken, setUnauthorizedHandler } from "@/shared/api/client";
-import { authApi, User } from "./api";
+import { authApi, Organizacion, User } from "./api";
+import { orgApi } from "@/features/org/api";
 
 interface AuthContextValue {
   user: User | null;
@@ -10,6 +11,10 @@ interface AuthContextValue {
   signup: (email: string, password: string, nombre: string, empresa: string) => Promise<void>;
   logout: () => void;
   changePassword: (actual: string, nueva: string) => Promise<void>;
+  /** Data URL del logo de la organización (se pide una vez por sesión), o null si no tiene. */
+  logo: string | null;
+  /** Reemplaza `user.organizacion` con lo que devolvió el servidor; `logoCambio` vuelve a pedir el logo. */
+  setOrganizacion: (org: Organizacion, logoCambio?: boolean) => void;
   /** Mensaje del 401 que cerró la sesión (p. ej. cuenta desactivada); LoginPage lo muestra una vez. */
   sessionNotice: string;
   clearSessionNotice: () => void;
@@ -21,6 +26,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionNotice, setSessionNotice] = useState("");
+  const [logo, setLogo] = useState<string | null>(null);
+  const [logoVersion, setLogoVersion] = useState(0);
+
+  const orgId = user?.organizacion?.id;
+  const tieneLogo = user?.organizacion?.tiene_logo ?? false;
+  useEffect(() => {
+    if (!tieneLogo) { setLogo(null); return; }
+    orgApi.getLogo().then((r) => setLogo(r.logo)).catch(() => setLogo(null));
+  }, [orgId, tieneLogo, logoVersion]);
+
+  function setOrganizacion(org: Organizacion, logoCambio = false) {
+    setUser((u) => u && { ...u, organizacion: org });
+    if (logoCambio) setLogoVersion((v) => v + 1);
+  }
 
   useEffect(() => {
     setUnauthorizedHandler((detail) => {
@@ -63,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, loading, isAuthenticated: !!user, login, signup, logout, changePassword,
-      sessionNotice, clearSessionNotice: () => setSessionNotice(""),
+      logo, setOrganizacion, sessionNotice, clearSessionNotice: () => setSessionNotice(""),
     }}>
       {children}
     </AuthContext.Provider>

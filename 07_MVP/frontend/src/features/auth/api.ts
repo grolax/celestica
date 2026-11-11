@@ -15,13 +15,22 @@ export function puede(user: User | null | undefined, minimo: Rol): boolean {
   return (ORDEN[user?.rol as Rol] ?? 0) >= ORDEN[minimo];
 }
 
+export interface Organizacion {
+  id: string;
+  nombre: string;
+  rubro: string | null;
+  /** `#rrggbb` en minúsculas o null. Es solo un acento junto al logo; no cambia la paleta. */
+  color: string | null;
+  tiene_logo: boolean;
+}
+
 export interface User {
   id: string;
   email: string;
   nombre: string;
   empresa: string;
   rol: Rol;
-  organizacion: { id: string; nombre: string };
+  organizacion: Organizacion;
   debe_cambiar_password: boolean;
 }
 
