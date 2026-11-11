@@ -72,7 +72,8 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-044 | Sugerir la plantilla antes de crear el proyecto (servidor) | ✅ Incorporada a la versión oficial (PR #51) |
 | T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
 | T-046 | Perfil de la organización (servidor) | ✅ Incorporada a la versión oficial (PR #53) |
-| T-047 | Perfil de la organización (pantalla) y logo en la barra superior | 🟡 Publicada para revisión (PR #54); espera la aprobación del responsable |
+| T-047 | Perfil de la organización (pantalla) y logo en la barra superior | ✅ Incorporada a la versión oficial (PR #54) |
+| T-048 | El rubro ordena las plantillas y desempata la sugerencia (servidor) | 🔵 En curso |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -959,7 +960,14 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Cuidados:** un archivo de más de 500 KB se frena antes de enviarlo; los demás errores muestran el mensaje del servidor; quitar el logo pide confirmación; en celular el logo de la barra se oculta para no empeorar un desborde ya anotado.
 - **Cómo se verificó:** las pantallas se construyen sin errores. El supervisor recorrió Configuración en un navegador automático, con una base desechable ya borrada y sin IA: 35 de 35 comprobaciones correctas, incluida la de que una organización no ve los datos ni el logo de otra.
 - **Primera tarea con el modelo Fable:** sin diferencias de calidad respecto de las anteriores; cumplió la orden completa sin rondas de corrección.
-- **Estado:** aprobada por el supervisor y publicada para revisión (PR #54). Espera que el responsable la incorpore a la versión oficial.
+- **Estado:** incorporada a la versión oficial por el responsable (PR #54).
+
+### 80. T-048 · Plan: el rubro ordena las plantillas y desempata la sugerencia
+
+- **Qué se busca:** que el rubro elegido en el perfil sirva desde ya: la lista de plantillas muestra primero las del rubro, y si dos plantillas empatan en la sugerencia automática, gana la del rubro.
+- **Límite acordado con el responsable:** el rubro nunca inventa una sugerencia. Si la encuesta no menciona nada relacionado, no hay sugerencia, con o sin rubro.
+- **Transparencia:** cuando el rubro decide un empate, el motivo lo dice: "Entre plantillas parecidas, elegimos la de tu rubro."
+- **Lado:** solo servidor; la pantalla ya respeta el orden que le llega.
 
 ---
 
