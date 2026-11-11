@@ -32,3 +32,14 @@ Con el rubro ya guardado en la organización (T-046), la lista de plantillas mue
 - [ ] El rubro se lee de la organización de quien llama: un usuario de la organización B, sin rubro, no recibe el orden ni el desempate de A. Prueba de aislamiento.
 - [ ] `python -m pytest tests -q` en verde, sin IA real. Las pruebas existentes de T-044 y de recomendaciones siguen pasando sin cambiar sus expectativas.
 - [ ] `COMO_FUNCIONA.md` menciona el orden por rubro y el desempate.
+
+## Revisión
+2026-11-10 · **Aprobada.**
+- Commits `05609cc` y `2c88129`: 4 archivos de backend, una prueba nueva y `COMO_FUNCIONA.md`. No toca frontend, `auth.py` ni `org.py`; los textos y `palabras_clave` de las plantillas quedan intactos.
+- `python -m pytest tests -q`: 458 pasan (7 nuevas), sin IA real. La corrida tardó 6,5 min por carga del equipo, no por las pruebas nuevas.
+- Contrato: las tres rutas leen el rubro de `user.org_id`; nada en cuerpo ni URL; roles y errores iguales. El orden de la lista es estable y la frase del `motivo` es exacta.
+- Aislamiento: `get_org_rubro` filtra por `org_id`; hay prueba con tres organizaciones (Retail, sin rubro, "Otro") que muestra que el rubro de una no se filtra a las otras.
+- Sin IA, sin escritura, sin cambio de esquema: no hace falta migración.
+- Decisión del programador aceptada y llevada al contrato: la frase se agrega solo cuando el rubro **cambió** la elegida. Si la primera del empate ya es del rubro, el motivo queda como hoy, porque el rubro no decidió nada.
+- Las pruebas usan un empate real ("Cliente", "Tu compra", "¿Nos recomiendas?") en vez de simular plantillas: más frágil si cambian las palabras clave, pero más legible. Aceptado.
+- No probado: la pantalla "Elige una plantilla" con un rubro configurado (solo cambia el orden de los grupos, que la pantalla ya respeta).

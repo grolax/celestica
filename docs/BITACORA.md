@@ -73,7 +73,7 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 | T-045 | Paso "Elige una plantilla" al crear un proyecto | ✅ Incorporada a la versión oficial (PR #52) |
 | T-046 | Perfil de la organización (servidor) | ✅ Incorporada a la versión oficial (PR #53) |
 | T-047 | Perfil de la organización (pantalla) y logo en la barra superior | ✅ Incorporada a la versión oficial (PR #54) |
-| T-048 | El rubro ordena las plantillas y desempata la sugerencia (servidor) | 🔵 En curso |
+| T-048 | El rubro ordena las plantillas y desempata la sugerencia (servidor) | 🟡 Aprobada por el supervisor; espera autorización para publicarse |
 | T-009 | Arreglo: una contraseña mal escrita en el panel interno ya no cierra la sesión | ✅ Incorporada a la versión oficial |
 
 ---
@@ -968,6 +968,13 @@ Cada cambio sigue el mismo camino: **instrucción escrita → programación → 
 - **Límite acordado con el responsable:** el rubro nunca inventa una sugerencia. Si la encuesta no menciona nada relacionado, no hay sugerencia, con o sin rubro.
 - **Transparencia:** cuando el rubro decide un empate, el motivo lo dice: "Entre plantillas parecidas, elegimos la de tu rubro."
 - **Lado:** solo servidor; la pantalla ya respeta el orden que le llega.
+
+### 81. T-048 · Resultado: el rubro ya ordena y desempata
+
+- **Qué quedó:** si la organización tiene rubro, sus plantillas aparecen primero en la lista al crear un proyecto. Y si dos plantillas empatan en la sugerencia automática, gana la del rubro, con el motivo explicado: "Entre plantillas parecidas, elegimos la de tu rubro." Sin rubro, o con "Otro", todo sigue igual.
+- **Precisión que se fijó en la revisión:** la frase aparece solo cuando el rubro cambió la elección. Si la plantilla que ya iba ganando era la del rubro, el motivo no cambia.
+- **Cómo se verificó:** 458 pruebas automáticas pasan, 7 nuevas, con tres organizaciones distintas para comprobar que el rubro de una no afecta a las otras. Se usó un empate real entre una plantilla de Estudios de Mercado y una de Retail.
+- **Estado:** aprobada por el supervisor. Espera que el responsable autorice publicarla. Cuando se incorpore, RF-10 queda completo.
 
 ---
 

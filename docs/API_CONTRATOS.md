@@ -777,7 +777,7 @@ Decisión del usuario (2026-11-10): el rubro de la organización pone primero su
 ### `POST /api/projects/suggest-template` y `GET /api/projects/{id}/recommendations` (modificados)
 - La regla de `plantilla` no cambia: gana la plantilla con más coincidencias y hacen falta al menos 2; si no, `null`.
 - **Desempate:** si dos o más plantillas empatan en el máximo de coincidencias y una de ellas es del rubro de la organización, gana esa. Si ninguna es del rubro, gana la primera, como hoy.
-- Cuando el rubro decidió el empate, `motivo` termina con la frase ` Entre plantillas parecidas, elegimos la de tu rubro.` Ejemplo:
+- Cuando el rubro decidió el empate, es decir, cuando la ganadora **no** es la primera de las empatadas, `motivo` termina con la frase ` Entre plantillas parecidas, elegimos la de tu rubro.` Si la primera del empate ya es del rubro, el `motivo` queda como hoy. Ejemplo:
 
 ```json
 { "plantilla": { "key": "retail_post_compra_nps", "nombre": "Experiencia de compra (post-compra y NPS)", "industria": "Retail",
